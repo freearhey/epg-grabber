@@ -4,7 +4,6 @@ const { Command } = require('commander')
 const program = new Command()
 const utils = require('./utils')
 const { name, version, description } = require('../package.json')
-const path = require('path')
 
 program
   .name(name)
@@ -51,9 +50,9 @@ async function main() {
           })
 
         console.log(
-          `  ${item.channel.site} - ${item.channel.xmltv_id} - ${item.date.format(
-            'MMM D, YYYY'
-          )} (${programs.length} programs)`
+          `  ${config.site} - ${item.channel.xmltv_id} - ${item.date.format('MMM D, YYYY')} (${
+            programs.length
+          } programs)`
         )
 
         return programs
@@ -61,7 +60,7 @@ async function main() {
       .then(utils.sleep(config.delay))
       .catch(err => {
         console.log(
-          `  ${item.channel.site} - ${item.channel.xmltv_id} - ${item.date.format(
+          `  ${config.site} - ${item.channel.xmltv_id} - ${item.date.format(
             'MMM D, YYYY'
           )} (0 programs)`
         )

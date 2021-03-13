@@ -18,6 +18,15 @@ utils.loadConfig = function (file) {
   const configPath = path.resolve(file)
   const config = require(configPath)
 
+  if (!config.site) throw new Error("The required 'site' property is missing")
+  if (!config.channels) throw new Error("The required 'channels' property is missing")
+  if (!config.url) throw new Error("The required 'url' property is missing")
+  if (typeof config.url !== 'function')
+    throw new Error("The 'url' property should return the function")
+  if (!config.parser) throw new Error("The required 'parser' function is missing")
+  if (typeof config.parser !== 'function')
+    throw new Error("The 'parser' property should return the function")
+
   return Object.assign(
     {},
     {
@@ -26,7 +35,8 @@ utils.loadConfig = function (file) {
       days: 1,
       cookie: '',
       lang: 'en',
-      delay: 3000
+      delay: 3000,
+      output: 'guide.xml'
     },
     config
   )
