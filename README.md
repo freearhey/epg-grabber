@@ -1,6 +1,6 @@
 # EPG Grabber
 
-Node.js CLI tool for grabbing EPG from different sites.
+Node.js CLI tool for grabbing EPG from different websites.
 
 ## Installation
 
