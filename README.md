@@ -19,7 +19,7 @@ Arguments:
 - `-c, --config`: path to config file
 - `-d, --debug`: enable debug mode
 
-**example.com.config.js**
+##### example.com.config.js
 
 ```js
 module.exports = {
@@ -61,7 +61,7 @@ module.exports = {
 }
 ```
 
-**example.com.channels.xml**
+##### example.com.channels.xml
 
 ```xml
 <?xml version="1.0"?>
