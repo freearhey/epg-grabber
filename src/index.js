@@ -4,6 +4,7 @@ const { Command } = require('commander')
 const program = new Command()
 const utils = require('./utils')
 const { name, version, description } = require('../package.json')
+const path = require('path')
 
 program
   .name(name)
@@ -20,7 +21,7 @@ async function main() {
   const config = utils.loadConfig(options.config)
   if (options.debug) console.log(config)
   const client = utils.createHttpClient(config)
-  const channels = utils.parseChannels(config.channels)
+  const channels = utils.parseChannels(options.config, config.channels)
   const utcDate = utils.getUTCDate()
   const dates = Array.from({ length: config.days }, (_, i) => utcDate.add(i, 'd'))
 
@@ -71,8 +72,6 @@ async function main() {
   }
 
   const xml = utils.convertToXMLTV({ config, channels, programs })
-  const outputDir = utils.getDirectory(config.output)
-  utils.createDir(outputDir)
   utils.writeToFile(config.output, xml)
 
   console.log(`File '${config.output}' successfully saved`)

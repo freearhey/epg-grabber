@@ -10,13 +10,13 @@ dayjs.extend(utc)
 axiosCookieJarSupport(axios)
 
 const utils = {}
+
 utils.loadConfig = function (file) {
   if (!file) throw new Error('Path to [site].config.js is missing')
   console.log(`Loading '${file}'...`)
 
-  const configPath = path.resolve(process.cwd(), file)
+  const configPath = path.resolve(file)
   const config = require(configPath)
-  const channelsPath = path.resolve(this.getDirectory(configPath), `${config.site}.channels.xml`)
 
   return Object.assign(
     {},
@@ -26,20 +26,18 @@ utils.loadConfig = function (file) {
       days: 1,
       cookie: '',
       lang: 'en',
-      channels: channelsPath,
       delay: 3000
     },
     config
   )
 }
 
-utils.parseChannels = function (file) {
-  if (!file) throw new Error('Path to [site].channels.xml is missing')
-  console.log(`Loading '${file}'...`)
+utils.parseChannels = function (configPath, channelsFilename) {
+  if (!channelsFilename) throw new Error('Path to [site].channels.xml is missing')
+  console.log(`Loading '${path.join(path.dirname(configPath), channelsFilename)}'...`)
 
-  const xml = fs.readFileSync(path.resolve(__dirname, file), {
-    encoding: 'utf-8'
-  })
+  const channelsPath = path.resolve(path.dirname(configPath), channelsFilename)
+  const xml = fs.readFileSync(channelsPath, { encoding: 'utf-8' })
   const result = convert.xml2js(xml)
   const site = result.elements.find(el => el.name === 'site')
   const channels = site.elements.find(el => el.name === 'channels')
@@ -122,17 +120,12 @@ utils.convertToXMLTV = function ({ config, channels, programs }) {
   return output
 }
 
-utils.getDirectory = function (file) {
-  return path.dirname(file)
-}
-
-utils.createDir = function (dir) {
-  if (!fs.existsSync(path.resolve(dir))) {
-    fs.mkdirSync(path.resolve(dir))
-  }
-}
-
 utils.writeToFile = function (filename, data) {
+  const dir = path.resolve(path.dirname(filename))
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true })
+  }
+
   fs.writeFileSync(path.resolve(filename), data)
 }
 
