@@ -1,0 +1,34 @@
+{
+  "name": "epg-grabber",
+  "version": "0.1.0",
+  "description": "Node.js CLI tool for grabbing EPG from different sites",
+  "main": "src/index.js",
+  "preferGlobal": true,
+  "bin": {
+    "epg-grabber": "src/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "keywords": [
+    "epg",
+    "grabber"
+  ],
+  "author": "Arhey",
+  "license": "MIT",
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "axios-cookiejar-support": "^1.0.1",
+    "commander": "^7.1.0",
+    "dayjs": "^1.10.4",
+    "glob": "^7.1.6",
+    "tough-cookie": "^4.0.0",
+    "xml-js": "^1.6.11"
+  }
+}
