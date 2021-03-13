@@ -8,6 +8,7 @@
     "epg-grabber": "src/index.js"
   },
   "scripts": {
+    "lint": "npx eslint ./src/**/*.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "publishConfig": {
@@ -30,5 +31,8 @@
     "glob": "^7.1.6",
     "tough-cookie": "^4.0.0",
     "xml-js": "^1.6.11"
+  },
+  "devDependencies": {
+    "eslint": "^7.22.0"
   }
 }
