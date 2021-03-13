@@ -4,7 +4,6 @@ const axios = require('axios')
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
 const tough = require('tough-cookie')
 const convert = require('xml-js')
-const glob = require('glob')
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 dayjs.extend(utc)
@@ -128,13 +127,13 @@ utils.getDirectory = function (file) {
 }
 
 utils.createDir = function (dir) {
-  if (!fs.existsSync(path.resolve(__dirname, dir))) {
-    fs.mkdirSync(path.resolve(__dirname, dir))
+  if (!fs.existsSync(path.resolve(dir))) {
+    fs.mkdirSync(path.resolve(dir))
   }
 }
 
 utils.writeToFile = function (filename, data) {
-  fs.writeFileSync(path.resolve(__dirname, filename), data)
+  fs.writeFileSync(path.resolve(filename), data)
 }
 
 utils.createHttpClient = function (config) {
