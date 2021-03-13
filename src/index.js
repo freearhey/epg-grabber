@@ -3,11 +3,12 @@
 const { Command } = require('commander')
 const program = new Command()
 const utils = require('./utils')
+const { name, version, description } = require('../package.json')
 
 program
-  .version('0.1.0', '-v, --version')
-  .name('epg-grabber')
-  .description('EPG grabber')
+  .name(name)
+  .version(version, '-v, --version')
+  .description(description)
   .option('-c, --config <config>', 'Path to [site].config.js file')
   .option('-d, --debug', 'Enable debug mode')
   .parse(process.argv)
@@ -37,7 +38,9 @@ async function main() {
     const progs = await client
       .get(url)
       .then(response => {
-        const parserOptions = Object.assign({}, item, config, { content: response.data })
+        const parserOptions = Object.assign({}, item, config, {
+          content: response.data
+        })
         const programs = config
           .parser(parserOptions)
           .filter(i => i)
