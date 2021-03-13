@@ -1,4 +1,4 @@
-# EPG Grabber
+# EPG Grabber [![Build Status](https://travis-ci.com/freearhey/epg-grabber.svg?branch=master)](https://travis-ci.com/freearhey/epg-grabber)
 
 Node.js CLI tool for grabbing EPG from different websites.
 
