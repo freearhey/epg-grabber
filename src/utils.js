@@ -17,6 +17,7 @@ utils.loadConfig = function (file) {
 
   const configPath = path.resolve(file)
   const config = require(configPath)
+  config.path = configPath
 
   if (!config.site) throw new Error("The required 'site' property is missing")
   if (!config.channels) throw new Error("The required 'channels' property is missing")
@@ -26,6 +27,8 @@ utils.loadConfig = function (file) {
   if (!config.parser) throw new Error("The required 'parser' function is missing")
   if (typeof config.parser !== 'function')
     throw new Error("The 'parser' property should return the function")
+  if (config.logo && typeof config.logo !== 'function')
+    throw new Error("The 'logo' property should return the function")
 
   return Object.assign(
     {},
@@ -42,11 +45,11 @@ utils.loadConfig = function (file) {
   )
 }
 
-utils.parseChannels = function (configPath, channelsFilename) {
+utils.parseChannels = function (config, channelsFilename) {
   if (!channelsFilename) throw new Error('Path to [site].channels.xml is missing')
-  console.log(`Loading '${path.join(path.dirname(configPath), channelsFilename)}'...`)
+  console.log(`Loading '${path.join(path.dirname(config.path), channelsFilename)}'...`)
 
-  const channelsPath = path.resolve(path.dirname(configPath), channelsFilename)
+  const channelsPath = path.resolve(path.dirname(config.path), channelsFilename)
   const xml = fs.readFileSync(channelsPath, { encoding: 'utf-8' })
   const result = convert.xml2js(xml)
   const site = result.elements.find(el => el.name === 'site')
@@ -58,6 +61,7 @@ utils.parseChannels = function (configPath, channelsFilename) {
       const channel = el.attributes
       channel.name = el.elements.find(el => el.type === 'text').text
       channel.site = channel.site || site.attributes.site
+      channel.logo = config.logo ? config.logo(channel) : null
 
       return channel
     })
@@ -90,7 +94,11 @@ utils.convertToXMLTV = function ({ config, channels, programs }) {
   for (let channel of channels) {
     const id = this.escapeString(channel['xmltv_id'])
     const displayName = this.escapeString(channel.name)
-    output += `<channel id="${id}"><display-name>${displayName}</display-name></channel>\r\n`
+    output += `<channel id="${id}"><display-name>${displayName}</display-name>`
+    if (channel.logo) {
+      output += `<icon src="${channel.logo}" />`
+    }
+    output += `</channel>\r\n`
   }
 
   for (let program of programs) {

@@ -20,7 +20,7 @@ async function main() {
   const config = utils.loadConfig(options.config)
   if (options.debug) console.log(config)
   const client = utils.createHttpClient(config)
-  const channels = utils.parseChannels(options.config, config.channels)
+  const channels = utils.parseChannels(config, config.channels)
   const utcDate = utils.getUTCDate()
   const dates = Array.from({ length: config.days }, (_, i) => utcDate.add(i, 'd'))
 
