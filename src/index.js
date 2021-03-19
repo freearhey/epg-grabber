@@ -26,7 +26,7 @@ async function main() {
 
   const queue = []
   channels.forEach(channel => {
-    channel.logo = config.logo ? config.logo(channel) : null
+    channel.logo = config.logo ? config.logo({ channel }) : null
     dates.forEach(date => {
       queue.push({ date, channel })
     })
