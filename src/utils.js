@@ -17,7 +17,6 @@ utils.loadConfig = function (file) {
 
   const configPath = path.resolve(file)
   const config = require(configPath)
-  config.path = configPath
 
   if (!config.site) throw new Error("The required 'site' property is missing")
   if (!config.channels) throw new Error("The required 'channels' property is missing")
@@ -29,6 +28,8 @@ utils.loadConfig = function (file) {
     throw new Error("The 'parser' property should return the function")
   if (config.logo && typeof config.logo !== 'function')
     throw new Error("The 'logo' property should return the function")
+
+  config.channels = path.join(path.dirname(file), config.channels)
 
   return Object.assign(
     {},
@@ -45,12 +46,11 @@ utils.loadConfig = function (file) {
   )
 }
 
-utils.parseChannels = function (config, channelsFilename) {
-  if (!channelsFilename) throw new Error('Path to [site].channels.xml is missing')
-  console.log(`Loading '${path.join(path.dirname(config.path), channelsFilename)}'...`)
+utils.parseChannels = function (filename) {
+  if (!filename) throw new Error('Path to [site].channels.xml is missing')
+  console.log(`Loading '${filename}'...`)
 
-  const channelsPath = path.resolve(path.dirname(config.path), channelsFilename)
-  const xml = fs.readFileSync(channelsPath, { encoding: 'utf-8' })
+  const xml = fs.readFileSync(path.resolve(filename), { encoding: 'utf-8' })
   const result = convert.xml2js(xml)
   const site = result.elements.find(el => el.name === 'site')
   const channels = site.elements.find(el => el.name === 'channels')
@@ -61,7 +61,6 @@ utils.parseChannels = function (config, channelsFilename) {
       const channel = el.attributes
       channel.name = el.elements.find(el => el.type === 'text').text
       channel.site = channel.site || site.attributes.site
-      channel.logo = config.logo ? config.logo(channel) : null
 
       return channel
     })
