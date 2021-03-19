@@ -6,6 +6,7 @@ it('can load valid config.js', () => {
       'site',
       'channels',
       'url',
+      'logo',
       'parser',
       'cookie',
       'days',
@@ -41,7 +42,8 @@ it('can convert object to xmltv string', () => {
       name: '1 TV',
       xmltv_id: '1TV.com',
       site_id: '1',
-      site: 'example.com'
+      site: 'example.com',
+      logo: 'http://example.com/logos/1TV.png'
     },
     {
       name: '2 TV',
@@ -62,6 +64,6 @@ it('can convert object to xmltv string', () => {
   ]
   const output = utils.convertToXMLTV({ config, channels, programs })
   expect(output).toBe(
-    '<?xml version="1.0" encoding="UTF-8" ?><tv>\r\n<channel id="1TV.com"><display-name>1 TV</display-name></channel>\r\n<channel id="2TV.com"><display-name>2 TV</display-name></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.com"><title lang="en">Program 1</title><desc lang="en">Description for Program 1</desc><category lang="en">Test</category></programme>\r\n</tv>'
+    '<?xml version="1.0" encoding="UTF-8" ?><tv>\r\n<channel id="1TV.com"><display-name>1 TV</display-name><icon src="http://example.com/logos/1TV.png" /></channel>\r\n<channel id="2TV.com"><display-name>2 TV</display-name></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.com"><title lang="en">Program 1</title><desc lang="en">Description for Program 1</desc><category lang="en">Test</category></programme>\r\n</tv>'
   )
 })
