@@ -137,6 +137,28 @@ utils.convertToXMLTV = function ({ config, channels, programs }) {
   return output
 }
 
+utils.parsePrograms = function ({ response, item, config }) {
+  const options = Object.assign({}, item, config, {
+    content: response.data
+  })
+
+  const programs = config
+    .parser(options)
+    .filter(i => i)
+    .map(p => {
+      p.channel = item.channel.xmltv_id
+      return p
+    })
+
+  console.log(
+    `  ${config.site} - ${item.channel.xmltv_id} - ${item.date.format('MMM D, YYYY')} (${
+      programs.length
+    } programs)`
+  )
+
+  return programs
+}
+
 utils.writeToFile = function (filename, data) {
   const dir = path.resolve(path.dirname(filename))
   if (!fs.existsSync(dir)) {

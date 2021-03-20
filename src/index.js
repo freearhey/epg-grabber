@@ -26,7 +26,6 @@ async function main() {
 
   const queue = []
   channels.forEach(channel => {
-    channel.logo = config.logo ? config.logo({ channel }) : null
     dates.forEach(date => {
       queue.push({ date, channel })
     })
@@ -39,24 +38,11 @@ async function main() {
     const progs = await client
       .get(url)
       .then(response => {
-        const parserOptions = Object.assign({}, item, config, {
-          content: response.data
-        })
-        const programs = config
-          .parser(parserOptions)
-          .filter(i => i)
-          .map(p => {
-            p.channel = item.channel.xmltv_id
-            return p
-          })
+        item.channel.logo = config.logo
+          ? config.logo({ channel: item.channel, content: response.data })
+          : null
 
-        console.log(
-          `  ${config.site} - ${item.channel.xmltv_id} - ${item.date.format('MMM D, YYYY')} (${
-            programs.length
-          } programs)`
-        )
-
-        return programs
+        return utils.parsePrograms({ response, item, config })
       })
       .then(utils.sleep(config.delay))
       .catch(err => {
