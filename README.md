@@ -39,6 +39,16 @@ module.exports = {
   },
 
   /**
+   * @param {object} channel Data about the requested channel
+   * @param {string} content The response received after the request at the above url
+   *
+   * @return {string} The function should return URL of the channel logo (optional)
+   */
+  logo: function ({ channel, content }) {
+    return `https://example.com/logos/${channel.site_id}.png`
+  },
+
+  /**
    * @param {string} content The response received after the request at the above url
    *
    * @return {array} The function should return an array of programs with their descriptions
