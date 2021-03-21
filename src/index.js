@@ -18,7 +18,6 @@ async function main() {
 
   const options = program.opts()
   const config = utils.loadConfig(options.config)
-  if (options.debug) console.log(config)
   const client = utils.createHttpClient(config)
   const channels = utils.parseChannels(config.channels)
   const utcDate = utils.getUTCDate()
@@ -35,6 +34,7 @@ async function main() {
   console.log('Parsing:')
   for (let item of queue) {
     const url = config.url(item)
+    if (options.debug) console.time('    time')
     const progs = await client
       .get(url)
       .then(response => {
@@ -42,7 +42,15 @@ async function main() {
           ? config.logo({ channel: item.channel, content: response.data })
           : null
 
-        return utils.parsePrograms({ response, item, config })
+        const programs = utils.parsePrograms({ response, item, config })
+        console.log(
+          `  ${config.site} - ${item.channel.xmltv_id} - ${item.date.format('MMM D, YYYY')} (${
+            programs.length
+          } programs)`
+        )
+        if (options.debug) console.timeEnd('    time')
+
+        return programs
       })
       .then(utils.sleep(config.delay))
       .catch(err => {
