@@ -11,6 +11,7 @@ it('can load valid config.js', () => {
       'cookie',
       'days',
       'delay',
+      'timeout',
       'lang',
       'output',
       'userAgent'
