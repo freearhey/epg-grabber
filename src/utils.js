@@ -40,6 +40,7 @@ utils.loadConfig = function (file) {
       cookie: '',
       lang: 'en',
       delay: 3000,
+      timeout: 5000,
       output: 'guide.xml'
     },
     config
@@ -155,21 +156,13 @@ utils.parsePrograms = function ({ response, item, config }) {
     content: response.data
   })
 
-  const programs = config
+  return config
     .parser(options)
     .filter(i => i)
     .map(p => {
       p.channel = item.channel.xmltv_id
       return p
     })
-
-  console.log(
-    `  ${config.site} - ${item.channel.xmltv_id} - ${item.date.format('MMM D, YYYY')} (${
-      programs.length
-    } programs)`
-  )
-
-  return programs
 }
 
 utils.writeToFile = function (filename, data) {
@@ -187,6 +180,7 @@ utils.createHttpClient = function (config) {
       'User-Agent': config.userAgent,
       Cookie: config.cookie
     },
+    timeout: config.timeout,
     withCredentials: true,
     jar: new tough.CookieJar()
   })
