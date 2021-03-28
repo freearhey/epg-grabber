@@ -109,7 +109,8 @@ utils.convertToXMLTV = function ({ config, channels, programs }) {
     const displayName = this.escapeString(channel.name)
     output += `<channel id="${id}"><display-name>${displayName}</display-name>`
     if (channel.logo) {
-      output += `<icon src="${channel.logo}" />`
+      const logo = this.escapeString(channel.logo)
+      output += `<icon src="${logo}" />`
     }
     output += `</channel>\r\n`
   }
