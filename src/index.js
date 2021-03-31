@@ -39,7 +39,11 @@ async function main() {
       .get(url)
       .then(response => {
         item.channel.logo = config.logo
-          ? config.logo({ channel: item.channel, content: response.data })
+          ? config.logo({
+              channel: item.channel,
+              content: response.data.toString(),
+              buffer: response.data
+            })
           : null
 
         const programs = utils.parsePrograms({ response, item, config })

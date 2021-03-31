@@ -155,7 +155,8 @@ utils.convertToXMLTV = function ({ config, channels, programs }) {
 
 utils.parsePrograms = function ({ response, item, config }) {
   const options = Object.assign({}, item, config, {
-    content: response.data
+    content: response.data.toString(),
+    buffer: response.data
   })
 
   return config
@@ -184,7 +185,8 @@ utils.createHttpClient = function (config) {
     },
     timeout: config.timeout,
     withCredentials: true,
-    jar: new tough.CookieJar()
+    jar: new tough.CookieJar(),
+    responseType: 'arraybuffer'
   })
 }
 
