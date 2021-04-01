@@ -38,13 +38,13 @@ async function main() {
     const progs = await client
       .get(url)
       .then(response => {
-        item.channel.logo = config.logo
-          ? config.logo({
-              channel: item.channel,
-              content: response.data.toString(),
-              buffer: response.data
-            })
-          : null
+        if (!item.channel.logo && config.logo) {
+          item.channel.logo = config.logo({
+            channel: item.channel,
+            content: response.data.toString(),
+            buffer: response.data
+          })
+        }
 
         const programs = utils.parsePrograms({ response, item, config })
         console.log(
@@ -54,7 +54,10 @@ async function main() {
         )
         if (options.debug) console.timeEnd('    time')
 
-        return programs
+        return programs.map(program => {
+          program.lang = program.lang || item.channel.lang || undefined
+          return program
+        })
       })
       .then(utils.sleep(config.delay))
       .catch(err => {

@@ -25,34 +25,23 @@ it('can parse valid channels.xml', () => {
       name: '1 TV',
       xmltv_id: '1TV.com',
       site_id: '1',
-      site: 'example.com'
+      site: 'example.com',
+      lang: 'fr',
+      logo: 'https://example.com/logos/1TV.png'
     },
     {
       name: '2 TV',
       xmltv_id: '2TV.com',
       site_id: '2',
-      site: 'example.com'
+      site: 'example.com',
+      lang: undefined,
+      logo: undefined
     }
   ])
 })
 
 it('can convert object to xmltv string', () => {
-  const config = { lang: 'en' }
-  const channels = [
-    {
-      name: '1 TV',
-      xmltv_id: '1TV.com',
-      site_id: '1',
-      site: 'example.com',
-      logo: 'http://example.com/logos/1TV.png'
-    },
-    {
-      name: '2 TV',
-      xmltv_id: '2TV.com',
-      site_id: '2',
-      site: 'example.com'
-    }
-  ]
+  const channels = utils.parseChannels('./tests/input/example.com.channels.xml')
   const programs = [
     {
       title: 'Program 1',
@@ -60,12 +49,13 @@ it('can convert object to xmltv string', () => {
       start: '2021-03-19 06:00:00 +0000',
       stop: '2021-03-19 06:30:00 +0000',
       category: 'Test',
-      channel: '1TV.com'
+      channel: '1TV.com',
+      lang: 'it'
     }
   ]
-  const output = utils.convertToXMLTV({ config, channels, programs })
+  const output = utils.convertToXMLTV({ channels, programs })
   expect(output).toBe(
-    '<?xml version="1.0" encoding="UTF-8" ?><tv>\r\n<channel id="1TV.com"><display-name>1 TV</display-name><icon src="http://example.com/logos/1TV.png" /></channel>\r\n<channel id="2TV.com"><display-name>2 TV</display-name></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.com"><title lang="en">Program 1</title><desc lang="en">Description for Program 1</desc><category lang="en">Test</category></programme>\r\n</tv>'
+    '<?xml version="1.0" encoding="UTF-8" ?><tv>\r\n<channel id="1TV.com"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png" /></channel>\r\n<channel id="2TV.com"><display-name>2 TV</display-name></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.com"><title lang="it">Program 1</title><desc lang="it">Description for Program 1</desc><category lang="it">Test</category></programme>\r\n</tv>'
   )
 })
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site site="example.com">
   <channels>
-    <channel site_id="1" xmltv_id="1TV.com">1 TV</channel>
+    <channel site_id="1" xmltv_id="1TV.com" lang="fr" logo="https://example.com/logos/1TV.png">1 TV</channel>
     <channel site_id="2" xmltv_id="2TV.com">2 TV</channel>
   </channels>
 </site>
