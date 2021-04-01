@@ -23,7 +23,7 @@ Arguments:
 
 ```js
 module.exports = {
-  lang: 'fr', // program language (default: 'en')
+  lang: 'fr', // default language for all programs (default: 'en')
   site: 'example.com', // site domain name (required)
   output: 'example.com.guide.xml', // path to output file (default: 'guide.xml')
   channels: 'example.com.channels.xml', // path to channels.xml file (required)
@@ -63,7 +63,8 @@ module.exports = {
         start, // program start time (required)
         stop, // program end time (optional)
         description, // program description (optional)
-        category // program category (optional)
+        category, // program category (optional)
+        lang // program language (default: 'en')
       },
       ...
     ]
@@ -81,6 +82,12 @@ module.exports = {
     ...
   </channels>
 </site>
+```
+
+You can also specify the language and logo for each channel individually, like so:
+
+```xml
+<channel site_id="france-24" xmltv_id="France24.fr" lang="fr" logo="https://example.com/france24.png">France 24</channel>
 ```
 
 ## Contribution
