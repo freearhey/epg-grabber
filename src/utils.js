@@ -184,11 +184,12 @@ utils.writeToFile = function (filename, data) {
 }
 
 utils.fetchData = function (item, config) {
-  const options = config.request
-  options.url = typeof config.url === 'function' ? config.url(item) : config.url
-  options.data = typeof options.data === 'function' ? options.data(item) : options.data
+  const request = { ...config.request }
+  request.url = typeof config.url === 'function' ? config.url(item) : config.url
+  request.data =
+    typeof config.request.data === 'function' ? config.request.data(item) : config.request.data
 
-  return axios(options)
+  return axios(request)
 }
 
 utils.getUTCDate = function () {
