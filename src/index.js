@@ -18,7 +18,6 @@ async function main() {
 
   const options = program.opts()
   const config = utils.loadConfig(options.config)
-  const client = utils.createHttpClient(config)
   const channels = utils.parseChannels(config.channels)
   const utcDate = utils.getUTCDate()
   const dates = Array.from({ length: config.days }, (_, i) => utcDate.add(i, 'd'))
@@ -33,10 +32,9 @@ async function main() {
   let programs = []
   console.log('Parsing:')
   for (let item of queue) {
-    const url = typeof config.url === 'function' ? config.url(item) : config.url
     if (options.debug) console.time('    time')
-    const progs = await client
-      .get(url)
+    const progs = await utils
+      .fetchData(item, config)
       .then(response => {
         if (!item.channel.logo && config.logo) {
           item.channel.logo = config.logo({

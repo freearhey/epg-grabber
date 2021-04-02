@@ -1,22 +1,28 @@
-const utils = require('../src/utils')
+import mockAxios from 'jest-mock-axios'
+import utils from '../src/utils'
 
 it('can load valid config.js', () => {
-  expect(Object.keys(utils.loadConfig('./tests/input/example.com.config.js')).sort()).toEqual(
-    [
-      'site',
-      'channels',
-      'url',
-      'logo',
-      'parser',
-      'cookie',
-      'days',
-      'delay',
-      'timeout',
-      'lang',
-      'output',
-      'userAgent'
-    ].sort()
-  )
+  const config = utils.loadConfig('./tests/input/example.com.config.js')
+  expect(config).toMatchObject({
+    channels: 'tests/input/example.com.channels.xml',
+    days: 1,
+    delay: 3000,
+    lang: 'en',
+    output: 'guide.xml',
+    site: 'example.com'
+  })
+  expect(config.request).toMatchObject({
+    timeout: 5000,
+    headers: {
+      'Content-Type': 'application/json',
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71',
+      Cookie: 'abc=123'
+    }
+  })
+  expect(typeof config.request.data).toEqual('function')
+  expect(typeof config.url).toEqual('function')
+  expect(typeof config.logo).toEqual('function')
 })
 
 it('can parse valid channels.xml', () => {
@@ -68,5 +74,26 @@ it('can escape url', () => {
   const string = 'http://example.com/logos/1TV.png?param1=val&param2=val'
   expect(utils.escapeString(string)).toBe(
     'http://example.com/logos/1TV.png?param1=val&amp;param2=val'
+  )
+})
+
+it('can fetch data', () => {
+  const config = utils.loadConfig('./tests/input/example.com.config.js')
+  utils.fetchData({}, config).then(jest.fn).catch(jest.fn)
+  expect(mockAxios).toHaveBeenCalledWith(
+    expect.objectContaining({
+      data: { accountID: '123' },
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: 'abc=123',
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
+      },
+      method: 'POST',
+      responseType: 'arraybuffer',
+      timeout: 5000,
+      url: 'http://example.com/20210319/1tv.json',
+      withCredentials: true
+    })
   )
 })

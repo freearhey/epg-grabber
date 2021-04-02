@@ -1,9 +1,10 @@
 const fs = require('fs')
 const path = require('path')
-const axios = require('axios')
+const axios = require('axios').default
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
 const tough = require('tough-cookie')
 const convert = require('xml-js')
+const merge = require('lodash.merge')
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 dayjs.extend(utc)
@@ -31,20 +32,26 @@ utils.loadConfig = function (file) {
 
   config.channels = path.join(path.dirname(file), config.channels)
 
-  return Object.assign(
-    {},
-    {
-      userAgent:
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71',
-      days: 1,
-      cookie: '',
-      lang: 'en',
-      delay: 3000,
+  const defaultConfig = {
+    days: 1,
+    lang: 'en',
+    delay: 3000,
+    output: 'guide.xml',
+    request: {
+      method: 'GET',
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71',
+        Cookie: ''
+      },
       timeout: 5000,
-      output: 'guide.xml'
-    },
-    config
-  )
+      withCredentials: true,
+      jar: new tough.CookieJar(),
+      responseType: 'arraybuffer'
+    }
+  }
+
+  return merge(defaultConfig, config)
 }
 
 utils.parseChannels = function (filename) {
@@ -154,7 +161,7 @@ utils.convertToXMLTV = function ({ config, channels, programs }) {
 }
 
 utils.parsePrograms = function ({ response, item, config }) {
-  const options = Object.assign({}, item, config, {
+  const options = merge(item, config, {
     content: response.data.toString(),
     buffer: response.data
   })
@@ -177,17 +184,12 @@ utils.writeToFile = function (filename, data) {
   fs.writeFileSync(path.resolve(filename), data)
 }
 
-utils.createHttpClient = function (config) {
-  return axios.create({
-    headers: {
-      'User-Agent': config.userAgent,
-      Cookie: config.cookie
-    },
-    timeout: config.timeout,
-    withCredentials: true,
-    jar: new tough.CookieJar(),
-    responseType: 'arraybuffer'
-  })
+utils.fetchData = function (item, config) {
+  const options = config.request
+  options.url = typeof config.url === 'function' ? config.url(item) : config.url
+  options.data = typeof options.data === 'function' ? options.data(item) : options.data
+
+  return axios(options)
 }
 
 utils.getUTCDate = function () {
