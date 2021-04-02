@@ -28,6 +28,17 @@ module.exports = {
   output: 'example.com.guide.xml', // path to output file (default: 'guide.xml')
   channels: 'example.com.channels.xml', // path to channels.xml file (required)
 
+  request: { // request options (details: https://github.com/axios/axios#request-config)
+
+    method: 'GET',
+    headers: {
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71',
+    },
+    timeout: 5000
+
+  },
+
   /**
    * @param {object} date The 'dayjs' instance with the requested date
    * @param {object} channel Data about the requested channel
