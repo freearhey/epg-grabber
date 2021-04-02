@@ -33,7 +33,7 @@ async function main() {
   let programs = []
   console.log('Parsing:')
   for (let item of queue) {
-    const url = config.url(item)
+    const url = typeof config.url === 'function' ? config.url(item) : config.url
     if (options.debug) console.time('    time')
     const progs = await client
       .get(url)
