@@ -75,6 +75,7 @@ module.exports = {
         stop, // program end time (optional)
         description, // program description (optional)
         category, // program category (optional)
+        icon, // program icon (optional)
         lang // program language (default: 'en')
       },
       ...

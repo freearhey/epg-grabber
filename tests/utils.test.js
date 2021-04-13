@@ -55,13 +55,14 @@ it('can convert object to xmltv string', () => {
       start: '2021-03-19 06:00:00 +0000',
       stop: '2021-03-19 06:30:00 +0000',
       category: 'Test',
+      icon: 'https://example.com/images/Program1.png',
       channel: '1TV.com',
       lang: 'it'
     }
   ]
   const output = utils.convertToXMLTV({ channels, programs })
   expect(output).toBe(
-    '<?xml version="1.0" encoding="UTF-8" ?><tv>\r\n<channel id="1TV.com"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png" /></channel>\r\n<channel id="2TV.com"><display-name>2 TV</display-name></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.com"><title lang="it">Program 1</title><desc lang="it">Description for Program 1</desc><category lang="it">Test</category></programme>\r\n</tv>'
+    '<?xml version="1.0" encoding="UTF-8" ?><tv>\r\n<channel id="1TV.com"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/></channel>\r\n<channel id="2TV.com"><display-name>2 TV</display-name></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.com"><title lang="it">Program 1</title><desc lang="it">Description for Program 1</desc><category lang="it">Test</category><icon src="https://example.com/images/Program1.png"/></programme>\r\n</tv>'
   )
 })
 

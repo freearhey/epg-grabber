@@ -117,7 +117,7 @@ utils.convertToXMLTV = function ({ config, channels, programs }) {
     output += `<channel id="${id}"><display-name>${displayName}</display-name>`
     if (channel.logo) {
       const logo = this.escapeString(channel.logo)
-      output += `<icon src="${logo}" />`
+      output += `<icon src="${logo}"/>`
     }
     output += `</channel>\r\n`
   }
@@ -132,6 +132,7 @@ utils.convertToXMLTV = function ({ config, channels, programs }) {
     const start = program.start ? dayjs.utc(program.start).format('YYYYMMDDHHmmss ZZ') : ''
     const stop = program.stop ? dayjs.utc(program.stop).format('YYYYMMDDHHmmss ZZ') : ''
     const lang = program.lang || config.lang
+    const icon = program.icon
 
     if (start && title) {
       output += `<programme start="${start}"`
@@ -148,6 +149,10 @@ utils.convertToXMLTV = function ({ config, channels, programs }) {
 
       if (category) {
         output += `<category lang="${lang}">${category}</category>`
+      }
+
+      if (icon) {
+        output += `<icon src="${icon}"/>`
       }
 
       output += '</programme>\r\n'
