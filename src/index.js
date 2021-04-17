@@ -50,14 +50,12 @@ async function main() {
             programs.length
           } programs)`
         )
-        if (options.debug) console.timeEnd('    time')
 
         return programs.map(program => {
           program.lang = program.lang || item.channel.lang || undefined
           return program
         })
       })
-      .then(utils.sleep(config.delay))
       .catch(err => {
         console.log(
           `  ${config.site} - ${item.channel.xmltv_id} - ${item.date.format(
@@ -65,6 +63,10 @@ async function main() {
           )} (0 programs)`
         )
         console.log(`    Error: ${err.message}`)
+      })
+      .finally(() => {
+        if (options.debug) console.timeEnd('    time')
+        utils.sleep(config.delay)
       })
 
     programs = programs.concat(progs)
