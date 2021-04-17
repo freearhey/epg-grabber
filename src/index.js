@@ -32,10 +32,14 @@ async function main() {
   let programs = []
   console.log('Parsing:')
   for (let item of queue) {
-    if (options.debug) console.time('    Time')
+    if (options.debug) console.time('    Response Time')
     const progs = await utils
       .fetchData(item, config)
       .then(response => {
+        if (options.debug) {
+          console.timeEnd('    Response Time')
+          console.time('    Parsing Time')
+        }
         if (!item.channel.logo && config.logo) {
           item.channel.logo = config.logo({
             channel: item.channel,
@@ -57,7 +61,7 @@ async function main() {
         })
       })
       .then(() => {
-        if (options.debug) console.timeEnd('    Time')
+        if (options.debug) console.timeEnd('    Parsing Time')
       })
       .then(utils.sleep(config.delay))
       .catch(err => {
@@ -67,7 +71,10 @@ async function main() {
           )} (0 programs)`
         )
         console.log(`    Error: ${err.message}`)
-        if (options.debug) console.timeEnd('    Time')
+        if (options.debug) {
+          console.timeEnd('    Response Time')
+          console.timeEnd('    Parsing Time')
+        }
       })
 
     programs = programs.concat(progs)
