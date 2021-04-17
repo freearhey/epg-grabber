@@ -32,7 +32,7 @@ async function main() {
   let programs = []
   console.log('Parsing:')
   for (let item of queue) {
-    if (options.debug) console.time('    time')
+    if (options.debug) console.time('    Time')
     const progs = await utils
       .fetchData(item, config)
       .then(response => {
@@ -56,6 +56,10 @@ async function main() {
           return program
         })
       })
+      .then(() => {
+        if (options.debug) console.timeEnd('    Time')
+      })
+      .then(utils.sleep(config.delay))
       .catch(err => {
         console.log(
           `  ${config.site} - ${item.channel.xmltv_id} - ${item.date.format(
@@ -63,10 +67,7 @@ async function main() {
           )} (0 programs)`
         )
         console.log(`    Error: ${err.message}`)
-      })
-      .finally(() => {
-        if (options.debug) console.timeEnd('    time')
-        utils.sleep(config.delay)
+        if (options.debug) console.timeEnd('    Time')
       })
 
     programs = programs.concat(progs)
