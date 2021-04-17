@@ -171,8 +171,13 @@ utils.parsePrograms = function ({ response, item, config }) {
     buffer: response.data
   })
 
-  return config
-    .parser(options)
+  const programs = config.parser(options)
+
+  if (!Array.isArray(programs)) {
+    throw new Error('Parser should return an array')
+  }
+
+  return programs
     .filter(i => i)
     .map(p => {
       p.channel = item.channel.xmltv_id
