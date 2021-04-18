@@ -33,7 +33,7 @@ async function main() {
   console.log('Parsing:')
   for (let item of queue) {
     if (options.debug) console.time('    Response Time')
-    const progs = await utils
+    await utils
       .fetchData(item, config)
       .then(response => {
         if (options.debug) {
@@ -48,17 +48,18 @@ async function main() {
           })
         }
 
-        const programs = utils.parsePrograms({ response, item, config })
-        console.log(
-          `  ${config.site} - ${item.channel.xmltv_id} - ${item.date.format('MMM D, YYYY')} (${
-            programs.length
-          } programs)`
-        )
-
-        return programs.map(program => {
+        const parsed = utils.parsePrograms({ response, item, config }).map(program => {
           program.lang = program.lang || item.channel.lang || undefined
           return program
         })
+
+        console.log(
+          `  ${config.site} - ${item.channel.xmltv_id} - ${item.date.format('MMM D, YYYY')} (${
+            parsed.length
+          } programs)`
+        )
+
+        programs = programs.concat(parsed)
       })
       .then(() => {
         if (options.debug) console.timeEnd('    Parsing Time')
@@ -76,8 +77,6 @@ async function main() {
           console.timeEnd('    Parsing Time')
         }
       })
-
-    programs = programs.concat(progs)
   }
 
   const xml = utils.convertToXMLTV({ config, channels, programs })
