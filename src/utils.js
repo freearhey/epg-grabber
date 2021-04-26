@@ -133,7 +133,7 @@ utils.convertToXMLTV = function ({ config, channels, programs }) {
     const start = program.start ? dayjs.utc(program.start).format('YYYYMMDDHHmmss ZZ') : ''
     const stop = program.stop ? dayjs.utc(program.stop).format('YYYYMMDDHHmmss ZZ') : ''
     const lang = program.lang || config.lang
-    const icon = program.icon
+    const icon = this.escapeString(program.icon)
 
     if (start && title) {
       output += `<programme start="${start}"`
