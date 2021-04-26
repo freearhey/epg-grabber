@@ -13,5 +13,5 @@ module.exports = {
     }
   },
   parser: () => [],
-  logo: () => 'http://example.com/logos/1TV.png'
+  logo: () => 'http://example.com/logos/1TV.png?x=шеллы&sid=777'
 }
