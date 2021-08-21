@@ -27,6 +27,7 @@ module.exports = {
   site: 'example.com', // site domain name (required)
   output: 'example.com.guide.xml', // path to output file (default: 'guide.xml')
   channels: 'example.com.channels.xml', // path to channels.xml file (required)
+  days: 3, // number of days for which to grab the program (default: 1)
 
   request: { // request options (details: https://github.com/axios/axios#request-config)
 
