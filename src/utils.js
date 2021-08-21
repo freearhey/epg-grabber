@@ -11,6 +11,8 @@ dayjs.extend(utc)
 axiosCookieJarSupport(axios)
 
 const utils = {}
+const defaultUserAgent =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
 
 utils.loadConfig = function (file) {
   if (!file) throw new Error('Path to [site].config.js is missing')
@@ -39,10 +41,6 @@ utils.loadConfig = function (file) {
     output: 'guide.xml',
     request: {
       method: 'GET',
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
-      },
       maxContentLength: 5 * 1024 * 1024,
       timeout: 5000,
       withCredentials: true,
@@ -194,13 +192,51 @@ utils.writeToFile = function (filename, data) {
   fs.writeFileSync(path.resolve(filename), data)
 }
 
-utils.fetchData = function (item, config) {
+utils.buildRequest = async function (item, config) {
   const request = { ...config.request }
-  request.url = typeof config.url === 'function' ? config.url(item) : config.url
-  request.data =
-    typeof config.request.data === 'function' ? config.request.data(item) : config.request.data
+  const headers = await utils.getRequestHeaders(item, config)
+  request.headers = { 'User-Agent': defaultUserAgent, ...headers }
+  request.url = await utils.getRequestUrl(item, config)
+  request.data = await utils.getRequestData(item, config)
 
+  return request
+}
+
+utils.fetchData = function (request) {
   return axios(request)
+}
+
+utils.getRequestHeaders = async function (item, config) {
+  if (typeof config.request.headers === 'function') {
+    const headers = config.request.headers(item)
+    if (typeof headers === 'Promise') {
+      return await headers
+    }
+    return headers
+  }
+  return config.request.headers
+}
+
+utils.getRequestData = async function (item, config) {
+  if (typeof config.request.data === 'function') {
+    const data = config.request.data(item)
+    if (typeof data === 'Promise') {
+      return await data
+    }
+    return data
+  }
+  return config.request.data
+}
+
+utils.getRequestUrl = async function (item, config) {
+  if (typeof config.url === 'function') {
+    const url = config.url(item)
+    if (typeof url === 'Promise') {
+      return await url
+    }
+    return url
+  }
+  return config.url
 }
 
 utils.getUTCDate = function () {
