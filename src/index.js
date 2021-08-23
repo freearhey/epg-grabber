@@ -37,9 +37,11 @@ async function main() {
     await utils
       .buildRequest(item, config)
       .then(utils.fetchData)
-      .then(response => {
+      .then(async response => {
         if (options.debug) console.timeEnd('    Response Time')
-        const results = parseResponse(response, item)
+        if (options.debug) console.time('    Parsing Time')
+        const results = await utils.parseResponse(item, response, config)
+        if (options.debug) console.timeEnd('    Parsing Time')
         programs = programs.concat(results)
       })
       .then(utils.sleep(config.delay))
@@ -62,32 +64,6 @@ async function main() {
 
   console.log(`File '${config.output}' successfully saved`)
   console.log('Finish')
-}
-
-async function parseResponse(response, item) {
-  if (options.debug) console.time('    Parsing Time')
-  if (!item.channel.logo && config.logo) {
-    item.channel.logo = config.logo({
-      channel: item.channel,
-      content: response.data.toString(),
-      buffer: response.data
-    })
-  }
-
-  const parsed = utils.parsePrograms({ response, item, config }).map(program => {
-    program.lang = program.lang || item.channel.lang || undefined
-    return program
-  })
-
-  console.log(
-    `  ${config.site} - ${item.channel.xmltv_id} - ${item.date.format('MMM D, YYYY')} (${
-      parsed.length
-    } programs)`
-  )
-
-  if (options.debug) console.timeEnd('    Parsing Time')
-
-  return parsed
 }
 
 main()
