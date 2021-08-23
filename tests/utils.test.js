@@ -15,8 +15,6 @@ it('can load valid config.js', () => {
     timeout: 5000,
     headers: {
       'Content-Type': 'application/json',
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71',
       Cookie: 'abc=123'
     }
   })
@@ -81,9 +79,23 @@ it('can escape url', () => {
   )
 })
 
-it('can fetch data', () => {
-  const config = utils.loadConfig('./tests/input/example.com.config.js')
-  utils.fetchData({}, config).then(jest.fn).catch(jest.fn)
+it('can fetch data', async () => {
+  const request = {
+    data: { accountID: '123' },
+    headers: {
+      'Content-Type': 'application/json',
+      Cookie: 'abc=123',
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
+    },
+    maxContentLength: 5242880,
+    method: 'POST',
+    responseType: 'arraybuffer',
+    timeout: 5000,
+    url: 'http://example.com/20210319/1tv.json',
+    withCredentials: true
+  }
+  utils.fetchData(request).then(jest.fn).catch(jest.fn)
   expect(mockAxios).toHaveBeenCalledWith(
     expect.objectContaining({
       data: { accountID: '123' },
@@ -100,4 +112,41 @@ it('can fetch data', () => {
       withCredentials: true
     })
   )
+})
+
+it('can build request async', async () => {
+  const config = utils.loadConfig('./tests/input/async.config.js')
+  return utils.buildRequest({}, config).then(request => {
+    expect(request).toMatchObject({
+      data: { accountID: '123' },
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: 'abc=123',
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
+      },
+      maxContentLength: 5242880,
+      method: 'POST',
+      responseType: 'arraybuffer',
+      timeout: 5000,
+      url: 'http://example.com/20210319/1tv.json',
+      withCredentials: true
+    })
+  })
+})
+
+it('can load logo async', async () => {
+  const config = utils.loadConfig('./tests/input/async.config.js')
+  return utils.loadLogo({}, config).then(logo => {
+    expect(logo).toBe('http://example.com/logos/1TV.png?x=шеллы&sid=777')
+  })
+})
+
+it('can parse programs async', async () => {
+  const config = utils.loadConfig('./tests/input/async.config.js')
+  return utils
+    .parsePrograms({ channel: { xmltv_id: '1tv', lang: 'en' } }, config)
+    .then(programs => {
+      expect(programs.length).toBe(0)
+    })
 })

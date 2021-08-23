@@ -32,12 +32,34 @@ module.exports = {
   request: { // request options (details: https://github.com/axios/axios#request-config)
 
     method: 'GET',
-    headers: {
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71',
-    },
-    timeout: 5000
+    timeout: 5000,
 
+    /**
+     * @param {object} date The 'dayjs' instance with the requested date
+     * @param {object} channel Data about the requested channel
+     *
+     * @return {string} The function should return headers for each request (optional)
+     */
+    headers: function({ date, channel }) {
+      return {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
+      }
+    },
+
+    /**
+     * @param {object} date The 'dayjs' instance with the requested date
+     * @param {object} channel Data about the requested channel
+     *
+     * @return {string} The function should return data for each request (optional)
+     */
+    data: function({ date, channel }) {
+      return {
+        channels: [channel.site_id],
+        dateStart: date.format('YYYY-MM-DDT00:00:00-00:00'),
+        dateEnd: date.add(1, 'd').format('YYYY-MM-DDT00:00:00-00:00')
+      }
+    }
   },
 
   /**
@@ -61,11 +83,12 @@ module.exports = {
   },
 
   /**
+   * @param {object} date The 'dayjs' instance with the requested date
    * @param {string} content The response received after the request at the above url
    *
    * @return {array} The function should return an array of programs with their descriptions
    */
-  parser: function ({ content }) {
+  parser: function ({ date, content }) {
 
     // content parsing...
 
@@ -81,6 +104,33 @@ module.exports = {
       },
       ...
     ]
+  }
+}
+```
+
+Also each function can be asynchronous.
+
+```js
+module.exports = {
+  site: 'example.com',
+  output: 'example.com.guide.xml',
+  channels: 'example.com.channels.xml',
+  request: {
+    async headers() {
+      return { ... }
+    },
+    async data() {
+      return { ... }
+    }
+  },
+  async url() {
+    return '...'
+  },
+  async logo() {
+    return '...'
+  },
+  async parser() {
+    return [ ... ]
   }
 }
 ```

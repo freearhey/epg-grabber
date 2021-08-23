@@ -11,6 +11,8 @@ dayjs.extend(utc)
 axiosCookieJarSupport(axios)
 
 const utils = {}
+const defaultUserAgent =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
 
 utils.loadConfig = function (file) {
   if (!file) throw new Error('Path to [site].config.js is missing')
@@ -39,10 +41,6 @@ utils.loadConfig = function (file) {
     output: 'guide.xml',
     request: {
       method: 'GET',
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
-      },
       maxContentLength: 5 * 1024 * 1024,
       timeout: 5000,
       withCredentials: true,
@@ -165,26 +163,6 @@ utils.convertToXMLTV = function ({ config, channels, programs }) {
   return output
 }
 
-utils.parsePrograms = function ({ response, item, config }) {
-  const options = merge(item, config, {
-    content: response.data.toString(),
-    buffer: response.data
-  })
-
-  const programs = config.parser(options)
-
-  if (!Array.isArray(programs)) {
-    throw new Error('Parser should return an array')
-  }
-
-  return programs
-    .filter(i => i)
-    .map(p => {
-      p.channel = item.channel.xmltv_id
-      return p
-    })
-}
-
 utils.writeToFile = function (filename, data) {
   const dir = path.resolve(path.dirname(filename))
   if (!fs.existsSync(dir)) {
@@ -194,17 +172,109 @@ utils.writeToFile = function (filename, data) {
   fs.writeFileSync(path.resolve(filename), data)
 }
 
-utils.fetchData = function (item, config) {
+utils.buildRequest = async function (item, config) {
   const request = { ...config.request }
-  request.url = typeof config.url === 'function' ? config.url(item) : config.url
-  request.data =
-    typeof config.request.data === 'function' ? config.request.data(item) : config.request.data
+  const headers = await utils.getRequestHeaders(item, config)
+  request.headers = { 'User-Agent': defaultUserAgent, ...headers }
+  request.url = await utils.getRequestUrl(item, config)
+  request.data = await utils.getRequestData(item, config)
 
+  return request
+}
+
+utils.fetchData = function (request) {
   return axios(request)
+}
+
+utils.getRequestHeaders = async function (item, config) {
+  if (typeof config.request.headers === 'function') {
+    const headers = config.request.headers(item)
+    if (this.isPromise(headers)) {
+      return await headers
+    }
+    return headers
+  }
+  return config.request.headers
+}
+
+utils.getRequestData = async function (item, config) {
+  if (typeof config.request.data === 'function') {
+    const data = config.request.data(item)
+    if (this.isPromise(data)) {
+      return await data
+    }
+    return data
+  }
+  return config.request.data
+}
+
+utils.getRequestUrl = async function (item, config) {
+  if (typeof config.url === 'function') {
+    const url = config.url(item)
+    if (this.isPromise(url)) {
+      return await url
+    }
+    return url
+  }
+  return config.url
 }
 
 utils.getUTCDate = function () {
   return dayjs.utc()
+}
+
+utils.parseResponse = async (item, response, config) => {
+  const options = merge(item, config, {
+    content: response.data.toString(),
+    buffer: response.data
+  })
+
+  if (!item.channel.logo && config.logo) {
+    item.channel.logo = await utils.loadLogo(options, config)
+  }
+
+  const parsed = await utils.parsePrograms(options, config)
+
+  console.log(
+    `  ${config.site} - ${item.channel.xmltv_id} - ${item.date.format('MMM D, YYYY')} (${
+      parsed.length
+    } programs)`
+  )
+
+  return parsed
+}
+
+utils.parsePrograms = async function (options, config) {
+  let programs = config.parser(options)
+
+  if (this.isPromise(programs)) {
+    programs = await programs
+  }
+
+  if (!Array.isArray(programs)) {
+    throw new Error('Parser should return an array')
+  }
+
+  const channel = options.channel
+  return programs
+    .filter(i => i)
+    .map(program => {
+      program.channel = channel.xmltv_id
+      program.lang = program.lang || channel.lang || undefined
+      return program
+    })
+}
+
+utils.loadLogo = async function (options, config) {
+  const logo = config.logo(options)
+  if (this.isPromise(logo)) {
+    return await logo
+  }
+  return logo
+}
+
+utils.isPromise = function (promise) {
+  return !!promise && typeof promise.then === 'function'
 }
 
 module.exports = utils

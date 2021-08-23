@@ -13,11 +13,12 @@ program
   .option('-d, --debug', 'Enable debug mode')
   .parse(process.argv)
 
+const options = program.opts()
+const config = utils.loadConfig(options.config)
+
 async function main() {
   console.log('\r\nStarting...')
 
-  const options = program.opts()
-  const config = utils.loadConfig(options.config)
   const channels = utils.parseChannels(config.channels)
   const utcDate = utils.getUTCDate()
   const dates = Array.from({ length: config.days }, (_, i) => utcDate.add(i, 'd'))
@@ -34,35 +35,14 @@ async function main() {
   for (let item of queue) {
     if (options.debug) console.time('    Response Time')
     await utils
-      .fetchData(item, config)
-      .then(response => {
-        if (options.debug) {
-          console.timeEnd('    Response Time')
-          console.time('    Parsing Time')
-        }
-        if (!item.channel.logo && config.logo) {
-          item.channel.logo = config.logo({
-            channel: item.channel,
-            content: response.data.toString(),
-            buffer: response.data
-          })
-        }
-
-        const parsed = utils.parsePrograms({ response, item, config }).map(program => {
-          program.lang = program.lang || item.channel.lang || undefined
-          return program
-        })
-
-        console.log(
-          `  ${config.site} - ${item.channel.xmltv_id} - ${item.date.format('MMM D, YYYY')} (${
-            parsed.length
-          } programs)`
-        )
-
-        programs = programs.concat(parsed)
-      })
-      .then(() => {
+      .buildRequest(item, config)
+      .then(utils.fetchData)
+      .then(async response => {
+        if (options.debug) console.timeEnd('    Response Time')
+        if (options.debug) console.time('    Parsing Time')
+        const results = await utils.parseResponse(item, response, config)
         if (options.debug) console.timeEnd('    Parsing Time')
+        programs = programs.concat(results)
       })
       .then(utils.sleep(config.delay))
       .catch(err => {
