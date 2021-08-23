@@ -134,3 +134,19 @@ it('can build request async', async () => {
     })
   })
 })
+
+it('can load logo async', async () => {
+  const config = utils.loadConfig('./tests/input/async.config.js')
+  return utils.loadLogo({}, config).then(logo => {
+    expect(logo).toBe('http://example.com/logos/1TV.png?x=шеллы&sid=777')
+  })
+})
+
+it('can parse programs async', async () => {
+  const config = utils.loadConfig('./tests/input/async.config.js')
+  return utils
+    .parsePrograms({ channel: { xmltv_id: '1tv', lang: 'en' } }, config)
+    .then(programs => {
+      expect(programs.length).toBe(0)
+    })
+})
