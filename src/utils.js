@@ -163,26 +163,6 @@ utils.convertToXMLTV = function ({ config, channels, programs }) {
   return output
 }
 
-utils.parsePrograms = function ({ response, item, config }) {
-  const options = merge(item, config, {
-    content: response.data.toString(),
-    buffer: response.data
-  })
-
-  const programs = config.parser(options)
-
-  if (!Array.isArray(programs)) {
-    throw new Error('Parser should return an array')
-  }
-
-  return programs
-    .filter(i => i)
-    .map(p => {
-      p.channel = item.channel.xmltv_id
-      return p
-    })
-}
-
 utils.writeToFile = function (filename, data) {
   const dir = path.resolve(path.dirname(filename))
   if (!fs.existsSync(dir)) {
@@ -209,7 +189,7 @@ utils.fetchData = function (request) {
 utils.getRequestHeaders = async function (item, config) {
   if (typeof config.request.headers === 'function') {
     const headers = config.request.headers(item)
-    if (typeof headers === 'Promise') {
+    if (this.isPromise(headers)) {
       return await headers
     }
     return headers
@@ -220,7 +200,7 @@ utils.getRequestHeaders = async function (item, config) {
 utils.getRequestData = async function (item, config) {
   if (typeof config.request.data === 'function') {
     const data = config.request.data(item)
-    if (typeof data === 'Promise') {
+    if (this.isPromise(data)) {
       return await data
     }
     return data
@@ -231,7 +211,7 @@ utils.getRequestData = async function (item, config) {
 utils.getRequestUrl = async function (item, config) {
   if (typeof config.url === 'function') {
     const url = config.url(item)
-    if (typeof url === 'Promise') {
+    if (this.isPromise(url)) {
       return await url
     }
     return url
@@ -241,6 +221,60 @@ utils.getRequestUrl = async function (item, config) {
 
 utils.getUTCDate = function () {
   return dayjs.utc()
+}
+
+utils.parseResponse = async (item, response, config) => {
+  const options = merge(item, config, {
+    content: response.data.toString(),
+    buffer: response.data
+  })
+
+  if (!item.channel.logo && config.logo) {
+    item.channel.logo = await utils.loadLogo(options, config)
+  }
+
+  const parsed = await utils.parsePrograms(options, config)
+
+  console.log(
+    `  ${config.site} - ${item.channel.xmltv_id} - ${item.date.format('MMM D, YYYY')} (${
+      parsed.length
+    } programs)`
+  )
+
+  return parsed
+}
+
+utils.parsePrograms = async function (options, config) {
+  let programs = config.parser(options)
+
+  if (this.isPromise(programs)) {
+    programs = await programs
+  }
+
+  if (!Array.isArray(programs)) {
+    throw new Error('Parser should return an array')
+  }
+
+  const channel = options.channel
+  return programs
+    .filter(i => i)
+    .map(program => {
+      program.channel = channel.xmltv_id
+      program.lang = program.lang || channel.lang || undefined
+      return program
+    })
+}
+
+utils.loadLogo = async function (options, config) {
+  const logo = config.logo(options)
+  if (this.isPromise(logo)) {
+    return await logo
+  }
+  return logo
+}
+
+utils.isPromise = function (promise) {
+  return !!promise && typeof promise.then === 'function'
 }
 
 module.exports = utils
