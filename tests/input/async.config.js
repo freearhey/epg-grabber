@@ -16,6 +16,10 @@ module.exports = {
       return Promise.resolve({ accountID: '123' })
     }
   },
-  parser: () => [],
-  logo: () => 'http://example.com/logos/1TV.png?x=шеллы&sid=777'
+  parser() {
+    return Promise.resolve([])
+  },
+  logo() {
+    return Promise.resolve('http://example.com/logos/1TV.png?x=шеллы&sid=777')
+  }
 }
