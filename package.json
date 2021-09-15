@@ -20,6 +20,10 @@
   ],
   "author": "Arhey",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/freearhey/epg-grabber.git"
+  },
   "engines": {
     "node": ">=10.0.0"
   },
