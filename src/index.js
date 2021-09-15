@@ -10,11 +10,16 @@ program
   .version(version, '-v, --version')
   .description(description)
   .option('-c, --config <config>', 'Path to [site].config.js file')
-  .option('-d, --debug', 'Enable debug mode')
+  .option('-o, --output <output>', 'Path to output file', 'guide.xml')
+  .option('--channels <channels>', 'Path to channels.xml file')
+  .option('--lang <lang>', 'Set default language for all programs', 'en')
+  .option('--days <days>', 'Number of days for which to grab the program', 1)
+  .option('--delay <delay>', 'Delay between requests (in mileseconds)', 3000)
+  .option('--debug', 'Enable debug mode', false)
   .parse(process.argv)
 
 const options = program.opts()
-const config = utils.loadConfig(options.config)
+const config = utils.loadConfig(options)
 
 async function main() {
   console.log('\r\nStarting...')

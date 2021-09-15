@@ -14,15 +14,19 @@ const utils = {}
 const defaultUserAgent =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
 
-utils.loadConfig = function (file) {
+utils.loadConfig = function (options) {
+  const file = options.config
   if (!file) throw new Error('Path to [site].config.js is missing')
   console.log(`Loading '${file}'...`)
 
   const configPath = path.resolve(file)
   const config = require(configPath)
 
+  if (options.channels) config.channels = options.channels
+  else if (config.channels) config.channels = path.join(path.dirname(file), config.channels)
+  else throw new Error("The required 'channels' property is missing")
+
   if (!config.site) throw new Error("The required 'site' property is missing")
-  if (!config.channels) throw new Error("The required 'channels' property is missing")
   if (!config.url) throw new Error("The required 'url' property is missing")
   if (typeof config.url !== 'function' && typeof config.url !== 'string')
     throw new Error("The 'url' property should return the function or string")
@@ -32,13 +36,11 @@ utils.loadConfig = function (file) {
   if (config.logo && typeof config.logo !== 'function')
     throw new Error("The 'logo' property should return the function")
 
-  config.channels = path.join(path.dirname(file), config.channels)
-
   const defaultConfig = {
-    days: 1,
-    lang: 'en',
-    delay: 3000,
-    output: 'guide.xml',
+    days: options.days ? parseInt(options.days) : 1,
+    lang: options.lang || 'en',
+    delay: options.delay ? parseInt(options.delay) : 3000,
+    output: options.output || 'guide.xml',
     request: {
       method: 'GET',
       maxContentLength: 5 * 1024 * 1024,
