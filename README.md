@@ -17,17 +17,23 @@ epg-grabber --config=example.com.config.js
 Arguments:
 
 - `-c, --config`: path to config file
-- `-d, --debug`: enable debug mode
+- `-o, --output`: path to output file (default: 'guide.xml')
+- `--channels`: path to list of channels (can be specified via config file)
+- `--lang`: set default language for all programs (default: 'en')
+- `--days`: number of days for which to grab the program (default: 1)
+- `--delay`: delay between requests (default: 3000)
+- `--debug`: enable debug mode (default: false)
 
 #### example.com.config.js
 
 ```js
 module.exports = {
-  lang: 'fr', // default language for all programs (default: 'en')
   site: 'example.com', // site domain name (required)
   output: 'example.com.guide.xml', // path to output file (default: 'guide.xml')
   channels: 'example.com.channels.xml', // path to channels.xml file (required)
+  lang: 'fr', // default language for all programs (default: 'en')
   days: 3, // number of days for which to grab the program (default: 1)
+  delay: 5000, // delay between requests (default: 3000)
 
   request: { // request options (details: https://github.com/axios/axios#request-config)
 
