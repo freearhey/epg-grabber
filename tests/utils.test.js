@@ -61,9 +61,10 @@ it('can convert object to xmltv string', () => {
       lang: 'it'
     }
   ]
-  const output = utils.convertToXMLTV({ channels, programs })
+  const config = { site: 'example.com' }
+  const output = utils.convertToXMLTV({ config, channels, programs })
   expect(output).toBe(
-    '<?xml version="1.0" encoding="UTF-8" ?><tv>\r\n<channel id="1TV.com"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/></channel>\r\n<channel id="2TV.com"><display-name>2 TV</display-name></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.com"><title lang="it">Program 1</title><desc lang="it">Description for Program 1</desc><category lang="it">Test</category><icon src="https://example.com/images/Program1.png?x=шеллы&amp;sid=777"/></programme>\r\n</tv>'
+    '<?xml version="1.0" encoding="UTF-8" ?><tv>\r\n<channel id="1TV.com"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.com"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.com"><title lang="it">Program 1</title><desc lang="it">Description for Program 1</desc><category lang="it">Test</category><icon src="https://example.com/images/Program1.png?x=шеллы&amp;sid=777"/></programme>\r\n</tv>'
   )
 })
 

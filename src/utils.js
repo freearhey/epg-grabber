@@ -110,8 +110,8 @@ utils.escapeString = function (string, defaultValue = '') {
 }
 
 utils.convertToXMLTV = function ({ config, channels, programs }) {
+  const url = config.site ? 'https://' + config.site : null
   let output = `<?xml version="1.0" encoding="UTF-8" ?><tv>\r\n`
-
   for (let channel of channels) {
     const id = this.escapeString(channel['xmltv_id'])
     const displayName = this.escapeString(channel.name)
@@ -119,6 +119,9 @@ utils.convertToXMLTV = function ({ config, channels, programs }) {
     if (channel.logo) {
       const logo = this.escapeString(channel.logo)
       output += `<icon src="${logo}"/>`
+    }
+    if (url) {
+      output += `<url>${url}</url>`
     }
     output += `</channel>\r\n`
   }
