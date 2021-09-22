@@ -114,33 +114,6 @@ module.exports = {
 }
 ```
 
-Also each function can be asynchronous.
-
-```js
-module.exports = {
-  site: 'example.com',
-  output: 'example.com.guide.xml',
-  channels: 'example.com.channels.xml',
-  request: {
-    async headers() {
-      return { ... }
-    },
-    async data() {
-      return { ... }
-    }
-  },
-  async url() {
-    return '...'
-  },
-  async logo() {
-    return '...'
-  },
-  async parser() {
-    return [ ... ]
-  }
-}
-```
-
 #### example.com.channels.xml
 
 ```xml
