@@ -225,7 +225,7 @@ utils.getRequestUrl = async function (item, config) {
 }
 
 utils.getUTCDate = function () {
-  return dayjs.utc()
+  return dayjs.utc().startOf('d')
 }
 
 utils.parseResponse = async (item, response, config) => {
