@@ -1,34 +1,46 @@
-const { execSync } = require('child_process')
-const pwd = `${__dirname}/..`
+/**
+ * @jest-environment node
+ */
 
-function stdoutResultTester(stdout) {
-  return [`Finish`].every(val => {
-    return RegExp(val).test(stdout)
-  })
-}
+import grabber from '../src/index'
+import utils from '../src/utils'
+import axios from 'axios'
 
-it('can load config', () => {
-  const result = execSync(`node ${pwd}/src/index.js --config=tests/input/example.com.config.js`, {
-    encoding: 'utf8'
-  })
+jest.mock('axios')
 
-  expect(stdoutResultTester(result)).toBe(true)
-})
-
-it('can load mini config', () => {
-  const result = execSync(
-    `node ${pwd}/src/index.js \
-      --config=tests/input/mini.config.js \
-      --channels=tests/input/example.com.channels.xml \
-      --output=tests/output/mini.guide.xml \
-      --lang=fr \
-      --days=3 \
-      --delay=5000`,
-    {
-      encoding: 'utf8'
+it('can grab single channel programs', done => {
+  const data = {
+    data: {
+      toString: () => 'string'
     }
-  )
+  }
+  axios.mockImplementation(() => Promise.resolve(data))
 
-  expect(stdoutResultTester(result)).toBe(true)
-  expect(result.includes("File 'tests/output/mini.guide.xml' successfully saved")).toBe(true)
+  const config = utils.loadConfig({ config: './tests/input/mini.config.js' })
+  const channel = {
+    site: 'example.com',
+    site_id: '1',
+    xmltv_id: '1TV.fr',
+    lang: 'fr',
+    name: '1TV'
+  }
+  grabber.grab(channel, config, result => {
+    result.on('data', function (data) {
+      console.log(
+        `  ${data.channel.site} - ${data.channel.xmltv_id} - ${data.date.format('MMM D, YYYY')} (${
+          data.programs.length
+        } programs)`
+      )
+    })
+
+    result.on('error', function (err) {
+      console.log(`    Error: ${err.message}`)
+      done()
+    })
+
+    result.on('done', function (programs) {
+      expect(programs.length).toBe(0)
+      done()
+    })
+  })
 })
