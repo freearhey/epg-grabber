@@ -22,10 +22,6 @@ utils.loadConfig = function (options) {
   const configPath = path.resolve(file)
   const config = require(configPath)
 
-  if (options.channels) config.channels = options.channels
-  else if (config.channels) config.channels = path.join(path.dirname(file), config.channels)
-  else throw new Error("The required 'channels' property is missing")
-
   if (!config.site) throw new Error("The required 'site' property is missing")
   if (!config.url) throw new Error("The required 'url' property is missing")
   if (typeof config.url !== 'function' && typeof config.url !== 'string')
@@ -60,8 +56,7 @@ utils.parseChannels = function (filename) {
 
   const xml = fs.readFileSync(path.resolve(filename), { encoding: 'utf-8' })
   const result = convert.xml2js(xml)
-  const site = result.elements.find(el => el.name === 'site')
-  const channels = site.elements.find(el => el.name === 'channels')
+  const channels = result.elements.find(el => el.name === 'channels')
 
   return channels.elements
     .filter(el => el.name === 'channel')
@@ -69,16 +64,13 @@ utils.parseChannels = function (filename) {
       const channel = el.attributes
       if (!el.elements) throw new Error(`Channel '${channel.xmltv_id}' has no valid name`)
       channel.name = el.elements.find(el => el.type === 'text').text
-      channel.site = channel.site || site.attributes.site
 
       return channel
     })
 }
 
 utils.sleep = function (ms) {
-  return function (x) {
-    return new Promise(resolve => setTimeout(() => resolve(x), ms))
-  }
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 utils.escapeString = function (string, defaultValue = '') {
@@ -199,7 +191,7 @@ utils.getRequestHeaders = async function (item, config) {
     }
     return headers
   }
-  return config.request.headers
+  return config.request.headers || null
 }
 
 utils.getRequestData = async function (item, config) {
@@ -210,7 +202,7 @@ utils.getRequestData = async function (item, config) {
     }
     return data
   }
-  return config.request.data
+  return config.request.data || null
 }
 
 utils.getRequestUrl = async function (item, config) {
@@ -229,28 +221,20 @@ utils.getUTCDate = function () {
 }
 
 utils.parseResponse = async (item, response, config) => {
-  const options = merge(item, config, {
+  const data = merge(item, config, {
     content: response.data.toString(),
     buffer: response.data
   })
 
   if (!item.channel.logo && config.logo) {
-    item.channel.logo = await utils.loadLogo(options, config)
+    item.channel.logo = await utils.loadLogo(data, config)
   }
 
-  const parsed = await utils.parsePrograms(options, config)
-
-  console.log(
-    `  ${config.site} - ${item.channel.xmltv_id} - ${item.date.format('MMM D, YYYY')} (${
-      parsed.length
-    } programs)`
-  )
-
-  return parsed
+  return await utils.parsePrograms(data, config)
 }
 
-utils.parsePrograms = async function (options, config) {
-  let programs = config.parser(options)
+utils.parsePrograms = async function (data, config) {
+  let programs = config.parser(data)
 
   if (this.isPromise(programs)) {
     programs = await programs
@@ -260,7 +244,7 @@ utils.parsePrograms = async function (options, config) {
     throw new Error('Parser should return an array')
   }
 
-  const channel = options.channel
+  const channel = data.channel
   return programs
     .filter(i => i)
     .map(program => {
