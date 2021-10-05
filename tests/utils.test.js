@@ -4,11 +4,9 @@ import utils from '../src/utils'
 it('can load valid config.js', () => {
   const config = utils.loadConfig({ config: './tests/input/example.com.config.js' })
   expect(config).toMatchObject({
-    channels: 'tests/input/example.com.channels.xml',
     days: 1,
     delay: 3000,
     lang: 'en',
-    output: 'tests/output/guide.xml',
     site: 'example.com'
   })
   expect(config.request).toMatchObject({
