@@ -1,8 +1,9 @@
 import mockAxios from 'jest-mock-axios'
 import utils from '../src/utils'
+import path from 'path'
 
 it('can load valid config.js', () => {
-  const config = utils.loadConfig({ config: './tests/input/example.com.config.js' })
+  const config = utils.loadConfig(require(path.resolve('./tests/input/example.com.config.js')))
   expect(config).toMatchObject({
     days: 1,
     delay: 3000,
@@ -114,7 +115,7 @@ it('can fetch data', async () => {
 })
 
 it('can build request async', async () => {
-  const config = utils.loadConfig({ config: './tests/input/async.config.js' })
+  const config = utils.loadConfig(require(path.resolve('./tests/input/async.config.js')))
   return utils.buildRequest({}, config).then(request => {
     expect(request).toMatchObject({
       data: { accountID: '123' },
@@ -135,14 +136,14 @@ it('can build request async', async () => {
 })
 
 it('can load logo async', async () => {
-  const config = utils.loadConfig({ config: './tests/input/async.config.js' })
+  const config = utils.loadConfig(require(path.resolve('./tests/input/async.config.js')))
   return utils.loadLogo({}, config).then(logo => {
     expect(logo).toBe('http://example.com/logos/1TV.png?x=шеллы&sid=777')
   })
 })
 
 it('can parse programs async', async () => {
-  const config = utils.loadConfig({ config: './tests/input/async.config.js' })
+  const config = utils.loadConfig(require(path.resolve('./tests/input/async.config.js')))
   return utils
     .parsePrograms({ channel: { xmltv_id: '1tv', lang: 'en' } }, config)
     .then(programs => {
