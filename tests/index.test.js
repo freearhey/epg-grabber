@@ -5,6 +5,7 @@
 import grabber from '../src/index'
 import utils from '../src/utils'
 import axios from 'axios'
+import path from 'path'
 
 jest.mock('axios')
 
@@ -16,7 +17,7 @@ it('can grab single channel programs', done => {
   }
   axios.mockImplementation(() => Promise.resolve(data))
 
-  const config = utils.loadConfig({ config: './tests/input/mini.config.js' })
+  const config = utils.loadConfig(require(path.resolve('./tests/input/mini.config.js')))
   const channel = {
     site: 'example.com',
     site_id: '1',
