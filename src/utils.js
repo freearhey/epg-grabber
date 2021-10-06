@@ -94,18 +94,18 @@ utils.escapeString = function (string, defaultValue = '') {
     .trim()
 }
 
-utils.convertToXMLTV = function ({ config, channels, programs }) {
-  const url = config.site ? 'https://' + config.site : null
+utils.convertToXMLTV = function ({ channels, programs }) {
   let output = `<?xml version="1.0" encoding="UTF-8" ?><tv>\r\n`
   for (let channel of channels) {
-    const id = this.escapeString(channel['xmltv_id'])
-    const displayName = this.escapeString(channel.name)
+    const id = utils.escapeString(channel['xmltv_id'])
+    const displayName = utils.escapeString(channel.name)
     output += `<channel id="${id}"><display-name>${displayName}</display-name>`
     if (channel.logo) {
-      const logo = this.escapeString(channel.logo)
+      const logo = utils.escapeString(channel.logo)
       output += `<icon src="${logo}"/>`
     }
-    if (url) {
+    if (channel.site) {
+      const url = channel.site ? 'https://' + channel.site : null
       output += `<url>${url}</url>`
     }
     output += `</channel>\r\n`
@@ -114,14 +114,14 @@ utils.convertToXMLTV = function ({ config, channels, programs }) {
   for (let program of programs) {
     if (!program) continue
 
-    const channel = this.escapeString(program.channel)
-    const title = this.escapeString(program.title)
-    const description = this.escapeString(program.description)
-    const category = this.escapeString(program.category)
+    const channel = utils.escapeString(program.channel)
+    const title = utils.escapeString(program.title)
+    const description = utils.escapeString(program.description)
+    const category = utils.escapeString(program.category)
     const start = program.start ? dayjs.utc(program.start).format('YYYYMMDDHHmmss ZZ') : ''
     const stop = program.stop ? dayjs.utc(program.stop).format('YYYYMMDDHHmmss ZZ') : ''
-    const lang = program.lang || config.lang
-    const icon = this.escapeString(program.icon)
+    const lang = program.lang || 'en'
+    const icon = utils.escapeString(program.icon)
 
     if (start && title) {
       output += `<programme start="${start}"`
