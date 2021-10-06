@@ -14,7 +14,6 @@ const Result = {
 
 module.exports = {
   grab: async function (channel, config, cb) {
-    cb(Result)
     const utcDate = utils.getUTCDate()
     const dates = Array.from({ length: config.days }, (_, i) => utcDate.add(i, 'd'))
     const queue = []
@@ -32,15 +31,17 @@ module.exports = {
         .then(response => utils.parseResponse(item, response, config))
         .then(results => {
           item.programs = results
-          Result.events['data'](item)
+          cb(item, null)
           programs = programs.concat(results)
         })
         .catch(err => {
-          Result.events['error'](err)
+          cb(null, err)
         })
-        .finally(utils.sleep(config.delay))
+
+      await utils.sleep(config.delay)
     }
 
-    Result.events['done'](programs)
-  }
+    return programs
+  },
+  convertToXMLTV: utils.convertToXMLTV
 }
