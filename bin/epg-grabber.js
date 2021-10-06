@@ -39,23 +39,21 @@ async function main() {
   let programs = []
   const channels = utils.parseChannels(config.channels)
   for (let channel of channels) {
-    await grabber.grab(channel, config, result => {
-      result.on('data', function (data) {
-        console.log(
-          `  ${config.site} - ${data.channel.xmltv_id} - ${data.date.format('MMM D, YYYY')} (${
-            data.programs.length
-          } programs)`
-        )
+    await grabber
+      .grab(channel, config, (data, err) => {
+        if (err) {
+          console.log(`    Error: ${err.message}`)
+        } else {
+          console.log(
+            `  ${config.site} - ${data.channel.xmltv_id} - ${data.date.format('MMM D, YYYY')} (${
+              data.programs.length
+            } programs)`
+          )
+        }
       })
-
-      result.on('error', function (err) {
-        console.log(`    Error: ${err.message}`)
-      })
-
-      result.on('done', function (results) {
+      .then(results => {
         programs = programs.concat(results)
       })
-    })
   }
 
   const xml = utils.convertToXMLTV({ config, channels, programs })
