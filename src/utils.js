@@ -246,7 +246,7 @@ utils.parsePrograms = async function (data, config) {
     .filter(i => i)
     .map(program => {
       program.channel = channel.xmltv_id
-      program.lang = program.lang || channel.lang || config.lang || undefined
+      program.lang = program.lang || channel.lang || config.lang || 'en'
       return program
     })
 }
