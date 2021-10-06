@@ -14,14 +14,7 @@ const utils = {}
 const defaultUserAgent =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
 
-utils.loadConfig = function (options) {
-  const file = options.config
-  if (!file) throw new Error('Path to [site].config.js is missing')
-  console.log(`Loading '${file}'...`)
-
-  const configPath = path.resolve(file)
-  const config = require(configPath)
-
+utils.loadConfig = function (config, options = {}) {
   if (!config.site) throw new Error("The required 'site' property is missing")
   if (!config.url) throw new Error("The required 'url' property is missing")
   if (typeof config.url !== 'function' && typeof config.url !== 'string')
