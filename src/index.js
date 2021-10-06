@@ -22,6 +22,8 @@ module.exports = {
       queue.push({ date, channel })
     })
 
+    config = utils.loadConfig(config)
+
     let programs = []
     for (let item of queue) {
       await utils
