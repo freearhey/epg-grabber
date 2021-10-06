@@ -14,7 +14,7 @@ const utils = {}
 const defaultUserAgent =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
 
-utils.loadConfig = function (config, options = {}) {
+utils.loadConfig = function (config) {
   if (!config.site) throw new Error("The required 'site' property is missing")
   if (!config.url) throw new Error("The required 'url' property is missing")
   if (typeof config.url !== 'function' && typeof config.url !== 'string')
@@ -26,10 +26,10 @@ utils.loadConfig = function (config, options = {}) {
     throw new Error("The 'logo' property should return the function")
 
   const defaultConfig = {
-    days: options.days ? parseInt(options.days) : 1,
-    lang: options.lang || 'en',
-    delay: options.delay ? parseInt(options.delay) : 3000,
-    output: options.output || 'guide.xml',
+    days: 1,
+    lang: 'en',
+    delay: 3000,
+    output: 'guide.xml',
     request: {
       method: 'GET',
       maxContentLength: 5 * 1024 * 1024,
