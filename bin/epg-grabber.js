@@ -6,6 +6,7 @@ const path = require('path')
 const grabber = require('../src/index')
 const utils = require('../src/utils')
 const { name, version, description } = require('../package.json')
+const merge = require('lodash.merge')
 
 program
   .name(name)
@@ -15,8 +16,8 @@ program
   .option('-o, --output <output>', 'Path to output file', 'guide.xml')
   .option('--channels <channels>', 'Path to channels.xml file')
   .option('--lang <lang>', 'Set default language for all programs', 'en')
-  .option('--days <days>', 'Number of days for which to grab the program', 1)
-  .option('--delay <delay>', 'Delay between requests (in mileseconds)', 3000)
+  .option('--days <days>', 'Number of days for which to grab the program', parseInteger, 1)
+  .option('--delay <delay>', 'Delay between requests (in mileseconds)', parseInteger, 3000)
   .option('--debug', 'Enable debug mode', false)
   .parse(process.argv)
 
@@ -26,7 +27,8 @@ async function main() {
   console.log('\r\nStarting...')
 
   console.log(`Loading '${options.config}'...`)
-  const config = utils.loadConfig(require(path.resolve(options.config)), options)
+  let config = require(path.resolve(options.config))
+  config = merge(config, options)
 
   if (options.channels) config.channels = options.channels
   else if (config.channels)
@@ -64,3 +66,7 @@ async function main() {
 }
 
 main()
+
+function parseInteger(val) {
+  return val ? parseInt(val) : null
+}
