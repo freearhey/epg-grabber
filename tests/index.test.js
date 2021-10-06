@@ -25,23 +25,21 @@ it('can grab single channel programs', done => {
     lang: 'fr',
     name: '1TV'
   }
-  grabber.grab(channel, config, result => {
-    result.on('data', function (data) {
-      console.log(
-        `  ${data.channel.site} - ${data.channel.xmltv_id} - ${data.date.format('MMM D, YYYY')} (${
-          data.programs.length
-        } programs)`
-      )
+  grabber
+    .grab(channel, config, (data, err) => {
+      if (err) {
+        console.log(`    Error: ${err.message}`)
+        done()
+      } else {
+        console.log(
+          `  ${data.channel.site} - ${data.channel.xmltv_id} - ${data.date.format(
+            'MMM D, YYYY'
+          )} (${data.programs.length} programs)`
+        )
+      }
     })
-
-    result.on('error', function (err) {
-      console.log(`    Error: ${err.message}`)
-      done()
-    })
-
-    result.on('done', function (programs) {
+    .then(programs => {
       expect(programs.length).toBe(0)
       done()
     })
-  })
 })
