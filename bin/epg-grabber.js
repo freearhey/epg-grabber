@@ -11,7 +11,7 @@ program
   .name(name)
   .version(version, '-v, --version')
   .description(description)
-  .option('-c, --config <config>', 'Path to [site].config.js file')
+  .requiredOption('-c, --config <config>', 'Path to [site].config.js file')
   .option('-o, --output <output>', 'Path to output file', 'guide.xml')
   .option('--channels <channels>', 'Path to channels.xml file')
   .option('--lang <lang>', 'Set default language for all programs', 'en')
@@ -21,10 +21,12 @@ program
   .parse(process.argv)
 
 const options = program.opts()
-const config = utils.loadConfig(options)
 
 async function main() {
   console.log('\r\nStarting...')
+
+  console.log(`Loading '${options.config}'...`)
+  const config = utils.loadConfig(require(path.resolve(options.config)), options)
 
   if (options.channels) config.channels = options.channels
   else if (config.channels)
