@@ -15,6 +15,7 @@ const Result = {
 module.exports = {
   grab: async function (channel, config, cb) {
     config = utils.loadConfig(config)
+    channel.lang = channel.lang || config.lang || null
 
     const utcDate = utils.getUTCDate()
     const dates = Array.from({ length: config.days }, (_, i) => utcDate.add(i, 'd'))
