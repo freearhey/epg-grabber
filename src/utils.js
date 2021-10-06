@@ -169,6 +169,10 @@ utils.buildRequest = async function (item, config) {
   request.url = await utils.getRequestUrl(item, config)
   request.data = await utils.getRequestData(item, config)
 
+  if (config.debug) {
+    console.log('Request:', JSON.stringify(request, null, 2))
+  }
+
   return request
 }
 
