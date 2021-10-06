@@ -41,14 +41,14 @@ async function main() {
   for (let channel of channels) {
     await grabber
       .grab(channel, config, (data, err) => {
+        console.log(
+          `  ${config.site} - ${data.channel.xmltv_id} - ${data.date.format('MMM D, YYYY')} (${
+            data.programs.length
+          } programs)`
+        )
+
         if (err) {
           console.log(`    Error: ${err.message}`)
-        } else {
-          console.log(
-            `  ${config.site} - ${data.channel.xmltv_id} - ${data.date.format('MMM D, YYYY')} (${
-              data.programs.length
-            } programs)`
-          )
         }
       })
       .then(results => {
