@@ -14,14 +14,14 @@ const Result = {
 
 module.exports = {
   grab: async function (channel, config, cb) {
+    config = utils.loadConfig(config)
+
     const utcDate = utils.getUTCDate()
     const dates = Array.from({ length: config.days }, (_, i) => utcDate.add(i, 'd'))
     const queue = []
     dates.forEach(date => {
       queue.push({ date, channel })
     })
-
-    config = utils.loadConfig(config)
 
     let programs = []
     for (let item of queue) {
@@ -35,7 +35,8 @@ module.exports = {
           programs = programs.concat(results)
         })
         .catch(err => {
-          cb(null, err)
+          item.programs = []
+          cb(item, err)
         })
 
       await utils.sleep(config.delay)
