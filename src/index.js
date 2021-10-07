@@ -1,16 +1,4 @@
-const axios = require('axios').default
 const utils = require('./utils')
-
-const Result = {
-  events: {
-    data: () => {},
-    error: () => {},
-    done: () => {}
-  },
-  on(type, cb) {
-    this.events[type] = cb
-  }
-}
 
 module.exports = {
   grab: async function (channel, config, cb) {
