@@ -10,6 +10,7 @@ const utc = require('dayjs/plugin/utc')
 dayjs.extend(utc)
 axiosCookieJarSupport(axios)
 
+let timeout
 const utils = {}
 const defaultUserAgent =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
@@ -166,7 +167,7 @@ utils.buildRequest = async function (item, config) {
   const CancelToken = axios.CancelToken
   const source = CancelToken.source()
   const request = { ...config.request }
-  const timeout = setTimeout(() => {
+  timeout = setTimeout(() => {
     source.cancel('Connection timeout')
   }, request.timeout)
   const headers = await utils.getRequestHeaders(item, config)
@@ -183,6 +184,17 @@ utils.buildRequest = async function (item, config) {
 }
 
 utils.fetchData = function (request) {
+  axios.interceptors.response.use(
+    function (response) {
+      clearTimeout(timeout)
+      return response
+    },
+    function (error) {
+      clearTimeout(timeout)
+      return Promise.reject(error)
+    }
+  )
+
   return axios(request)
 }
 
