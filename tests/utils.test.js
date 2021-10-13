@@ -79,7 +79,7 @@ it('can escape url', () => {
   )
 })
 
-it('can fetch data', async () => {
+it('can fetch data', () => {
   const request = {
     data: { accountID: '123' },
     headers: {
@@ -114,7 +114,7 @@ it('can fetch data', async () => {
   )
 })
 
-it('can build request async', async () => {
+it('can build request async', done => {
   const config = utils.loadConfig(require(path.resolve('./tests/input/async.config.js')))
   return utils.buildRequest({}, config).then(request => {
     expect(request).toMatchObject({
@@ -132,21 +132,24 @@ it('can build request async', async () => {
       url: 'http://example.com/20210319/1tv.json',
       withCredentials: true
     })
+    done()
   })
 })
 
-it('can load logo async', async () => {
+it('can load logo async', done => {
   const config = utils.loadConfig(require(path.resolve('./tests/input/async.config.js')))
   return utils.loadLogo({}, config).then(logo => {
     expect(logo).toBe('http://example.com/logos/1TV.png?x=шеллы&sid=777')
+    done()
   })
 })
 
-it('can parse programs async', async () => {
+it('can parse programs async', done => {
   const config = utils.loadConfig(require(path.resolve('./tests/input/async.config.js')))
   return utils
     .parsePrograms({ channel: { xmltv_id: '1tv', lang: 'en' } }, config)
     .then(programs => {
       expect(programs.length).toBe(0)
+      done()
     })
 })
