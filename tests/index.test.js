@@ -3,11 +3,35 @@
  */
 
 import grabber from '../src/index'
-import utils from '../src/utils'
 import axios from 'axios'
-import path from 'path'
 
 jest.mock('axios')
+
+it('return "Connection timeout" error if server does not response', done => {
+  const config = {
+    site: 'example.com',
+    request: {
+      timeout: 1000
+    },
+    url({ date, channel }) {
+      return `https://www.cosmote.gr/cosmotetv/residential/program/epg/programchannel?p_p_id=channelprogram_WAR_OTETVportlet&p_p_lifecycle=0&_channelprogram_WAR_OTETVportlet_platform=IPTV&_channelprogram_WAR_OTETVportlet_date=${date.format(
+        'DD-MM-YYYY'
+      )}&_channelprogram_WAR_OTETVportlet_articleTitleUrl=${channel.site_id}`
+    },
+    parser: () => []
+  }
+  const channel = {
+    site: 'example.com',
+    site_id: 'cnn',
+    xmltv_id: 'CNN.us',
+    lang: 'en',
+    name: 'CNN'
+  }
+  grabber.grab(channel, config, (data, err) => {
+    expect(err.message).toBe('Connection timeout')
+    done()
+  })
+})
 
 it('can grab single channel programs', done => {
   const data = {
@@ -17,7 +41,11 @@ it('can grab single channel programs', done => {
   }
   axios.mockImplementation(() => Promise.resolve(data))
 
-  const config = utils.loadConfig(require(path.resolve('./tests/input/mini.config.js')))
+  const config = {
+    site: 'example.com',
+    url: 'http://example.com/20210319/1tv.json',
+    parser: () => []
+  }
   const channel = {
     site: 'example.com',
     site_id: '1',
