@@ -9,7 +9,7 @@ function stdoutResultTester(stdout) {
 
 it('can load config', () => {
   const result = execSync(
-    `node ${pwd}/bin/epg-grabber.js --config=tests/input/example.com.config.js`,
+    `node ${pwd}/bin/epg-grabber.js --config=tests/input/example.com.config.js --delay=0`,
     {
       encoding: 'utf8'
     }
@@ -26,7 +26,7 @@ it('can load mini config', () => {
       --output=tests/output/mini.guide.xml \
       --lang=fr \
       --days=3 \
-      --delay=5000`,
+      --delay=0`,
     {
       encoding: 'utf8'
     }
