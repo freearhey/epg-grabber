@@ -163,11 +163,17 @@ utils.writeToFile = function (filename, data) {
 }
 
 utils.buildRequest = async function (item, config) {
+  const CancelToken = axios.CancelToken
+  const source = CancelToken.source()
   const request = { ...config.request }
+  const timeout = setTimeout(() => {
+    source.cancel('Connection timeout')
+  }, request.timeout)
   const headers = await utils.getRequestHeaders(item, config)
   request.headers = { 'User-Agent': defaultUserAgent, ...headers }
   request.url = await utils.getRequestUrl(item, config)
   request.data = await utils.getRequestData(item, config)
+  request.cancelToken = source.token
 
   if (config.debug) {
     console.log('Request:', JSON.stringify(request, null, 2))
