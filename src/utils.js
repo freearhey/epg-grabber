@@ -50,7 +50,10 @@ utils.parseChannels = function (filename) {
 
   const xml = fs.readFileSync(path.resolve(filename), { encoding: 'utf-8' })
   const result = convert.xml2js(xml)
-  const channels = result.elements.find(el => el.name === 'channels')
+  const site = result.elements.find(el => el.name === 'site') || {}
+  if (!site.elements) return []
+  const channels = site.elements.find(el => el.name === 'channels')
+  if (!channels.elements) return []
 
   return channels.elements
     .filter(el => el.name === 'channel')
