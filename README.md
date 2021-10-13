@@ -1,4 +1,4 @@
-# EPG Grabber [![Build Status](https://travis-ci.com/freearhey/epg-grabber.svg?branch=master)](https://travis-ci.com/freearhey/epg-grabber)
+# EPG Grabber [![Build Status](https://app.travis-ci.com/freearhey/epg-grabber.svg?branch=master)](https://app.travis-ci.com/freearhey/epg-grabber)
 
 Node.js CLI tool for grabbing EPG from different websites.
 
@@ -117,7 +117,7 @@ module.exports = {
 #### example.com.channels.xml
 
 ```xml
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <site site="example.com">
   <channels>
     <channel site_id="cnn-23" xmltv_id="CNN.us">CNN</channel>
@@ -129,7 +129,12 @@ module.exports = {
 You can also specify the language and logo for each channel individually, like so:
 
 ```xml
-<channel site_id="france-24" xmltv_id="France24.fr" lang="fr" logo="https://example.com/france24.png">France 24</channel>
+<channel
+  site_id="france-24"
+  xmltv_id="France24.fr"
+  lang="fr"
+  logo="https://example.com/france24.png"
+>France 24</channel>
 ```
 
 ## Contribution
