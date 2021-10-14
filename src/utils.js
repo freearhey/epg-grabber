@@ -44,18 +44,16 @@ utils.loadConfig = function (config) {
   return merge(defaultConfig, config)
 }
 
-utils.parseChannels = function (filename) {
-  if (!filename) throw new Error('Path to [site].channels.xml is missing')
-  console.log(`Loading '${filename}'...`)
-
-  const xml = fs.readFileSync(path.resolve(filename), { encoding: 'utf-8' })
+utils.parseChannels = function (xml) {
   const result = convert.xml2js(xml)
-  const site = result.elements.find(el => el.name === 'site') || {}
-  if (!site.elements) return []
-  const channels = site.elements.find(el => el.name === 'channels')
-  if (!channels.elements) return []
+  const siteTag = result.elements.find(el => el.name === 'site') || {}
+  if (!siteTag.elements) return []
+  const site = siteTag.attributes.site
 
-  return channels.elements
+  const channelsTag = siteTag.elements.find(el => el.name === 'channels')
+  if (!channelsTag.elements) return []
+
+  const channels = channelsTag.elements
     .filter(el => el.name === 'channel')
     .map(el => {
       const channel = el.attributes
@@ -64,6 +62,8 @@ utils.parseChannels = function (filename) {
 
       return channel
     })
+
+  return { site, channels }
 }
 
 utils.sleep = function (ms) {
