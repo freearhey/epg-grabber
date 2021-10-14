@@ -57,9 +57,10 @@ async function main() {
   }
 
   const xml = utils.convertToXMLTV({ config, channels, programs })
-  utils.writeToFile(config.output, xml)
+  const outputPath = config.output || 'guide.xml'
+  utils.writeToFile(outputPath, xml)
 
-  console.log(`File '${config.output}' successfully saved`)
+  console.log(`File '${outputPath}' successfully saved`)
   console.log('Finish')
 }
 
