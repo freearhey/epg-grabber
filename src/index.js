@@ -33,5 +33,6 @@ module.exports = {
 
     return programs
   },
-  convertToXMLTV: utils.convertToXMLTV
+  convertToXMLTV: utils.convertToXMLTV,
+  parseChannels: utils.parseChannels
 }
