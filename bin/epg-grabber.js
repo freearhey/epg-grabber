@@ -2,6 +2,7 @@
 
 const { Command } = require('commander')
 const program = new Command()
+const fs = require('fs')
 const path = require('path')
 const grabber = require('../src/index')
 const utils = require('../src/utils')
@@ -35,8 +36,13 @@ async function main() {
     config.channels = path.join(path.dirname(options.config), config.channels)
   else throw new Error("The required 'channels' property is missing")
 
+  if (!config.channels) throw new Error('Path to [site].channels.xml is missing')
+  console.log(`Loading '${config.channels}'...`)
+  const channelsXML = fs.readFileSync(path.resolve(config.channels), { encoding: 'utf-8' })
+  const parsed = utils.parseChannels(channelsXML)
+  const channels = parsed.channels || []
+
   let programs = []
-  const channels = utils.parseChannels(config.channels)
   for (let channel of channels) {
     await grabber
       .grab(channel, config, (data, err) => {
