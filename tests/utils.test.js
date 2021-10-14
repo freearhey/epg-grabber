@@ -1,6 +1,7 @@
 import mockAxios from 'jest-mock-axios'
 import utils from '../src/utils'
 import path from 'path'
+import fs from 'fs'
 
 it('can load valid config.js', () => {
   const config = utils.loadConfig(require(path.resolve('./tests/input/example.com.config.js')))
@@ -26,7 +27,10 @@ it('can load valid config.js', () => {
 })
 
 it('can parse valid channels.xml', () => {
-  expect(utils.parseChannels('./tests/input/example.com.channels.xml')).toEqual([
+  const file = fs.readFileSync('./tests/input/example.com.channels.xml', { encoding: 'utf-8' })
+  const parsed = utils.parseChannels(file)
+  expect(parsed.site).toBe('example.com')
+  expect(parsed.channels).toEqual([
     {
       name: '1 TV',
       xmltv_id: '1TV.com',
@@ -47,7 +51,9 @@ it('can parse valid channels.xml', () => {
 })
 
 it('can convert object to xmltv string', () => {
-  const channels = utils.parseChannels('./tests/input/example.com.channels.xml')
+  const file = fs.readFileSync('./tests/input/example.com.channels.xml', { encoding: 'utf-8' })
+  const parsed = utils.parseChannels(file)
+  const channels = parsed.channels
   const programs = [
     {
       title: 'Program 1',
