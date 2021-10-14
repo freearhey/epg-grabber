@@ -35,7 +35,6 @@ async function main() {
     config.channels = path.join(path.dirname(options.config), config.channels)
   else throw new Error("The required 'channels' property is missing")
 
-  console.log('Parsing:')
   let programs = []
   const channels = utils.parseChannels(config.channels)
   for (let channel of channels) {
