@@ -127,14 +127,8 @@ utils.convertToXMLTV = function ({ channels, programs }) {
     const lang = program.lang || 'en'
     const icon = utils.escapeString(program.icon)
 
-    if (start && title) {
-      output += `<programme start="${start}"`
-
-      if (stop) {
-        output += ` stop="${stop}"`
-      }
-
-      output += ` channel="${channel}"><title lang="${lang}">${title}</title>`
+    if (start && stop && title) {
+      output += `<programme start="${start}" stop="${stop}" channel="${channel}"><title lang="${lang}">${title}</title>`
 
       if (description) {
         output += `<desc lang="${lang}">${description}</desc>`
@@ -142,7 +136,9 @@ utils.convertToXMLTV = function ({ channels, programs }) {
 
       if (categories.length) {
         categories.forEach(category => {
-          output += `<category lang="${lang}">${utils.escapeString(category)}</category>`
+          if (category) {
+            output += `<category lang="${lang}">${utils.escapeString(category)}</category>`
+          }
         })
       }
 
