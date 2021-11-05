@@ -73,6 +73,33 @@ it('can convert object to xmltv string', () => {
   )
 })
 
+it('can convert object to xmltv string without categories', () => {
+  const channels = [
+    {
+      name: '1 TV',
+      xmltv_id: '1TV.com',
+      site_id: '1',
+      site: 'example.com',
+      lang: 'fr',
+      logo: 'https://example.com/logos/1TV.png'
+    }
+  ]
+  const programs = [
+    {
+      title: 'Program 1',
+      start: '2021-03-19 06:00:00 +0000',
+      stop: '2021-03-19 06:30:00 +0000',
+      channel: '1TV.com',
+      lang: 'it'
+    }
+  ]
+  const config = { site: 'example.com' }
+  const output = utils.convertToXMLTV({ config, channels, programs })
+  expect(output).toBe(
+    '<?xml version="1.0" encoding="UTF-8" ?><tv>\r\n<channel id="1TV.com"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.com"><title lang="it">Program 1</title></programme>\r\n</tv>'
+  )
+})
+
 it('can convert object to xmltv string with multiple categories', () => {
   const file = fs.readFileSync('./tests/input/example.com.channels.xml', { encoding: 'utf-8' })
   const parsed = utils.parseChannels(file)
