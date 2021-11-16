@@ -8,7 +8,63 @@ Node.js CLI tool for grabbing EPG from different websites.
 npm install -g epg-grabber
 ```
 
-## Usage
+## Quick Start
+
+```sh
+epg-grabber --config=example.com.config.js
+```
+
+#### example.com.config.js
+
+```js
+module.exports = {
+  site: 'example.com',
+  channels: 'example.com.channels.xml',
+  url: function (context) {
+    const { date, channel } = context
+
+    return `https://api.example.com/${date.format('YYYY-MM-DD')}/channel/${channel.site_id}`
+  },
+  parser: function (context) {
+    const programs = JSON.parse(context.content)
+
+    return programs.map(program => {
+      return {
+        title: program.title,
+        start: program.start,
+        stop: program.stop
+      }
+    })
+  }
+}
+```
+
+#### example.com.channels.xml
+
+```xml
+<?xml version="1.0" ?>
+<site site="example.com">
+  <channels>
+    <channel site_id="cnn-23" xmltv_id="CNN.us">CNN</channel>
+  </channels>
+</site>
+```
+
+## Example Output
+
+```xml
+<tv>
+  <channel id="CNN.us">
+    <display-name>CNN</display-name>
+  </channel>
+  <programme start="20211116040000 +0000" stop="20211116050000 +0000" channel="CNN.us">
+    <title lang="en">News at 10PM</title>
+  </programme>
+  // ...
+</tv>
+```
+
+## CLI
 
 ```sh
 epg-grabber --config=example.com.config.js
@@ -23,8 +79,10 @@ Arguments:
 - `--days`: number of days for which to grab the program (default: 1)
 - `--delay`: delay between requests (default: 3000)
 - `--debug`: enable debug mode (default: false)
+- `--log`: path to log file (optional)
+- `--log-level`: set the log level (default: 'info')
 
-#### example.com.config.js
+## Site Config
 
 ```js
 module.exports = {
@@ -41,12 +99,11 @@ module.exports = {
     timeout: 5000,
 
     /**
-     * @param {object} date The 'dayjs' instance with the requested date
-     * @param {object} channel Data about the requested channel
+     * @param {object} context
      *
      * @return {string} The function should return headers for each request (optional)
      */
-    headers: function({ date, channel }) {
+    headers: function(context) {
       return {
         'User-Agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
@@ -54,12 +111,13 @@ module.exports = {
     },
 
     /**
-     * @param {object} date The 'dayjs' instance with the requested date
-     * @param {object} channel Data about the requested channel
+     * @param {object} context
      *
      * @return {string} The function should return data for each request (optional)
      */
-    data: function({ date, channel }) {
+    data: function(context) {
+      const { channel, date } = context
+
       return {
         channels: [channel.site_id],
         dateStart: date.format('YYYY-MM-DDT00:00:00-00:00'),
@@ -69,32 +127,29 @@ module.exports = {
   },
 
   /**
-   * @param {object} date The 'dayjs' instance with the requested date
-   * @param {object} channel Data about the requested channel
+   * @param {object} context
    *
    * @return {string} The function should return URL of the program page for the channel
    */
-  url: function ({ date, channel }) {
-    return `https://example.com/${date.format('YYYY-MM-DD')}/channel/${channel.site_id}.html`
+  url: function (context) {
+    return `https://example.com/${context.date.format('YYYY-MM-DD')}/channel/${context.channel.site_id}.html`
   },
 
   /**
-   * @param {object} channel Data about the requested channel
-   * @param {string} content The response received after the request at the above url
+   * @param {object} context
    *
    * @return {string} The function should return URL of the channel logo (optional)
    */
-  logo: function ({ channel, content }) {
-    return `https://example.com/logos/${channel.site_id}.png`
+  logo: function (context) {
+    return `https://example.com/logos/${context.channel.site_id}.png`
   },
 
   /**
-   * @param {object} date The 'dayjs' instance with the requested date
-   * @param {string} content The response received after the request at the above url
+   * @param {object} context
    *
    * @return {array} The function should return an array of programs with their descriptions
    */
-  parser: function ({ date, content }) {
+  parser: function (context) {
 
     // content parsing...
 
@@ -114,7 +169,16 @@ module.exports = {
 }
 ```
 
-#### example.com.channels.xml
+## Context Object
+
+From each function in `config.js` you can access a `context` object containing the following data:
+
+- `channel`: The object describing the current channel (xmltv_id, site_id, name, lang)
+- `date`: The 'dayjs' instance with the requested date
+- `content`: The response data as a String
+- `buffer`: The response data as an ArrayBuffer
+
+## Channels List
 
 ```xml
 <?xml version="1.0" ?>
