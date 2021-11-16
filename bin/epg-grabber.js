@@ -8,6 +8,8 @@ const grabber = require('../src/index')
 const utils = require('../src/utils')
 const { name, version, description } = require('../package.json')
 const merge = require('lodash.merge')
+const { createLogger, format, transports } = require('winston')
+const { combine, timestamp, printf } = format
 
 program
   .name(name)
@@ -17,17 +19,46 @@ program
   .option('-o, --output <output>', 'Path to output file')
   .option('--channels <channels>', 'Path to channels.xml file')
   .option('--lang <lang>', 'Set default language for all programs')
-  .option('--days <days>', 'Number of days for which to grab the program', parseInteger)
+  .option('--days <days>', 'Number of days for which to grab the program', parseInteger, 1)
   .option('--delay <delay>', 'Delay between requests (in mileseconds)', parseInteger)
   .option('--debug', 'Enable debug mode', false)
+  .option('--log <log>', 'Path to log file')
+  .option('--log-level <level>', 'Set log level', 'info')
   .parse(process.argv)
 
 const options = program.opts()
 
-async function main() {
-  console.log('\r\nStarting...')
+const fileFormat = printf(({ level, message, timestamp }) => {
+  return `[${timestamp}] ${level.toUpperCase()}: ${message}`
+})
 
-  console.log(`Loading '${options.config}'...`)
+const consoleFormat = printf(({ level, message, timestamp }) => {
+  if (level === 'error') return `  Error: ${message}`
+
+  return message
+})
+
+const t = [new transports.Console({ format: consoleFormat })]
+
+if (options.log) {
+  t.push(
+    new transports.File({
+      filename: path.resolve(options.log),
+      format: combine(timestamp(), fileFormat),
+      options: { flags: 'w' }
+    })
+  )
+}
+
+const logger = createLogger({
+  level: options.logLevel,
+  transports: t
+})
+
+async function main() {
+  logger.info('Starting...')
+
+  logger.info(`Loading '${options.config}'...`)
   let config = require(path.resolve(options.config))
   config = merge(config, options)
 
@@ -36,25 +67,28 @@ async function main() {
     config.channels = path.join(path.dirname(options.config), config.channels)
   else throw new Error("The required 'channels' property is missing")
 
-  if (!config.channels) throw new Error('Path to [site].channels.xml is missing')
-  console.log(`Loading '${config.channels}'...`)
+  if (!config.channels) return logger.error('Path to [site].channels.xml is missing')
+  logger.info(`Loading '${config.channels}'...`)
   const channelsXML = fs.readFileSync(path.resolve(config.channels), { encoding: 'utf-8' })
   const parsed = utils.parseChannels(channelsXML)
   const channels = parsed.channels || []
 
   let programs = []
+  let i = 1
+  let days = options.days || 1
+  const total = channels.length * days
   for (let channel of channels) {
     await grabber
       .grab(channel, config, (data, err) => {
-        console.log(
-          `  ${config.site} - ${data.channel.xmltv_id} - ${data.date.format('MMM D, YYYY')} (${
-            data.programs.length
-          } programs)`
+        logger.info(
+          `[${i}/${total}] ${config.site} - ${data.channel.xmltv_id} - ${data.date.format(
+            'MMM D, YYYY'
+          )} (${data.programs.length} programs)`
         )
 
-        if (err) {
-          console.log(`    Error: ${err.message}`)
-        }
+        if (err) logger.error(err.message)
+
+        if (i < total) i++
       })
       .then(results => {
         programs = programs.concat(results)
@@ -65,8 +99,8 @@ async function main() {
   const outputPath = config.output || 'guide.xml'
   utils.writeToFile(outputPath, xml)
 
-  console.log(`File '${outputPath}' successfully saved`)
-  console.log('Finish')
+  logger.info(`File '${outputPath}' successfully saved`)
+  logger.info('Finish')
 }
 
 main()
