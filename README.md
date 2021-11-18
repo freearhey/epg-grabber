@@ -56,6 +56,7 @@ module.exports = {
 <tv>
   <channel id="CNN.us">
     <display-name>CNN</display-name>
+    <url>https://example.com</url>
   </channel>
   <programme start="20211116040000 +0000" stop="20211116050000 +0000" channel="CNN.us">
     <title lang="en">News at 10PM</title>
