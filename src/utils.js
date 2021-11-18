@@ -59,11 +59,12 @@ utils.parseChannels = function (xml) {
       const channel = el.attributes
       if (!el.elements) throw new Error(`Channel '${channel.xmltv_id}' has no valid name`)
       channel.name = el.elements.find(el => el.type === 'text').text
+      channel.site = channel.site || site
 
       return channel
     })
 
-  return { site, channels }
+  return channels
 }
 
 utils.sleep = function (ms) {
