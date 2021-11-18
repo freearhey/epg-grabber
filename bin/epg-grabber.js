@@ -21,6 +21,7 @@ program
   .option('--lang <lang>', 'Set default language for all programs')
   .option('--days <days>', 'Number of days for which to grab the program', parseInteger, 1)
   .option('--delay <delay>', 'Delay between requests (in mileseconds)', parseInteger)
+  .option('--timeout <timeout>', 'Set a timeout for each request (in mileseconds)', parseInteger)
   .option('--debug', 'Enable debug mode', false)
   .option('--log <log>', 'Path to log file')
   .option('--log-level <level>', 'Set log level', 'info')
@@ -60,7 +61,15 @@ async function main() {
 
   logger.info(`Loading '${options.config}'...`)
   let config = require(path.resolve(options.config))
-  config = merge(config, options)
+  config = merge(config, {
+    days: options.days,
+    debug: options.debug,
+    lang: options.lang,
+    delay: options.delay,
+    request: {
+      timeout: options.timeout
+    }
+  })
 
   if (options.channels) config.channels = options.channels
   else if (config.channels)
@@ -70,8 +79,7 @@ async function main() {
   if (!config.channels) return logger.error('Path to [site].channels.xml is missing')
   logger.info(`Loading '${config.channels}'...`)
   const channelsXML = fs.readFileSync(path.resolve(config.channels), { encoding: 'utf-8' })
-  const parsed = utils.parseChannels(channelsXML)
-  const channels = parsed.channels || []
+  const channels = utils.parseChannels(channelsXML)
 
   let programs = []
   let i = 1
@@ -96,7 +104,7 @@ async function main() {
   }
 
   const xml = utils.convertToXMLTV({ config, channels, programs })
-  const outputPath = config.output || 'guide.xml'
+  const outputPath = options.output || config.output || 'guide.xml'
   utils.writeToFile(outputPath, xml)
 
   logger.info(`File '${outputPath}' successfully saved`)
