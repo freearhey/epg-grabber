@@ -28,9 +28,8 @@ it('can load valid config.js', () => {
 
 it('can parse valid channels.xml', () => {
   const file = fs.readFileSync('./tests/input/example.com.channels.xml', { encoding: 'utf-8' })
-  const parsed = utils.parseChannels(file)
-  expect(parsed.site).toBe('example.com')
-  expect(parsed.channels).toEqual([
+  const channels = utils.parseChannels(file)
+  expect(channels).toEqual([
     {
       name: '1 TV',
       xmltv_id: '1TV.com',
@@ -52,8 +51,7 @@ it('can parse valid channels.xml', () => {
 
 it('can convert object to xmltv string', () => {
   const file = fs.readFileSync('./tests/input/example.com.channels.xml', { encoding: 'utf-8' })
-  const parsed = utils.parseChannels(file)
-  const channels = parsed.channels
+  const channels = utils.parseChannels(file)
   const programs = [
     {
       title: 'Program 1',
@@ -66,8 +64,7 @@ it('can convert object to xmltv string', () => {
       lang: 'it'
     }
   ]
-  const config = { site: 'example.com' }
-  const output = utils.convertToXMLTV({ config, channels, programs })
+  const output = utils.convertToXMLTV({ channels, programs })
   expect(output).toBe(
     '<?xml version="1.0" encoding="UTF-8" ?><tv>\r\n<channel id="1TV.com"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.com"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.com"><title lang="it">Program 1</title><desc lang="it">Description for Program 1</desc><category lang="it">Test</category><icon src="https://example.com/images/Program1.png?x=шеллы&amp;sid=777"/></programme>\r\n</tv>'
   )
@@ -102,8 +99,7 @@ it('can convert object to xmltv string without categories', () => {
 
 it('can convert object to xmltv string with multiple categories', () => {
   const file = fs.readFileSync('./tests/input/example.com.channels.xml', { encoding: 'utf-8' })
-  const parsed = utils.parseChannels(file)
-  const channels = parsed.channels
+  const channels = utils.parseChannels(file)
   const programs = [
     {
       title: 'Program 1',
@@ -116,8 +112,7 @@ it('can convert object to xmltv string with multiple categories', () => {
       lang: 'it'
     }
   ]
-  const config = { site: 'example.com' }
-  const output = utils.convertToXMLTV({ config, channels, programs })
+  const output = utils.convertToXMLTV({ channels, programs })
   expect(output).toBe(
     '<?xml version="1.0" encoding="UTF-8" ?><tv>\r\n<channel id="1TV.com"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.com"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.com"><title lang="it">Program 1</title><desc lang="it">Description for Program 1</desc><category lang="it">Test1</category><category lang="it">Test2</category><icon src="https://example.com/images/Program1.png?x=шеллы&amp;sid=777"/></programme>\r\n</tv>'
   )
