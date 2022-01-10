@@ -56,8 +56,8 @@ it('can convert object to xmltv string', () => {
     {
       title: 'Program 1',
       description: 'Description for Program 1',
-      start: '2021-03-19 06:00:00 +0000',
-      stop: '2021-03-19 06:30:00 +0000',
+      start: 1616133600,
+      stop: 1616135400,
       category: 'Test',
       icon: 'https://example.com/images/Program1.png?x=шеллы&sid=777',
       channel: '1TV.com',
@@ -84,8 +84,8 @@ it('can convert object to xmltv string without categories', () => {
   const programs = [
     {
       title: 'Program 1',
-      start: '2021-03-19 06:00:00 +0000',
-      stop: '2021-03-19 06:30:00 +0000',
+      start: 1616133600,
+      stop: 1616135400,
       channel: '1TV.com',
       lang: 'it'
     }
@@ -104,8 +104,8 @@ it('can convert object to xmltv string with multiple categories', () => {
     {
       title: 'Program 1',
       description: 'Description for Program 1',
-      start: '2021-03-19 06:00:00 +0000',
-      stop: '2021-03-19 06:30:00 +0000',
+      start: 1616133600,
+      stop: 1616135400,
       category: ['Test1', 'Test2'],
       icon: 'https://example.com/images/Program1.png?x=шеллы&sid=777',
       channel: '1TV.com',
