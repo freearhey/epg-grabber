@@ -123,8 +123,8 @@ utils.convertToXMLTV = function ({ channels, programs }) {
     const title = utils.escapeString(program.title)
     const description = utils.escapeString(program.description)
     const categories = Array.isArray(program.category) ? program.category : [program.category]
-    const start = program.start ? dayjs.utc(program.start).format('YYYYMMDDHHmmss ZZ') : ''
-    const stop = program.stop ? dayjs.utc(program.stop).format('YYYYMMDDHHmmss ZZ') : ''
+    const start = program.start ? dayjs.unix(program.start).utc().format('YYYYMMDDHHmmss ZZ') : ''
+    const stop = program.stop ? dayjs.unix(program.start).utc().format('YYYYMMDDHHmmss ZZ') : ''
     const lang = program.lang || 'en'
     const icon = utils.escapeString(program.icon)
 
