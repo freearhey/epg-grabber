@@ -265,9 +265,16 @@ utils.parsePrograms = async function (data, config) {
   return programs
     .filter(i => i)
     .map(program => {
-      program.channel = channel.xmltv_id
-      program.lang = program.lang || channel.lang || config.lang || 'en'
-      return program
+      return {
+        title: program.title,
+        description: program.description || null,
+        category: program.category || null,
+        icon: program.icon || null,
+        channel: channel.xmltv_id,
+        lang: program.lang || channel.lang || config.lang || 'en',
+        start: program.start ? dayjs(program.start).unix() : null,
+        stop: program.stop ? dayjs(program.stop).unix() : null
+      }
     })
 }
 
