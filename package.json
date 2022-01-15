@@ -1,6 +1,6 @@
 {
   "name": "epg-grabber",
-  "version": "0.15.1",
+  "version": "0.15.2",
   "description": "Node.js CLI tool for grabbing EPG from different sites",
   "main": "src/index.js",
   "preferGlobal": true,
