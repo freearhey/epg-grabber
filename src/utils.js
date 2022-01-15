@@ -244,7 +244,7 @@ utils.parseResponse = async (item, response, config) => {
   })
 
   if (!item.channel.logo && config.logo) {
-    item.channel.logo = await utils.loadLogo(data, config)
+    data.channel.logo = await utils.loadLogo(data, config)
   }
 
   return await utils.parsePrograms(data, config)
