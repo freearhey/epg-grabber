@@ -7,6 +7,7 @@ it('can load valid config.js', () => {
   const config = utils.loadConfig(require(path.resolve('./tests/input/example.com.config.js')))
   expect(config).toMatchObject({
     days: 1,
+    ignore: true,
     delay: 3000,
     lang: 'en',
     site: 'example.com'

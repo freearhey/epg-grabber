@@ -71,3 +71,23 @@ it('can grab single channel programs', done => {
       done()
     })
 })
+
+it('return "Skipped" error if ignore option in config is true', done => {
+  const config = {
+    site: 'example.com',
+    ignore: true,
+    url: `http://example.com/20210319/1tv.json`,
+    parser: () => []
+  }
+  const channel = {
+    site: 'example.com',
+    site_id: 'cnn',
+    xmltv_id: 'CNN.us',
+    lang: 'en',
+    name: 'CNN'
+  }
+  grabber.grab(channel, config, (data, err) => {
+    expect(err.message).toBe('Skipped')
+    done()
+  })
+})
