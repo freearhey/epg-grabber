@@ -295,6 +295,8 @@ utils.parsePrograms = async function (data, config) {
         title: program.title,
         description: program.description || null,
         category: program.category || null,
+        season: program.season || null,
+        episode: program.episode || null,
         icon: program.icon || null,
         channel: channel.xmltv_id,
         lang: program.lang || channel.lang || config.lang || 'en',
