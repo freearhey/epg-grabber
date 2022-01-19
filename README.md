@@ -159,12 +159,14 @@ module.exports = {
     return [
       {
         title, // program title (required)
-        start, // program start time (required)
-        stop, // program end time (optional)
-        description, // program description (optional)
-        category, // program category (optional)
-        icon, // program icon (optional)
-        lang // program language (default: 'en')
+        start, // start time of the program (required)
+        stop, // end time of the program (required)
+        description, // description of the program (optional)
+        category, // program type (optional)
+        season, // season number (optional)
+        episode, // episode number (optional)
+        icon, // image associated with the program (optional)
+        lang // language of the description (default: 'en')
       },
       ...
     ]
