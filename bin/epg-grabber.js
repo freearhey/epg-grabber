@@ -7,7 +7,7 @@ const path = require('path')
 const grabber = require('../src/index')
 const utils = require('../src/utils')
 const { name, version, description } = require('../package.json')
-const merge = require('lodash.merge')
+const { merge } = require('lodash')
 const { createLogger, format, transports } = require('winston')
 const { combine, timestamp, printf } = format
 

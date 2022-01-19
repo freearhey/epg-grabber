@@ -34,7 +34,7 @@
     "commander": "^7.1.0",
     "dayjs": "^1.10.4",
     "glob": "^7.1.6",
-    "lodash.merge": "^4.6.2",
+    "lodash": "^4.17.21",
     "tough-cookie": "^4.0.0",
     "winston": "^3.3.3",
     "xml-js": "^1.6.11"
