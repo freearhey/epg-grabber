@@ -198,6 +198,28 @@ it('can load logo async', done => {
   })
 })
 
+it('can parse programs', done => {
+  const config = utils.loadConfig(require(path.resolve('./tests/input/example.com.config.js')))
+  return utils
+    .parsePrograms({ channel: { xmltv_id: '1tv', lang: 'en' } }, config)
+    .then(programs => {
+      expect(programs).toMatchObject([
+        {
+          title: 'Title',
+          description: 'Description',
+          lang: 'en',
+          category: ['Category1', 'Category2'],
+          icon: 'https://example.com/image.jpg',
+          season: 9,
+          episode: 238,
+          start: 1640995200,
+          stop: 1640998800
+        }
+      ])
+      done()
+    })
+})
+
 it('can parse programs async', done => {
   const config = utils.loadConfig(require(path.resolve('./tests/input/async.config.js')))
   return utils
