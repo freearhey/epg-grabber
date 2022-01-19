@@ -1,10 +1,11 @@
 const fs = require('fs')
+const { padStart } = require('lodash')
 const path = require('path')
 const axios = require('axios').default
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
 const tough = require('tough-cookie')
 const convert = require('xml-js')
-const merge = require('lodash.merge')
+const { merge } = require('lodash')
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 dayjs.extend(utc)
@@ -126,6 +127,8 @@ utils.convertToXMLTV = function ({ channels, programs }) {
     const start = program.start ? dayjs.unix(program.start).utc().format('YYYYMMDDHHmmss ZZ') : ''
     const stop = program.stop ? dayjs.unix(program.stop).utc().format('YYYYMMDDHHmmss ZZ') : ''
     const lang = program.lang || 'en'
+    const xmltv_ns = createXMLTVNS(program.season, program.episode)
+    const onscreen = createOnScreen(program.season, program.episode)
     const icon = utils.escapeString(program.icon)
 
     if (start && stop && title) {
@@ -143,6 +146,14 @@ utils.convertToXMLTV = function ({ channels, programs }) {
         })
       }
 
+      if (xmltv_ns) {
+        output += `<episode-num system="xmltv_ns">${xmltv_ns}</episode-num>`
+      }
+
+      if (onscreen) {
+        output += `<episode-num system="onscreen">${onscreen}</episode-num>`
+      }
+
       if (icon) {
         output += `<icon src="${icon}"/>`
       }
@@ -152,6 +163,21 @@ utils.convertToXMLTV = function ({ channels, programs }) {
   }
 
   output += '</tv>'
+
+  function createXMLTVNS(s, e) {
+    if (!s || !e) return null
+
+    return `${s - 1}.${e - 1}.0/1`
+  }
+
+  function createOnScreen(s, e) {
+    if (!s || !e) return null
+
+    s = padStart(s, 2, '0')
+    e = padStart(e, 2, '0')
+
+    return `S${s}E${e}`
+  }
 
   return output
 }
