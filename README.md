@@ -94,7 +94,6 @@ module.exports = {
   lang: 'fr', // default language for all programs (default: 'en')
   days: 3, // number of days for which to grab the program (default: 1)
   delay: 5000, // delay between requests (default: 3000)
-  ignore: true, // skip all channels during request (default: false)
 
   request: { // request options (details: https://github.com/axios/axios#request-config)
 

@@ -14,12 +14,6 @@ module.exports = {
 
     let programs = []
     for (let item of queue) {
-      if (config.ignore) {
-        item.programs = []
-        cb(item, new Error('Skipped'))
-        continue
-      }
-
       await utils
         .buildRequest(item, config)
         .then(request => utils.fetchData(request))
