@@ -79,7 +79,7 @@ async function main() {
   if (!config.channels) return logger.error('Path to [site].channels.xml is missing')
   logger.info(`Loading '${config.channels}'...`)
   const channelsXML = fs.readFileSync(path.resolve(config.channels), { encoding: 'utf-8' })
-  const channels = utils.parseChannels(channelsXML)
+  const { channels } = utils.parseChannels(channelsXML)
 
   let programs = []
   let i = 1
