@@ -28,7 +28,7 @@ it('can load valid config.js', () => {
 
 it('can parse valid channels.xml', () => {
   const file = fs.readFileSync('./tests/input/example.com.channels.xml', { encoding: 'utf-8' })
-  const channels = utils.parseChannels(file)
+  const { channels } = utils.parseChannels(file)
   expect(channels).toEqual([
     {
       name: '1 TV',
@@ -51,7 +51,7 @@ it('can parse valid channels.xml', () => {
 
 it('can convert object to xmltv string', () => {
   const file = fs.readFileSync('./tests/input/example.com.channels.xml', { encoding: 'utf-8' })
-  const channels = utils.parseChannels(file)
+  const { channels } = utils.parseChannels(file)
   const programs = [
     {
       title: 'Program 1',
@@ -101,7 +101,7 @@ it('can convert object to xmltv string without categories', () => {
 
 it('can convert object to xmltv string with multiple categories', () => {
   const file = fs.readFileSync('./tests/input/example.com.channels.xml', { encoding: 'utf-8' })
-  const channels = utils.parseChannels(file)
+  const { channels } = utils.parseChannels(file)
   const programs = [
     {
       title: 'Program 1',
