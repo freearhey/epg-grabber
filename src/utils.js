@@ -65,7 +65,7 @@ utils.parseChannels = function (xml) {
       return channel
     })
 
-  return channels
+  return { site, channels }
 }
 
 utils.sleep = function (ms) {
