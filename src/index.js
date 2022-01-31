@@ -1,35 +1,29 @@
 const utils = require('./utils')
 
 module.exports = {
-  grab: async function (channel, config, cb) {
+  grab: async function (channel, date, config, cb) {
+    date = typeof date === 'string' ? utils.getUTCDate(date) : date
     config = utils.loadConfig(config)
     channel.lang = channel.lang || config.lang || null
 
-    const utcDate = utils.getUTCDate()
-    const dates = Array.from({ length: config.days }, (_, i) => utcDate.add(i, 'd'))
-    const queue = []
-    dates.forEach(date => {
-      queue.push({ date, channel })
-    })
-
     let programs = []
-    for (let item of queue) {
-      await utils
-        .buildRequest(item, config)
-        .then(request => utils.fetchData(request))
-        .then(response => utils.parseResponse(item, response, config))
-        .then(results => {
-          item.programs = results
-          cb(item, null)
-          programs = programs.concat(results)
-        })
-        .catch(err => {
-          item.programs = []
-          cb(item, err)
-        })
 
-      await utils.sleep(config.delay)
-    }
+    const item = { date, channel }
+    await utils
+      .buildRequest(item, config)
+      .then(request => utils.fetchData(request))
+      .then(response => utils.parseResponse(item, response, config))
+      .then(results => {
+        item.programs = results
+        cb(item, null)
+        programs = programs.concat(results)
+      })
+      .catch(err => {
+        item.programs = []
+        cb(item, err)
+      })
+
+    await utils.sleep(config.delay)
 
     return programs
   },
