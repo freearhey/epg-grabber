@@ -27,7 +27,7 @@ it('return "Connection timeout" error if server does not response', done => {
     lang: 'en',
     name: 'CNN'
   }
-  grabber.grab(channel, config, (data, err) => {
+  grabber.grab(channel, '2022-01-01', config, (data, err) => {
     expect(err.message).toBe('Connection timeout')
     done()
   })
@@ -54,7 +54,7 @@ it('can grab single channel programs', done => {
     name: '1TV'
   }
   grabber
-    .grab(channel, config, (data, err) => {
+    .grab(channel, '2022-01-01', config, (data, err) => {
       if (err) {
         console.log(`    Error: ${err.message}`)
         done()
