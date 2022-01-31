@@ -259,7 +259,9 @@ utils.getRequestUrl = async function (item, config) {
   return config.url
 }
 
-utils.getUTCDate = function () {
+utils.getUTCDate = function (d = null) {
+  if (typeof d === 'string') return dayjs.utc(d).startOf('d')
+
   return dayjs.utc().startOf('d')
 }
 
