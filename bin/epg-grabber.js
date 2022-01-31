@@ -85,22 +85,26 @@ async function main() {
   let i = 1
   let days = options.days || 1
   const total = channels.length * days
+  const utcDate = utils.getUTCDate()
+  const dates = Array.from({ length: config.days }, (_, i) => utcDate.add(i, 'd'))
   for (let channel of channels) {
-    await grabber
-      .grab(channel, config, (data, err) => {
-        logger.info(
-          `[${i}/${total}] ${config.site} - ${data.channel.xmltv_id} - ${data.date.format(
-            'MMM D, YYYY'
-          )} (${data.programs.length} programs)`
-        )
+    for (let date of dates) {
+      await grabber
+        .grab(channel, date, config, (data, err) => {
+          logger.info(
+            `[${i}/${total}] ${config.site} - ${data.channel.xmltv_id} - ${data.date.format(
+              'MMM D, YYYY'
+            )} (${data.programs.length} programs)`
+          )
 
-        if (err) logger.error(err.message)
+          if (err) logger.error(err.message)
 
-        if (i < total) i++
-      })
-      .then(results => {
-        programs = programs.concat(results)
-      })
+          if (i < total) i++
+        })
+        .then(results => {
+          programs = programs.concat(results)
+        })
+    }
   }
 
   const xml = utils.convertToXMLTV({ config, channels, programs })
