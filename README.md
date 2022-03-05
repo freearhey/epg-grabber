@@ -181,6 +181,7 @@ From each function in `config.js` you can access a `context` object containing t
 - `date`: The 'dayjs' instance with the requested date
 - `content`: The response data as a String
 - `buffer`: The response data as an ArrayBuffer
+- `headers`: The response headers
 
 ## Channels List
 
