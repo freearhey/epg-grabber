@@ -268,7 +268,8 @@ utils.getUTCDate = function (d = null) {
 utils.parseResponse = async (item, response, config) => {
   const data = merge(item, config, {
     content: response.data.toString(),
-    buffer: response.data
+    buffer: response.data,
+    headers: response.headers
   })
 
   if (!item.channel.logo && config.logo) {
