@@ -8,6 +8,7 @@ const convert = require('xml-js')
 const { merge } = require('lodash')
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
+const { CurlGenerator } = require('curl-generator')
 dayjs.extend(utc)
 axiosCookieJarSupport(axios)
 
@@ -206,6 +207,16 @@ utils.buildRequest = async function (item, config) {
 
   if (config.debug) {
     console.log('Request:', JSON.stringify(request, null, 2))
+  }
+
+  if (config.curl) {
+    const curl = CurlGenerator({
+      url: request.url,
+      method: request.method,
+      headers: request.headers,
+      body: request.data
+    })
+    console.log(curl)
   }
 
   return request
