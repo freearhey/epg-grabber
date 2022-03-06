@@ -81,6 +81,7 @@ Arguments:
 - `--delay`: delay between requests (default: 3000)
 - `--timeout`: set a timeout for each request (default: 5000)
 - `--debug`: enable debug mode (default: false)
+- `--curl`: display current request as CURL (default: false)
 - `--log`: path to log file (optional)
 - `--log-level`: set the log level (default: 'info')
 
