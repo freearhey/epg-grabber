@@ -18,9 +18,12 @@ module.exports = {
         cb(item, null)
         programs = programs.concat(results)
       })
-      .catch(err => {
+      .catch(error => {
         item.programs = []
-        cb(item, err)
+        if (config.debug) {
+          console.log('Error:', JSON.stringify(error, null, 2))
+        }
+        cb(item, error)
       })
 
     await utils.sleep(config.delay)
