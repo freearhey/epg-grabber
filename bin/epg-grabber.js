@@ -23,6 +23,7 @@ program
   .option('--delay <delay>', 'Delay between requests (in mileseconds)', parseInteger)
   .option('--timeout <timeout>', 'Set a timeout for each request (in mileseconds)', parseInteger)
   .option('--debug', 'Enable debug mode', false)
+  .option('--curl', 'Display request as CURL', false)
   .option('--log <log>', 'Path to log file')
   .option('--log-level <level>', 'Set log level', 'info')
   .parse(process.argv)
@@ -64,6 +65,7 @@ async function main() {
   config = merge(config, {
     days: options.days,
     debug: options.debug,
+    curl: options.curl,
     lang: options.lang,
     delay: options.delay,
     request: {
