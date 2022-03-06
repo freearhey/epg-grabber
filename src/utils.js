@@ -266,6 +266,20 @@ utils.getUTCDate = function (d = null) {
 }
 
 utils.parseResponse = async (item, response, config) => {
+  if (config.debug) {
+    console.log(
+      'Response:',
+      JSON.stringify(
+        {
+          headers: response.headers,
+          data: response.data.toString()
+        },
+        null,
+        2
+      )
+    )
+  }
+
   const data = merge(item, config, {
     content: response.data.toString(),
     buffer: response.data,
