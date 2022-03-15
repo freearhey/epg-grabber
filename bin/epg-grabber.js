@@ -8,6 +8,7 @@ const grabber = require('../src/index')
 const utils = require('../src/utils')
 const { name, version, description } = require('../package.json')
 const { merge } = require('lodash')
+const { gzip } = require('node-gzip')
 const { createLogger, format, transports } = require('winston')
 const { combine, timestamp, printf } = format
 
@@ -22,6 +23,7 @@ program
   .option('--days <days>', 'Number of days for which to grab the program', parseInteger, 1)
   .option('--delay <delay>', 'Delay between requests (in mileseconds)', parseInteger)
   .option('--timeout <timeout>', 'Set a timeout for each request (in mileseconds)', parseInteger)
+  .option('--gzip', 'Compress the output', false)
   .option('--debug', 'Enable debug mode', false)
   .option('--curl', 'Display request as CURL', false)
   .option('--log <log>', 'Path to log file')
@@ -65,6 +67,7 @@ async function main() {
   config = merge(config, {
     days: options.days,
     debug: options.debug,
+    gzip: options.gzip,
     curl: options.curl,
     lang: options.lang,
     delay: options.delay,
@@ -110,8 +113,15 @@ async function main() {
   }
 
   const xml = utils.convertToXMLTV({ config, channels, programs })
-  const outputPath = options.output || config.output || 'guide.xml'
-  utils.writeToFile(outputPath, xml)
+  let outputPath = options.output || config.output
+  if (options.gzip) {
+    outputPath = outputPath || 'guide.xml.gz'
+    const compressed = await gzip(xml)
+    utils.writeToFile(outputPath, compressed)
+  } else {
+    outputPath = outputPath || 'guide.xml'
+    utils.writeToFile(outputPath, xml)
+  }
 
   logger.info(`File '${outputPath}' successfully saved`)
   logger.info('Finish')
