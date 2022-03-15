@@ -1,6 +1,6 @@
 {
   "name": "epg-grabber",
-  "version": "0.23.0",
+  "version": "0.24.0",
   "description": "Node.js CLI tool for grabbing EPG from different sites",
   "main": "src/index.js",
   "preferGlobal": true,
@@ -36,6 +36,7 @@
     "dayjs": "^1.10.4",
     "glob": "^7.1.6",
     "lodash": "^4.17.21",
+    "node-gzip": "^1.1.2",
     "tough-cookie": "^4.0.0",
     "winston": "^3.3.3",
     "xml-js": "^1.6.11"
