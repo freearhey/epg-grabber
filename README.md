@@ -80,6 +80,7 @@ Arguments:
 - `--days`: number of days for which to grab the program (default: 1)
 - `--delay`: delay between requests (default: 3000)
 - `--timeout`: set a timeout for each request (default: 5000)
+- `--gzip`: compress output (default: false)
 - `--debug`: enable debug mode (default: false)
 - `--curl`: display current request as CURL (default: false)
 - `--log`: path to log file (optional)
