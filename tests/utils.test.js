@@ -1,5 +1,6 @@
 import mockAxios from 'jest-mock-axios'
 import utils from '../src/utils'
+import axios from 'axios'
 import path from 'path'
 import fs from 'fs'
 
@@ -148,7 +149,7 @@ it('can fetch data', () => {
     url: 'http://example.com/20210319/1tv.json',
     withCredentials: true
   }
-  utils.fetchData(request).then(jest.fn).catch(jest.fn)
+  utils.fetchData(axios, request).then(jest.fn).catch(jest.fn)
   expect(mockAxios).toHaveBeenCalledWith(
     expect.objectContaining({
       data: { accountID: '123' },
