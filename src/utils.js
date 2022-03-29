@@ -3,6 +3,7 @@ const { padStart } = require('lodash')
 const path = require('path')
 const axios = require('axios').default
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
+const axiosCacheAdapter = require('axios-cache-adapter')
 const tough = require('tough-cookie')
 const convert = require('xml-js')
 const { merge } = require('lodash')
@@ -39,11 +40,63 @@ utils.loadConfig = function (config) {
       timeout: 5000,
       withCredentials: true,
       jar: new tough.CookieJar(),
-      responseType: 'arraybuffer'
+      responseType: 'arraybuffer',
+      cache: {
+        readHeaders: false,
+        exclude: {
+          query: false
+        },
+        maxAge: 0
+      }
     }
   }
 
   return merge(defaultConfig, config)
+}
+
+utils.createClient = function (config) {
+  const client = axiosCacheAdapter.setup()
+  client.interceptors.request.use(
+    function (request) {
+      if (config.debug) {
+        console.log('Request:', JSON.stringify(request, null, 2))
+      }
+      return request
+    },
+    function (error) {
+      return Promise.reject(error)
+    }
+  )
+  client.interceptors.response.use(
+    function (response) {
+      if (config.debug) {
+        const data = utils.isObject(response.data)
+          ? JSON.stringify(response.data)
+          : response.data.toString()
+        console.log(
+          'Response:',
+          JSON.stringify(
+            {
+              headers: response.headers,
+              data,
+              fromCache: response.request.fromCache === true
+            },
+            null,
+            2
+          )
+        )
+      }
+
+      clearTimeout(timeout)
+      return response
+    },
+    function (error) {
+      clearTimeout(timeout)
+      return Promise.reject(error)
+    }
+  )
+
+  return client
 }
 
 utils.parseChannels = function (xml) {
@@ -205,10 +258,6 @@ utils.buildRequest = async function (item, config) {
   request.data = await utils.getRequestData(item, config)
   request.cancelToken = source.token
 
-  if (config.debug) {
-    console.log('Request:', JSON.stringify(request, null, 2))
-  }
-
   if (config.curl) {
     const curl = CurlGenerator({
       url: request.url,
@@ -222,19 +271,8 @@ utils.buildRequest = async function (item, config) {
   return request
 }
 
-utils.fetchData = function (request) {
-  axios.interceptors.response.use(
-    function (response) {
-      clearTimeout(timeout)
-      return response
-    },
-    function (error) {
-      clearTimeout(timeout)
-      return Promise.reject(error)
-    }
-  )
-
-  return axios(request)
+utils.fetchData = function (client, request) {
+  return client(request)
 }
 
 utils.getRequestHeaders = async function (item, config) {
@@ -277,24 +315,15 @@ utils.getUTCDate = function (d = null) {
 }
 
 utils.parseResponse = async (item, response, config) => {
-  if (config.debug) {
-    console.log(
-      'Response:',
-      JSON.stringify(
-        {
-          headers: response.headers,
-          data: response.data.toString()
-        },
-        null,
-        2
-      )
-    )
-  }
-
+  const content = utils.isObject(response.data)
+    ? JSON.stringify(response.data)
+    : response.data.toString()
+  const buffer = Buffer.from(content, 'utf8')
   const data = merge(item, config, {
-    content: response.data.toString(),
-    buffer: response.data,
-    headers: response.headers
+    content,
+    buffer,
+    headers: response.headers,
+    request: response.request
   })
 
   if (!item.channel.logo && config.logo) {
@@ -344,6 +373,10 @@ utils.loadLogo = async function (options, config) {
 
 utils.isPromise = function (promise) {
   return !!promise && typeof promise.then === 'function'
+}
+
+utils.isObject = function (a) {
+  return !!a && a.constructor === Object
 }
 
 module.exports = utils
