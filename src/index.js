@@ -1,18 +1,21 @@
 const utils = require('./utils')
 
-module.exports = {
-  grab: async function (channel, date, config, cb) {
+class EPGGrabber {
+  constructor(config = {}) {
+    this.config = utils.loadConfig(config)
+    this.client = utils.createClient(config)
+  }
+
+  async grab(channel, date, cb = () => {}) {
     date = typeof date === 'string' ? utils.getUTCDate(date) : date
-    config = utils.loadConfig(config)
-    channel.lang = channel.lang || config.lang || null
+    channel.lang = channel.lang || this.config.lang || null
 
     let programs = []
-
     const item = { date, channel }
     await utils
-      .buildRequest(item, config)
-      .then(request => utils.fetchData(request))
-      .then(response => utils.parseResponse(item, response, config))
+      .buildRequest(item, this.config)
+      .then(request => utils.fetchData(this.client, request))
+      .then(response => utils.parseResponse(item, response, this.config))
       .then(results => {
         item.programs = results
         cb(item, null)
@@ -20,16 +23,19 @@ module.exports = {
       })
       .catch(error => {
         item.programs = []
-        if (config.debug) {
+        if (this.config.debug) {
           console.log('Error:', JSON.stringify(error, null, 2))
         }
         cb(item, error)
       })
 
-    await utils.sleep(config.delay)
+    await utils.sleep(this.config.delay)
 
     return programs
-  },
-  convertToXMLTV: utils.convertToXMLTV,
-  parseChannels: utils.parseChannels
+  }
 }
+
+EPGGrabber.convertToXMLTV = utils.convertToXMLTV
+EPGGrabber.parseChannels = utils.parseChannels
+
+module.exports = EPGGrabber
