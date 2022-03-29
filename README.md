@@ -80,6 +80,7 @@ Arguments:
 - `--days`: number of days for which to grab the program (default: 1)
 - `--delay`: delay between requests (default: 3000)
 - `--timeout`: set a timeout for each request (default: 5000)
+- `--cache-max-age`: maximum time for storing each request in milliseconds (default: 0)
 - `--gzip`: compress the output (default: false)
 - `--debug`: enable debug mode (default: false)
 - `--curl`: display current request as CURL (default: false)
@@ -101,6 +102,13 @@ module.exports = {
 
     method: 'GET',
     timeout: 5000,
+    cache: { // cache options (details: https://github.com/RasCarlito/axios-cache-adapter#options)
+      maxAge: 0,
+      readHeaders: false,
+      exclude: {
+        query: false
+      }
+    },
 
     /**
      * @param {object} context
