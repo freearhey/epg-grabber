@@ -70,9 +70,10 @@ utils.createClient = function (config) {
   client.interceptors.response.use(
     function (response) {
       if (config.debug) {
-        const data = utils.isObject(response.data)
-          ? JSON.stringify(response.data)
-          : response.data.toString()
+        const data =
+          utils.isObject(response.data) || Array.isArray(response.data)
+            ? JSON.stringify(response.data)
+            : response.data.toString()
         console.log(
           'Response:',
           JSON.stringify(
@@ -315,9 +316,10 @@ utils.getUTCDate = function (d = null) {
 }
 
 utils.parseResponse = async (item, response, config) => {
-  const content = utils.isObject(response.data)
-    ? JSON.stringify(response.data)
-    : response.data.toString()
+  const content =
+    utils.isObject(response.data) || Array.isArray(response.data)
+      ? JSON.stringify(response.data)
+      : response.data.toString()
   const buffer = Buffer.from(content, 'utf8')
   const data = merge(item, config, {
     content,
