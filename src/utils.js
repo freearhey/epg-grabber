@@ -316,11 +316,15 @@ utils.getUTCDate = function (d = null) {
 }
 
 utils.parseResponse = async (item, response, config) => {
-  const content =
-    utils.isObject(response.data) || Array.isArray(response.data)
-      ? JSON.stringify(response.data)
-      : response.data.toString()
-  const buffer = Buffer.from(content, 'utf8')
+  let buffer
+  let content
+  if (utils.isObject(response.data) || Array.isArray(response.data)) {
+    content = JSON.stringify(response.data)
+    buffer = Buffer.from(content, 'utf8')
+  } else {
+    content = response.data.toString()
+    buffer = response.data
+  }
   const data = merge(item, config, {
     content,
     buffer,
