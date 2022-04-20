@@ -95,6 +95,28 @@ it('can convert object to xmltv string without season number', () => {
   )
 })
 
+it('can convert object to xmltv string without episode number', () => {
+  const file = fs.readFileSync('./tests/input/example.com.channels.xml', { encoding: 'utf-8' })
+  const { channels } = utils.parseChannels(file)
+  const programs = [
+    {
+      title: 'Program 1',
+      description: 'Description for Program 1',
+      start: 1616133600,
+      stop: 1616135400,
+      category: 'Test',
+      season: 1,
+      icon: 'https://example.com/images/Program1.png?x=шеллы&sid=777',
+      channel: '1TV.com',
+      lang: 'it'
+    }
+  ]
+  const output = utils.convertToXMLTV({ channels, programs })
+  expect(output).toBe(
+    '<?xml version="1.0" encoding="UTF-8" ?><tv>\r\n<channel id="1TV.com"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.com"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.com"><title lang="it">Program 1</title><desc lang="it">Description for Program 1</desc><category lang="it">Test</category><icon src="https://example.com/images/Program1.png?x=шеллы&amp;sid=777"/></programme>\r\n</tv>'
+  )
+})
+
 it('can convert object to xmltv string without categories', () => {
   const channels = [
     {
@@ -171,7 +193,7 @@ it('can fetch data', () => {
     url: 'http://example.com/20210319/1tv.json',
     withCredentials: true
   }
-  utils.fetchData(axios, request).then(jest.fn).catch(jest.fn)
+  utils.fetchData(mockAxios, request).then(jest.fn).catch(jest.fn)
   expect(mockAxios).toHaveBeenCalledWith(
     expect.objectContaining({
       data: { accountID: '123' },
@@ -192,37 +214,46 @@ it('can fetch data', () => {
 
 it('can build request async', done => {
   const config = utils.loadConfig(require(path.resolve('./tests/input/async.config.js')))
-  return utils.buildRequest({}, config).then(request => {
-    expect(request).toMatchObject({
-      data: { accountID: '123' },
-      headers: {
-        'Content-Type': 'application/json',
-        Cookie: 'abc=123',
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
-      },
-      maxContentLength: 5242880,
-      method: 'POST',
-      responseType: 'arraybuffer',
-      timeout: 5000,
-      url: 'http://example.com/20210319/1tv.json',
-      withCredentials: true
+
+  utils
+    .buildRequest({}, config)
+    .then(request => {
+      expect(request).toMatchObject({
+        data: { accountID: '123' },
+        headers: {
+          'Content-Type': 'application/json',
+          Cookie: 'abc=123',
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
+        },
+        maxContentLength: 5242880,
+        method: 'POST',
+        responseType: 'arraybuffer',
+        timeout: 5000,
+        url: 'http://example.com/20210319/1tv.json',
+        withCredentials: true
+      })
+      done()
     })
-    done()
-  })
+    .catch(done)
 })
 
 it('can load logo async', done => {
   const config = utils.loadConfig(require(path.resolve('./tests/input/async.config.js')))
-  return utils.loadLogo({}, config).then(logo => {
-    expect(logo).toBe('http://example.com/logos/1TV.png?x=шеллы&sid=777')
-    done()
-  })
+
+  utils
+    .loadLogo({}, config)
+    .then(logo => {
+      expect(logo).toBe('http://example.com/logos/1TV.png?x=шеллы&sid=777')
+      done()
+    })
+    .catch(done)
 })
 
 it('can parse programs', done => {
   const config = utils.loadConfig(require(path.resolve('./tests/input/example.com.config.js')))
-  return utils
+
+  utils
     .parsePrograms({ channel: { xmltv_id: '1tv', lang: 'en' } }, config)
     .then(programs => {
       expect(programs).toMatchObject([
@@ -240,14 +271,17 @@ it('can parse programs', done => {
       ])
       done()
     })
+    .catch(done)
 })
 
 it('can parse programs async', done => {
   const config = utils.loadConfig(require(path.resolve('./tests/input/async.config.js')))
-  return utils
+
+  utils
     .parsePrograms({ channel: { xmltv_id: '1tv', lang: 'en' } }, config)
     .then(programs => {
       expect(programs.length).toBe(0)
       done()
     })
+    .catch(done)
 })
