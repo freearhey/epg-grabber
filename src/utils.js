@@ -220,14 +220,14 @@ utils.convertToXMLTV = function ({ channels, programs }) {
   output += '</tv>'
 
   function createXMLTVNS(s, e) {
-    if (!s && !e) return null
+    if (!e) return null
     s = s || 1
 
     return `${s - 1}.${e - 1}.0/1`
   }
 
   function createOnScreen(s, e) {
-    if (!s && !e) return null
+    if (!e) return null
     s = s || 1
 
     s = padStart(s, 2, '0')
