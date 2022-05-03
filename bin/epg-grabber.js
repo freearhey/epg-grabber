@@ -24,7 +24,7 @@ program
   .option('--delay <delay>', 'Delay between requests (in mileseconds)', parseInteger)
   .option('--timeout <timeout>', 'Set a timeout for each request (in mileseconds)', parseInteger)
   .option(
-    '--cache-max-age <cacheMaxAge>',
+    '--cache-ttl <cacheTtl>',
     'Maximum time for storing each request (in milliseconds)',
     parseInteger
   )
@@ -76,14 +76,11 @@ async function main() {
     curl: options.curl,
     lang: options.lang,
     delay: options.delay,
-    request: {
-      timeout: options.timeout,
-      cache: {
-        maxAge: options.cacheMaxAge
-      }
-    }
+    request: {}
   })
 
+  if (options.timeout) config.request.timeout = options.timeout
+  if (options.cacheTtl) config.request.cache.ttl = options.cacheTtl
   if (options.channels) config.channels = options.channels
   else if (config.channels)
     config.channels = path.join(path.dirname(options.config), config.channels)
