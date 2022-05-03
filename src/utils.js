@@ -3,7 +3,7 @@ const { padStart } = require('lodash')
 const path = require('path')
 const axios = require('axios').default
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
-const axiosCacheAdapter = require('axios-cache-adapter')
+const { setupCache } = require('axios-cache-interceptor')
 const tough = require('tough-cookie')
 const convert = require('xml-js')
 const { merge } = require('lodash')
@@ -41,13 +41,7 @@ utils.loadConfig = function (config) {
       withCredentials: true,
       jar: new tough.CookieJar(),
       responseType: 'arraybuffer',
-      cache: {
-        readHeaders: false,
-        exclude: {
-          query: false
-        },
-        maxAge: 0
-      }
+      cache: false
     }
   }
 
@@ -55,7 +49,7 @@ utils.loadConfig = function (config) {
 }
 
 utils.createClient = function (config) {
-  const client = axiosCacheAdapter.setup()
+  const client = setupCache(axios.create())
   client.interceptors.request.use(
     function (request) {
       if (config.debug) {
@@ -80,7 +74,7 @@ utils.createClient = function (config) {
             {
               headers: response.headers,
               data,
-              fromCache: response.request.fromCache === true
+              cached: response.cached
             },
             null,
             2
@@ -318,20 +312,12 @@ utils.getUTCDate = function (d = null) {
 }
 
 utils.parseResponse = async (item, response, config) => {
-  let buffer
-  let content
-  if (utils.isObject(response.data) || Array.isArray(response.data)) {
-    content = JSON.stringify(response.data)
-    buffer = Buffer.from(content, 'utf8')
-  } else {
-    content = response.data.toString()
-    buffer = response.data
-  }
   const data = merge(item, config, {
-    content,
-    buffer,
+    content: response.data.toString(),
+    buffer: response.data,
     headers: response.headers,
-    request: response.request
+    request: response.request,
+    cached: response.cached
   })
 
   if (!item.channel.logo && config.logo) {
