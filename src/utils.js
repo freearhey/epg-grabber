@@ -150,7 +150,7 @@ utils.escapeString = function (string, defaultValue = '') {
 }
 
 utils.convertToXMLTV = function ({ channels, programs }) {
-  let output = `<?xml version="1.0" encoding="UTF-8" ?><tv>\r\n`
+  let output = `<?xml version="1.0" encoding="UTF-8" ?><tv date="${dayjs.utc().format('YYYYMMDDHHmmss ZZ')}">\r\n`
   for (let channel of channels) {
     const id = utils.escapeString(channel['xmltv_id'])
     const displayName = utils.escapeString(channel.name)
@@ -168,7 +168,7 @@ utils.convertToXMLTV = function ({ channels, programs }) {
 
   for (let program of programs) {
     if (!program) continue
-
+    
     const channel = utils.escapeString(program.channel)
     const title = utils.escapeString(program.title)
     const description = utils.escapeString(program.description)
@@ -178,10 +178,17 @@ utils.convertToXMLTV = function ({ channels, programs }) {
     const lang = program.lang || 'en'
     const xmltv_ns = createXMLTVNS(program.season, program.episode)
     const onscreen = createOnScreen(program.season, program.episode)
+    const credits = createCredits({'director':program.director,'actor':program.actor, 'writer':program.writer,'adapter':program.adapter,'producer':program.producer, 'composer':program.composer, 'editor':program.editor, 'presenter':program.presenter, 'commentator':program.commentator, 'guest':program.guest})
     const icon = utils.escapeString(program.icon)
+    const sub_title = program.sub_title || ''
+    const url = program.url || ''
 
     if (start && stop && title) {
       output += `<programme start="${start}" stop="${stop}" channel="${channel}"><title lang="${lang}">${title}</title>`
+
+      if (sub_title){
+        output += `<sub-title>${sub_title}</sub-title>`
+      }
 
       if (description) {
         output += `<desc lang="${lang}">${description}</desc>`
@@ -195,6 +202,17 @@ utils.convertToXMLTV = function ({ channels, programs }) {
         })
       }
 
+      if (url) {
+        if(url.includes('http')){
+          output += `<url>${url}</url>`
+        } else{
+          let chan =  channels.find((c) => c.xmltv_id.localeCompare(channel) === 0)
+          if (chan && chan.site){
+            output += `<url>https://${chan.site}${url}</url>`
+          }          
+        }
+      }
+
       if (xmltv_ns) {
         output += `<episode-num system="xmltv_ns">${xmltv_ns}</episode-num>`
       }
@@ -205,6 +223,10 @@ utils.convertToXMLTV = function ({ channels, programs }) {
 
       if (icon) {
         output += `<icon src="${icon}"/>`
+      }
+
+      if (credits) {
+        output += `<credits>${credits}</credits>`
       }
 
       output += '</programme>\r\n'
@@ -230,6 +252,19 @@ utils.convertToXMLTV = function ({ channels, programs }) {
     return `S${s}E${e}`
   }
 
+  function createCredits(obj) {
+  let cast = Object.entries(obj)
+                .filter(([name, value]) => value !== null)
+                .map(([name, value]) => ({name, value}));
+  let output = ''
+  for(let role of cast){
+    const r = Array.isArray(role.value) ? role.value: [role.value]
+    for(let person of r){
+      output += `<${role.name}>${person}</${role.name}>`
+    }
+  }
+  return output
+  }
   return output
 }
 
@@ -348,11 +383,23 @@ utils.parsePrograms = async function (data, config) {
         category: program.category || null,
         season: program.season || null,
         episode: program.episode || null,
+        sub_title : program.sub_title || null,
+        url : program.url || null,
         icon: program.icon || null,
         channel: channel.xmltv_id,
         lang: program.lang || channel.lang || config.lang || 'en',
         start: program.start ? dayjs(program.start).unix() : null,
-        stop: program.stop ? dayjs(program.stop).unix() : null
+        stop: program.stop ? dayjs(program.stop).unix() : null,
+        director: program.director || null,
+        actor: program.actor || null,
+        writer: program.writer || null, 
+        adapter: program.adapter || null, 
+        producer: program.producer || null,
+        composer: program.composer || null, 
+        editor: program.editor || null, 
+        presenter: program.presenter || null, 
+        commentator: program.commentator || null,
+        guest: program.guest || null
       }
     })
 }
