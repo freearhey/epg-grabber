@@ -171,6 +171,51 @@ it('can convert object to xmltv string with multiple categories', () => {
   )
 })
 
+it('can convert object to xmltv string with multiple urls', () => {
+  const file = fs.readFileSync('./tests/input/example.com.channels.xml', { encoding: 'utf-8' })
+  const { channels } = utils.parseChannels(file)
+  const programs = [
+    {
+      title: 'Program 1',
+      description: 'Description for Program 1',
+      start: 1616133600,
+      stop: 1616135400,
+      category: ['Test1', 'Test2'],
+      url:['https://example.com/noattr.html',{value:'https://example.com/attr.html', system:'TestSystem'}],
+      icon: 'https://example.com/images/Program1.png?x=шеллы&sid=777',
+      channel: '1TV.com',
+      lang: 'it'
+    }
+  ]
+  const output = utils.convertToXMLTV({ channels, programs })
+  expect(output).toBe(
+    '<?xml version="1.0" encoding="UTF-8" ?><tv date="20220505">\r\n<channel id="1TV.com"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.com"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.com"><title lang="it">Program 1</title><desc lang="it">Description for Program 1</desc><category lang="it">Test1</category><category lang="it">Test2</category><url>https://example.com/noattr.html</url><url system="TestSystem">https://example.com/attr.html</url><icon src="https://example.com/images/Program1.png?x=шеллы&amp;sid=777"/></programme>\r\n</tv>'
+  )
+})
+
+it('can convert object to xmltv string with multiple images', () => {
+  const file = fs.readFileSync('./tests/input/example.com.channels.xml', { encoding: 'utf-8' })
+  const { channels } = utils.parseChannels(file)
+  const programs = [
+    {
+      title: 'Program 1',
+      description: 'Description for Program 1',
+      start: 1616133600,
+      stop: 1616135400,
+      category: ['Test1', 'Test2'],
+      url:['https://example.com/noattr.html',{value:'https://example.com/attr.html', system:'TestSystem'}],
+      actor:{value:'Actor 1', image:['https://example.com/image1.jpg',{value:'https://example.com/image2.jpg',type:'person',size:'2',system:'TestSystem',orient:'P'}]},
+      icon: 'https://example.com/images/Program1.png?x=шеллы&sid=777',
+      channel: '1TV.com',
+      lang: 'it'
+    }
+  ]
+  const output = utils.convertToXMLTV({ channels, programs })
+  expect(output).toBe(
+    '<?xml version="1.0" encoding="UTF-8" ?><tv date="20220505">\r\n<channel id="1TV.com"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.com"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.com"><title lang="it">Program 1</title><desc lang="it">Description for Program 1</desc><category lang="it">Test1</category><category lang="it">Test2</category><url>https://example.com/noattr.html</url><url system="TestSystem">https://example.com/attr.html</url><icon src="https://example.com/images/Program1.png?x=шеллы&amp;sid=777"/><credits><actor>Actor 1<image>https://example.com/image1.jpg</image><image type="person" size="2" orient="P" system="TestSystem">https://example.com/image2.jpg</image></actor></credits></programme>\r\n</tv>'
+  )
+})
+
 it('can convert object to xmltv string with multiple credits member', () => {
   const file = fs.readFileSync('./tests/input/example.com.channels.xml', { encoding: 'utf-8' })
   const { channels } = utils.parseChannels(file)

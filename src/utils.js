@@ -182,7 +182,7 @@ utils.convertToXMLTV = function ({ channels, programs }) {
     const credits = createCredits({'director':program.director,'actor':program.actor, 'writer':program.writer,'adapter':program.adapter,'producer':program.producer, 'composer':program.composer, 'editor':program.editor, 'presenter':program.presenter, 'commentator':program.commentator, 'guest':program.guest})
     const icon = utils.escapeString(program.icon)
     const sub_title = program.sub_title || ''
-    const url = program.url || ''
+    const url = program.url? createURL(program.url, channel) : ''
 
     if (start && stop && title) {
       output += `<programme start="${start}" stop="${stop}" channel="${channel}"><title lang="${lang}">${title}</title>`
@@ -204,14 +204,7 @@ utils.convertToXMLTV = function ({ channels, programs }) {
       }
 
       if (url) {
-        if(url.includes('http')){
-          output += `<url>${url}</url>`
-        } else{
-          let chan =  channels.find((c) => c.xmltv_id.localeCompare(channel) === 0)
-          if (chan && chan.site){
-            output += `<url>https://${chan.site}${url}</url>`
-          }          
-        }
+        output += url
       }
 
       if (xmltv_ns) {
@@ -256,10 +249,76 @@ utils.convertToXMLTV = function ({ channels, programs }) {
     return `S${s}E${e}`
   }
 
+  function createURL(urlObj, channel = '') {
+    const urls = Array.isArray(urlObj) ? urlObj : [urlObj]
+    let output = ''
+    for (let url of urls){
+      if (typeof url === 'string' || url instanceof String){
+        url = {value: url}
+      }
+
+      let attr = url.system ? ` system="${url.system}"` : ''
+      if(url.value.includes('http')){
+        output += `<url${attr}>${url.value}</url>`
+      } else if(channel){
+        let chan =  channels.find((c) => c.xmltv_id.localeCompare(channel) === 0)
+        if (chan && chan.site){
+          output += `<url${attr}>https://${chan.site}${url.value}</url>`
+        }          
+      }
+    }
+
+    return output
+  }
+
+  function createImage(imgObj, channel='') {
+    const imgs = Array.isArray(imgObj) ? imgObj : [imgObj]
+    let output = ''
+    for (let img of imgs){
+      if (typeof img === 'string' || img instanceof String){
+        img = {value: img}
+      }
+
+      const imageTypes = ['poster', 'backdrop', 'still', 'person', 'character'];
+      const imageSizes = ['1', '2', '3'];
+      const imageOrients = ['P', 'L'];
+
+      let attr = ''
+
+      if(img.type && imageTypes.some(el => img.type.includes(el))){
+        attr += ` type="${img.type}"`
+      }
+
+      if(img.size && imageSizes.some(el => img.size.includes(el))){
+        attr += ` size="${img.size}"`
+      }
+
+      if(img.orient && imageOrients.some(el => img.orient.includes(el))){
+        attr += ` orient="${img.orient}"`
+      }
+
+      if(img.system){
+        attr += ` system="${img.system}"`
+      }
+
+      if(img.value.includes('http')){
+        output += `<image${attr}>${img.value}</image>`
+      } else if(channel){
+        let chan =  channels.find((c) => c.xmltv_id.localeCompare(channel) === 0)
+        if (chan && chan.site){
+          output += `<image${attr}>https://${chan.site}${img.value}</image>`
+        }          
+      }
+    }
+
+    return output
+  }
+
   function createCredits(obj) {
   let cast = Object.entries(obj)
                 .filter(([name, value]) => value)
-                .map(([name, value]) => ({name, value}));
+                .map(([name, value]) => ({name, value}))
+
   let output = ''
   for(let type of cast){
     const r = Array.isArray(type.value) ? type.value: [type.value]
@@ -278,18 +337,12 @@ utils.convertToXMLTV = function ({ channels, programs }) {
       output += `<${type.name}${attr}>${person.value}`
 
       if(person.url){
-        const r = Array.isArray(person.url) ? person.url: [person.url]
-        for (let x of r){
-          let attr = x.system ? ` system="${x.system}"` : ''
-          output += `<url${attr}>${x.value}</url>`
-        }
+        output += createURL(person.url)
       }
-      /*if (person.image){
-        for (let x of person.image){
-          
-        }
+      if (person.image){
+        output += createImage(person.image)
       }
-      */
+      
 
 
       output += `</${type.name}>`
