@@ -168,7 +168,7 @@ utils.convertToXMLTV = function ({ channels, programs }) {
 
   for (let program of programs) {
     if (!program) continue
-    
+
     const channel = utils.escapeString(program.channel)
     const title = utils.escapeString(program.title)
     const description = utils.escapeString(program.description)
@@ -316,7 +316,7 @@ utils.convertToXMLTV = function ({ channels, programs }) {
 
   function createCredits(obj) {
   let cast = Object.entries(obj)
-                .filter(([name, value]) => value)
+                .filter((x) => x[1])
                 .map(([name, value]) => ({name, value}))
 
   let output = ''
