@@ -150,7 +150,7 @@ utils.escapeString = function (string, defaultValue = '') {
 }
 
 utils.convertToXMLTV = function ({ channels, programs }) {
-  let output = `<?xml version="1.0" encoding="UTF-8" ?><tv date="${dayjs.utc().format('YYYYMMDDHHmmss ZZ')}">\r\n`
+  let output = `<?xml version="1.0" encoding="UTF-8" ?><tv date="${dayjs.utc().format('YYYYMMDD')}">\r\n`
   for (let channel of channels) {
     const id = utils.escapeString(channel['xmltv_id'])
     const displayName = utils.escapeString(channel.name)
@@ -178,6 +178,7 @@ utils.convertToXMLTV = function ({ channels, programs }) {
     const lang = program.lang || 'en'
     const xmltv_ns = createXMLTVNS(program.season, program.episode)
     const onscreen = createOnScreen(program.season, program.episode)
+    const date = program.date || ''
     const credits = createCredits({'director':program.director,'actor':program.actor, 'writer':program.writer,'adapter':program.adapter,'producer':program.producer, 'composer':program.composer, 'editor':program.editor, 'presenter':program.presenter, 'commentator':program.commentator, 'guest':program.guest})
     const icon = utils.escapeString(program.icon)
     const sub_title = program.sub_title || ''
@@ -220,6 +221,9 @@ utils.convertToXMLTV = function ({ channels, programs }) {
       if (onscreen) {
         output += `<episode-num system="onscreen">${onscreen}</episode-num>`
       }
+      if (date) {
+        output += `<date>${date}</date>`
+      }
 
       if (icon) {
         output += `<icon src="${icon}"/>`
@@ -254,13 +258,41 @@ utils.convertToXMLTV = function ({ channels, programs }) {
 
   function createCredits(obj) {
   let cast = Object.entries(obj)
-                .filter(([name, value]) => value !== null)
+                .filter(([name, value]) => value)
                 .map(([name, value]) => ({name, value}));
   let output = ''
-  for(let role of cast){
-    const r = Array.isArray(role.value) ? role.value: [role.value]
+  for(let type of cast){
+    const r = Array.isArray(type.value) ? type.value: [type.value]
     for(let person of r){
-      output += `<${role.name}>${person}</${role.name}>`
+      if (typeof person === 'string' || person instanceof String){
+        person = {value: person}
+      }
+
+      let attr = ''
+      if(type.name.localeCompare('actor') === 0 && type.value.role){
+        attr += ` role="${type.value.role}"`
+      }
+      if(type.name.localeCompare('actor') === 0 && type.value.guest){
+        attr += ` guest="${type.value.guest}"`
+      }
+      output += `<${type.name}${attr}>${person.value}`
+
+      if(person.url){
+        const r = Array.isArray(person.url) ? person.url: [person.url]
+        for (let x of r){
+          let attr = x.system ? ` system="${x.system}"` : ''
+          output += `<url${attr}>${x.value}</url>`
+        }
+      }
+      /*if (person.image){
+        for (let x of person.image){
+          
+        }
+      }
+      */
+
+
+      output += `</${type.name}>`
     }
   }
   return output
@@ -390,6 +422,7 @@ utils.parsePrograms = async function (data, config) {
         lang: program.lang || channel.lang || config.lang || 'en',
         start: program.start ? dayjs(program.start).unix() : null,
         stop: program.stop ? dayjs(program.stop).unix() : null,
+        date: program.date || null,
         director: program.director || null,
         actor: program.actor || null,
         writer: program.writer || null, 
