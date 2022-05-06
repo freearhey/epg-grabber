@@ -150,7 +150,9 @@ utils.escapeString = function (string, defaultValue = '') {
 }
 
 utils.convertToXMLTV = function ({ channels, programs }) {
-  let output = `<?xml version="1.0" encoding="UTF-8" ?><tv date="${dayjs.utc().format('YYYYMMDD')}">\r\n`
+  let output = `<?xml version="1.0" encoding="UTF-8" ?><tv date="${dayjs
+    .utc()
+    .format('YYYYMMDD')}">\r\n`
   for (let channel of channels) {
     const id = utils.escapeString(channel['xmltv_id'])
     const displayName = utils.escapeString(channel.name)
@@ -179,15 +181,26 @@ utils.convertToXMLTV = function ({ channels, programs }) {
     const xmltv_ns = createXMLTVNS(program.season, program.episode)
     const onscreen = createOnScreen(program.season, program.episode)
     const date = program.date || ''
-    const credits = createCredits({'director':program.director,'actor':program.actor, 'writer':program.writer,'adapter':program.adapter,'producer':program.producer, 'composer':program.composer, 'editor':program.editor, 'presenter':program.presenter, 'commentator':program.commentator, 'guest':program.guest})
+    const credits = createCredits({
+      director: program.director,
+      actor: program.actor,
+      writer: program.writer,
+      adapter: program.adapter,
+      producer: program.producer,
+      composer: program.composer,
+      editor: program.editor,
+      presenter: program.presenter,
+      commentator: program.commentator,
+      guest: program.guest
+    })
     const icon = utils.escapeString(program.icon)
     const sub_title = program.sub_title || ''
-    const url = program.url? createURL(program.url, channel) : ''
+    const url = program.url ? createURL(program.url, channel) : ''
 
     if (start && stop && title) {
       output += `<programme start="${start}" stop="${stop}" channel="${channel}"><title lang="${lang}">${title}</title>`
 
-      if (sub_title){
+      if (sub_title) {
         output += `<sub-title>${sub_title}</sub-title>`
       }
 
@@ -252,62 +265,62 @@ utils.convertToXMLTV = function ({ channels, programs }) {
   function createURL(urlObj, channel = '') {
     const urls = Array.isArray(urlObj) ? urlObj : [urlObj]
     let output = ''
-    for (let url of urls){
-      if (typeof url === 'string' || url instanceof String){
-        url = {value: url}
+    for (let url of urls) {
+      if (typeof url === 'string' || url instanceof String) {
+        url = { value: url }
       }
 
       let attr = url.system ? ` system="${url.system}"` : ''
-      if(url.value.includes('http')){
+      if (url.value.includes('http')) {
         output += `<url${attr}>${url.value}</url>`
-      } else if(channel){
-        let chan =  channels.find((c) => c.xmltv_id.localeCompare(channel) === 0)
-        if (chan && chan.site){
+      } else if (channel) {
+        let chan = channels.find(c => c.xmltv_id.localeCompare(channel) === 0)
+        if (chan && chan.site) {
           output += `<url${attr}>https://${chan.site}${url.value}</url>`
-        }          
+        }
       }
     }
 
     return output
   }
 
-  function createImage(imgObj, channel='') {
+  function createImage(imgObj, channel = '') {
     const imgs = Array.isArray(imgObj) ? imgObj : [imgObj]
     let output = ''
-    for (let img of imgs){
-      if (typeof img === 'string' || img instanceof String){
-        img = {value: img}
+    for (let img of imgs) {
+      if (typeof img === 'string' || img instanceof String) {
+        img = { value: img }
       }
 
-      const imageTypes = ['poster', 'backdrop', 'still', 'person', 'character'];
-      const imageSizes = ['1', '2', '3'];
-      const imageOrients = ['P', 'L'];
+      const imageTypes = ['poster', 'backdrop', 'still', 'person', 'character']
+      const imageSizes = ['1', '2', '3']
+      const imageOrients = ['P', 'L']
 
       let attr = ''
 
-      if(img.type && imageTypes.some(el => img.type.includes(el))){
+      if (img.type && imageTypes.some(el => img.type.includes(el))) {
         attr += ` type="${img.type}"`
       }
 
-      if(img.size && imageSizes.some(el => img.size.includes(el))){
+      if (img.size && imageSizes.some(el => img.size.includes(el))) {
         attr += ` size="${img.size}"`
       }
 
-      if(img.orient && imageOrients.some(el => img.orient.includes(el))){
+      if (img.orient && imageOrients.some(el => img.orient.includes(el))) {
         attr += ` orient="${img.orient}"`
       }
 
-      if(img.system){
+      if (img.system) {
         attr += ` system="${img.system}"`
       }
 
-      if(img.value.includes('http')){
+      if (img.value.includes('http')) {
         output += `<image${attr}>${img.value}</image>`
-      } else if(channel){
-        let chan =  channels.find((c) => c.xmltv_id.localeCompare(channel) === 0)
-        if (chan && chan.site){
+      } else if (channel) {
+        let chan = channels.find(c => c.xmltv_id.localeCompare(channel) === 0)
+        if (chan && chan.site) {
           output += `<image${attr}>https://${chan.site}${img.value}</image>`
-        }          
+        }
       }
     }
 
@@ -315,40 +328,38 @@ utils.convertToXMLTV = function ({ channels, programs }) {
   }
 
   function createCredits(obj) {
-  let cast = Object.entries(obj)
-                .filter((x) => x[1])
-                .map(([name, value]) => ({name, value}))
+    let cast = Object.entries(obj)
+      .filter(x => x[1])
+      .map(([name, value]) => ({ name, value }))
 
-  let output = ''
-  for(let type of cast){
-    const r = Array.isArray(type.value) ? type.value: [type.value]
-    for(let person of r){
-      if (typeof person === 'string' || person instanceof String){
-        person = {value: person}
-      }
+    let output = ''
+    for (let type of cast) {
+      const r = Array.isArray(type.value) ? type.value : [type.value]
+      for (let person of r) {
+        if (typeof person === 'string' || person instanceof String) {
+          person = { value: person }
+        }
 
-      let attr = ''
-      if(type.name.localeCompare('actor') === 0 && type.value.role){
-        attr += ` role="${type.value.role}"`
-      }
-      if(type.name.localeCompare('actor') === 0 && type.value.guest){
-        attr += ` guest="${type.value.guest}"`
-      }
-      output += `<${type.name}${attr}>${person.value}`
+        let attr = ''
+        if (type.name.localeCompare('actor') === 0 && type.value.role) {
+          attr += ` role="${type.value.role}"`
+        }
+        if (type.name.localeCompare('actor') === 0 && type.value.guest) {
+          attr += ` guest="${type.value.guest}"`
+        }
+        output += `<${type.name}${attr}>${person.value}`
 
-      if(person.url){
-        output += createURL(person.url)
-      }
-      if (person.image){
-        output += createImage(person.image)
-      }
-      
+        if (person.url) {
+          output += createURL(person.url)
+        }
+        if (person.image) {
+          output += createImage(person.image)
+        }
 
-
-      output += `</${type.name}>`
+        output += `</${type.name}>`
+      }
     }
-  }
-  return output
+    return output
   }
   return output
 }
@@ -468,8 +479,8 @@ utils.parsePrograms = async function (data, config) {
         category: program.category || null,
         season: program.season || null,
         episode: program.episode || null,
-        sub_title : program.sub_title || null,
-        url : program.url || null,
+        sub_title: program.sub_title || null,
+        url: program.url || null,
         icon: program.icon || null,
         channel: channel.xmltv_id,
         lang: program.lang || channel.lang || config.lang || 'en',
@@ -478,12 +489,12 @@ utils.parsePrograms = async function (data, config) {
         date: program.date || null,
         director: program.director || null,
         actor: program.actor || null,
-        writer: program.writer || null, 
-        adapter: program.adapter || null, 
+        writer: program.writer || null,
+        adapter: program.adapter || null,
         producer: program.producer || null,
-        composer: program.composer || null, 
-        editor: program.editor || null, 
-        presenter: program.presenter || null, 
+        composer: program.composer || null,
+        editor: program.editor || null,
+        presenter: program.presenter || null,
         commentator: program.commentator || null,
         guest: program.guest || null
       }
