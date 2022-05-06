@@ -4,6 +4,8 @@ import axios from 'axios'
 import path from 'path'
 import fs from 'fs'
 
+jest.useFakeTimers('modern').setSystemTime(new Date('2022-05-05'))
+
 it('can load valid config.js', () => {
   const config = utils.loadConfig(require(path.resolve('./tests/input/example.com.config.js')))
   expect(config).toMatchObject({
@@ -56,9 +58,9 @@ it('can convert object to xmltv string', () => {
   const programs = [
     {
       title: 'Program 1',
-      sub_title : 'Sub-title 1',
+      sub_title: 'Sub-title 1',
       description: 'Description for Program 1',
-      url : 'http://example.com/title.html',
+      url: 'http://example.com/title.html',
       start: 1616133600,
       stop: 1616135400,
       category: 'Test',
@@ -68,7 +70,10 @@ it('can convert object to xmltv string', () => {
       channel: '1TV.com',
       lang: 'it',
       date: '20220505',
-      director: {value:'Director 1', url:{value: 'http://example.com/director1.html', system: 'TestSystem'}},
+      director: {
+        value: 'Director 1',
+        url: { value: 'http://example.com/director1.html', system: 'TestSystem' }
+      },
       actor: ['Actor 1', 'Actor 2'],
       writer: 'Writer 1'
     }
@@ -181,7 +186,10 @@ it('can convert object to xmltv string with multiple urls', () => {
       start: 1616133600,
       stop: 1616135400,
       category: ['Test1', 'Test2'],
-      url:['https://example.com/noattr.html',{value:'https://example.com/attr.html', system:'TestSystem'}],
+      url: [
+        'https://example.com/noattr.html',
+        { value: 'https://example.com/attr.html', system: 'TestSystem' }
+      ],
       icon: 'https://example.com/images/Program1.png?x=шеллы&sid=777',
       channel: '1TV.com',
       lang: 'it'
@@ -203,8 +211,23 @@ it('can convert object to xmltv string with multiple images', () => {
       start: 1616133600,
       stop: 1616135400,
       category: ['Test1', 'Test2'],
-      url:['https://example.com/noattr.html',{value:'https://example.com/attr.html', system:'TestSystem'}],
-      actor:{value:'Actor 1', image:['https://example.com/image1.jpg',{value:'https://example.com/image2.jpg',type:'person',size:'2',system:'TestSystem',orient:'P'}]},
+      url: [
+        'https://example.com/noattr.html',
+        { value: 'https://example.com/attr.html', system: 'TestSystem' }
+      ],
+      actor: {
+        value: 'Actor 1',
+        image: [
+          'https://example.com/image1.jpg',
+          {
+            value: 'https://example.com/image2.jpg',
+            type: 'person',
+            size: '2',
+            system: 'TestSystem',
+            orient: 'P'
+          }
+        ]
+      },
       icon: 'https://example.com/images/Program1.png?x=шеллы&sid=777',
       channel: '1TV.com',
       lang: 'it'
@@ -222,9 +245,9 @@ it('can convert object to xmltv string with multiple credits member', () => {
   const programs = [
     {
       title: 'Program 1',
-      sub_title : 'Sub-title 1',
+      sub_title: 'Sub-title 1',
       description: 'Description for Program 1',
-      url : 'http://example.com/title.html',
+      url: 'http://example.com/title.html',
       start: 1616133600,
       stop: 1616135400,
       category: 'Test',
@@ -234,9 +257,20 @@ it('can convert object to xmltv string with multiple credits member', () => {
       channel: '1TV.com',
       lang: 'it',
       date: '20220505',
-      director: {value:'Director 1', url:{value: 'http://example.com/director1.html', system: 'TestSystem'}},
-      actor: {value:'Actor 1', role:'Manny', guest:'yes', url:{value: 'http://example.com/actor1.html', system: 'TestSystem'}},
-      writer: [{value:'Writer 1', url:{value: 'http://example.com/w1.html', system: 'TestSystem'}},{value:'Writer 2', url:{value: 'http://example.com/w2.html', system: 'TestSystem'}}]
+      director: {
+        value: 'Director 1',
+        url: { value: 'http://example.com/director1.html', system: 'TestSystem' }
+      },
+      actor: {
+        value: 'Actor 1',
+        role: 'Manny',
+        guest: 'yes',
+        url: { value: 'http://example.com/actor1.html', system: 'TestSystem' }
+      },
+      writer: [
+        { value: 'Writer 1', url: { value: 'http://example.com/w1.html', system: 'TestSystem' } },
+        { value: 'Writer 2', url: { value: 'http://example.com/w2.html', system: 'TestSystem' } }
+      ]
     }
   ]
   const output = utils.convertToXMLTV({ channels, programs })
