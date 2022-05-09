@@ -58,14 +58,7 @@ it('can grab single channel programs', done => {
   grabber
     .grab(channel, '2022-01-01', (data, err) => {
       if (err) {
-        console.log(`    Error: ${err.message}`)
         done()
-      } else {
-        console.log(
-          `  ${data.channel.site} - ${data.channel.xmltv_id} - ${data.date.format(
-            'MMM D, YYYY'
-          )} (${data.programs.length} programs)`
-        )
       }
     })
     .then(programs => {
