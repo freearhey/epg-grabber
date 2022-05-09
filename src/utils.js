@@ -149,10 +149,10 @@ utils.escapeString = function (string, defaultValue = '') {
     .trim()
 }
 
-utils.convertToXMLTV = function ({ channels, programs }) {
-  let output = `<?xml version="1.0" encoding="UTF-8" ?><tv date="${dayjs
-    .utc()
-    .format('YYYYMMDD')}">\r\n`
+utils.convertToXMLTV = function ({ channels, programs, date = dayjs.utc() }) {
+  let output = `<?xml version="1.0" encoding="UTF-8" ?><tv date="${dayjs(date).format(
+    'YYYYMMDD'
+  )}">\r\n`
   for (let channel of channels) {
     const id = utils.escapeString(channel['xmltv_id'])
     const displayName = utils.escapeString(channel.name)
