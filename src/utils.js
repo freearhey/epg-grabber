@@ -194,7 +194,7 @@ utils.convertToXMLTV = function ({ channels, programs }) {
       guest: program.guest
     })
     const icon = utils.escapeString(program.icon)
-    const sub_title = program.sub_title || ''
+    const sub_title = utils.escapeString(program.sub_title)
     const url = program.url ? createURL(program.url, channel) : ''
 
     if (start && stop && title) {
