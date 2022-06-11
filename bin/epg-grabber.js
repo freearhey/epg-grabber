@@ -95,7 +95,7 @@ async function main() {
     }
   }
 
-  const xml = grabber.generateXMLTV({ config, channels, programs })
+  const xml = grabber.generateXMLTV({ channels, programs })
   let outputPath = options.output || config.output
   if (options.gzip) {
     outputPath = outputPath || 'guide.xml.gz'

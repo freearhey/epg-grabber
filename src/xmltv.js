@@ -11,6 +11,7 @@ function generate({ channels, programs, date = getUTCDate() }) {
 	let output = `<?xml version="1.0" encoding="UTF-8" ?><tv date="${dayjs(date).format(
 		'YYYYMMDD'
 	)}">\r\n`
+
 	for (let channel of channels) {
 		const id = escapeString(channel['xmltv_id'])
 		const displayName = escapeString(channel.name)
