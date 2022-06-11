@@ -2,15 +2,13 @@
 
 const { Command } = require('commander')
 const program = new Command()
-const fs = require('fs')
-const path = require('path')
-const EPGGrabber = require('../src/index')
-const utils = require('../src/utils')
-const { name, version, description } = require('../package.json')
 const { merge } = require('lodash')
 const { gzip } = require('node-gzip')
-const { createLogger, format, transports } = require('winston')
-const { combine, timestamp, printf } = format
+const file = require('../src/file')
+const EPGGrabber = require('../src/index')
+const { create: createLogger } = require('../src/logger')
+const { parseInteger, getUTCDate } = require('../src/utils')
+const { name, version, description } = require('../package.json')
 
 program
   .name(name)
@@ -36,39 +34,13 @@ program
   .parse(process.argv)
 
 const options = program.opts()
-
-const fileFormat = printf(({ level, message, timestamp }) => {
-  return `[${timestamp}] ${level.toUpperCase()}: ${message}`
-})
-
-const consoleFormat = printf(({ level, message, timestamp }) => {
-  if (level === 'error') return `  Error: ${message}`
-
-  return message
-})
-
-const t = [new transports.Console({ format: consoleFormat })]
-
-if (options.log) {
-  t.push(
-    new transports.File({
-      filename: path.resolve(options.log),
-      format: combine(timestamp(), fileFormat),
-      options: { flags: 'w' }
-    })
-  )
-}
-
-const logger = createLogger({
-  level: options.logLevel,
-  transports: t
-})
+const logger = createLogger(options)
 
 async function main() {
   logger.info('Starting...')
 
   logger.info(`Loading '${options.config}'...`)
-  let config = require(path.resolve(options.config))
+  let config = require(file.resolve(options.config))
   config = merge(config, {
     days: options.days,
     debug: options.debug,
@@ -83,22 +55,27 @@ async function main() {
   if (options.cacheTtl) config.request.cache.ttl = options.cacheTtl
   if (options.channels) config.channels = options.channels
   else if (config.channels)
-    config.channels = path.join(path.dirname(options.config), config.channels)
+    config.channels = file.join(file.dirname(options.config), config.channels)
   else throw new Error("The required 'channels' property is missing")
 
   if (!config.channels) return logger.error('Path to [site].channels.xml is missing')
   logger.info(`Loading '${config.channels}'...`)
-  const channelsXML = fs.readFileSync(path.resolve(config.channels), { encoding: 'utf-8' })
-  const { channels } = utils.parseChannels(channelsXML)
+  const grabber = new EPGGrabber(config)
+
+  const channelsXML = file.read(config.channels)
+  const { channels } = grabber.parseChannels(channelsXML)
 
   let programs = []
   let i = 1
   let days = options.days || 1
   const total = channels.length * days
-  const utcDate = utils.getUTCDate()
+  const utcDate = getUTCDate()
   const dates = Array.from({ length: config.days }, (_, i) => utcDate.add(i, 'd'))
-  const grabber = new EPGGrabber(config)
   for (let channel of channels) {
+    if (!channel.logo && config.logo) {
+      channel.logo = await grabber.loadLogo(channel)
+    }
+
     for (let date of dates) {
       await grabber
         .grab(channel, date, (data, err) => {
@@ -118,15 +95,15 @@ async function main() {
     }
   }
 
-  const xml = utils.convertToXMLTV({ config, channels, programs })
+  const xml = grabber.generateXMLTV({ config, channels, programs })
   let outputPath = options.output || config.output
   if (options.gzip) {
     outputPath = outputPath || 'guide.xml.gz'
     const compressed = await gzip(xml)
-    utils.writeToFile(outputPath, compressed)
+    file.write(outputPath, compressed)
   } else {
     outputPath = outputPath || 'guide.xml'
-    utils.writeToFile(outputPath, xml)
+    file.write(outputPath, xml)
   }
 
   logger.info(`File '${outputPath}' successfully saved`)
@@ -134,7 +111,3 @@ async function main() {
 }
 
 main()
-
-function parseInteger(val) {
-  return val ? parseInt(val) : null
-}

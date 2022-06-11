@@ -1,41 +1,48 @@
-const utils = require('./utils')
+const { merge } = require('lodash')
+const { create: createClient, buildRequest, parseResponse } = require('./client')
+const { generate: generateXMLTV } = require('./xmltv')
+const { parse: parseChannels } = require('./channels')
+const { parse: parsePrograms } = require('./programs')
+const { load: loadConfig } = require('./config')
+const { sleep, isPromise } = require('./utils')
 
 class EPGGrabber {
   constructor(config = {}) {
-    this.config = utils.loadConfig(config)
-    this.client = utils.createClient(config)
+    this.config = loadConfig(config)
+    this.client = createClient(config)
+  }
+
+  async loadLogo(channel) {
+    const logo = this.config.logo({ channel })
+    if (isPromise(logo)) {
+      return await logo
+    }
+    return logo
   }
 
   async grab(channel, date, cb = () => {}) {
-    date = typeof date === 'string' ? utils.getUTCDate(date) : date
-    channel.lang = channel.lang || this.config.lang || null
+    await sleep(this.config.delay)
 
-    let programs = []
-    const item = { date, channel }
-    await utils
-      .buildRequest(item, this.config)
-      .then(request => utils.fetchData(this.client, request))
-      .then(response => utils.parseResponse(item, response, this.config))
-      .then(results => {
-        item.programs = results
-        cb(item, null)
-        programs = programs.concat(results)
+    return buildRequest({ channel, date, config: this.config })
+      .then(this.client)
+      .then(parseResponse)
+      .then(data => merge({ channel, date, config: this.config }, data))
+      .then(parsePrograms)
+      .then(programs => {
+        cb({ channel, date, programs })
+
+        return programs
       })
-      .catch(error => {
-        item.programs = []
-        if (this.config.debug) {
-          console.log('Error:', JSON.stringify(error, null, 2))
-        }
-        cb(item, error)
+      .catch(err => {
+        if (this.config.debug) console.log('Error:', JSON.stringify(err, null, 2))
+        cb({ channel, date, programs: [] }, err)
+
+        return []
       })
-
-    await utils.sleep(this.config.delay)
-
-    return programs
   }
 }
 
-EPGGrabber.convertToXMLTV = utils.convertToXMLTV
-EPGGrabber.parseChannels = utils.parseChannels
+EPGGrabber.prototype.generateXMLTV = generateXMLTV
+EPGGrabber.prototype.parseChannels = parseChannels
 
 module.exports = EPGGrabber
