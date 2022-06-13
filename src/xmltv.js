@@ -10,12 +10,12 @@ module.exports.generate = generate
 function generate({ channels, programs, date = getUTCDate() }) {
 	let output = `<?xml version="1.0" encoding="UTF-8" ?>`
 
-	const elements = createElements(channels, programs, date)
-	console.log(JSON.stringify(elements, null, 2))
+	output += createElements(channels, programs, date)
+	// console.log(JSON.stringify(elements, null, 2))
 
-	elements.forEach(elem => {
-		output += toString(elem)
-	})
+	// elements.forEach(elem => {
+	// 	output += toString(elem)
+	// })
 
 	return output
 }
@@ -24,19 +24,25 @@ const el = createElement
 
 function createElements(channels, programs, date) {
 	date = formatDate(date, 'YYYYMMDD')
-	return [
-		el('tv', { date }, [
-			...channels.map(channel => {
-				const url = channel.site ? `https://${channel.site}` : ''
-				return el('channel', { id: channel.xmltv_id }, [
-					el('display-name', {}, [channel.name]),
+	return el('tv', { date }, [
+		...channels.map(channel => {
+			const url = channel.site ? `https://${channel.site}` : ''
+
+			return (
+				'\r\n' +
+				el('channel', { id: channel.xmltv_id }, [
+					el('display-name', {}, [escapeString(channel.name)]),
 					el('icon', { src: channel.logo }),
 					el('url', {}, [url])
 				])
-			}),
-			...programs.map(program => {
-				const lang = program.lang || 'en'
-				return el(
+			)
+		}),
+		...programs.map(program => {
+			const lang = program.lang || 'en'
+
+			return (
+				'\r\n' +
+				el(
 					'programme',
 					{
 						start: formatDate(program.start, 'YYYYMMDDHHmmss ZZ'),
@@ -44,9 +50,9 @@ function createElements(channels, programs, date) {
 						channel: program.channel
 					},
 					[
-						el('title', { lang }, [program.title]),
-						el('sub-title', { lang }, [program.sub_title]),
-						el('desc', { lang }, [program.description]),
+						el('title', { lang }, [escapeString(program.title)]),
+						el('sub-title', { lang }, [escapeString(program.sub_title)]),
+						el('desc', { lang }, [escapeString(program.description)]),
 						el('date', {}, [date]),
 						el('icon', { src: program.icon }),
 						el('url', {}, [program.url]),
@@ -68,7 +74,9 @@ function createElements(channels, programs, date) {
 							...toArray(program.commentator).map(data => createCastMember('commentator', data)),
 							...toArray(program.guest).map(data => createCastMember('guest', data))
 						]),
-						...toArray(program.category).map(category => el('category', { lang }, [category])),
+						...toArray(program.category).map(category =>
+							el('category', { lang }, [escapeString(category)])
+						),
 						...toArray(program.rating).map(rating =>
 							el('rating', { system: rating.system }, [
 								el('value', {}, [rating.value]),
@@ -77,9 +85,9 @@ function createElements(channels, programs, date) {
 						)
 					]
 				)
-			})
-		])
-	]
+			)
+		})
+	])
 }
 
 function formatEpisodeNum(s, e, system) {
@@ -113,7 +121,7 @@ function createOnScreen(s, e) {
 function createCastMember(position, data) {
 	data = toObject(data)
 	return el(position, {}, [
-		data.value,
+		escapeString(data.value),
 		...toArray(data.url).map(createURL),
 		...toArray(data.image).map(createImage)
 	])
@@ -155,11 +163,11 @@ function formatDate(date, format) {
 }
 
 function createElement(name, attrs = {}, children = []) {
-	return { name, attrs, children }
+	return toString({ name, attrs, children })
 }
 
 function toString(elem) {
-	if (typeof elem === 'string') return escapeString(elem)
+	if (typeof elem === 'string') return elem
 
 	let attrs = ''
 	for (let key in elem.attrs) {
