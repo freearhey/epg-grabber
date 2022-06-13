@@ -1,3 +1,4 @@
+import fs from 'fs'
 import xmltv from '../src/xmltv'
 
 jest.useFakeTimers('modern').setSystemTime(new Date('2022-05-05'))
@@ -16,34 +17,50 @@ const channels = [
   }
 ]
 
-it('can generate xmltv', () => {
+fit('can generate xmltv', () => {
   const programs = [
     {
       title: 'Program 1',
       sub_title: 'Sub-title & 1',
       description: 'Description for Program 1',
       url: 'http://example.com/title.html',
-      start: 1616133600,
-      stop: 1616135400,
+      start: '2021-03-19T06:00:00.000Z',
+      stop: '2021-03-19T06:30:00.000Z',
       category: 'Test',
       season: 9,
       episode: 239,
       icon: 'https://example.com/images/Program1.png?x=шеллы&sid=777',
       channel: '1TV.com',
       lang: 'it',
-      date: '20220505',
-      director: {
-        value: 'Director 1',
-        url: { value: 'http://example.com/director1.html', system: 'TestSystem' }
+      rating: {
+        system: 'MPAA',
+        value: 'PG',
+        icon: 'http://example.com/pg_symbol.png'
       },
+      director: [
+        {
+          value: 'Director 1',
+          url: { value: 'http://example.com/director1.html', system: 'TestSystem' },
+          image: [
+            'https://example.com/image1.jpg',
+            {
+              value: 'https://example.com/image2.jpg',
+              type: 'person',
+              size: '2',
+              system: 'TestSystem',
+              orient: 'P'
+            }
+          ]
+        },
+        'Director 2'
+      ],
       actor: ['Actor 1', 'Actor 2'],
       writer: 'Writer 1'
     }
   ]
   const output = xmltv.generate({ channels, programs })
-  expect(output).toBe(
-    '<?xml version="1.0" encoding="UTF-8" ?><tv date="20220505">\r\n<channel id="1TV.com"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.com"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.com"><title lang="it">Program 1</title><sub-title>Sub-title &amp; 1</sub-title><desc lang="it">Description for Program 1</desc><category lang="it">Test</category><url>http://example.com/title.html</url><episode-num system="xmltv_ns">8.238.0/1</episode-num><episode-num system="onscreen">S09E239</episode-num><date>20220505</date><icon src="https://example.com/images/Program1.png?x=шеллы&amp;sid=777"/><credits><director>Director 1<url system="TestSystem">http://example.com/director1.html</url></director><actor>Actor 1</actor><actor>Actor 2</actor><writer>Writer 1</writer></credits></programme>\r\n</tv>'
-  )
+  const expected = fs.readFileSync('./tests/expected/guide.xml', { encoding: 'utf-8' })
+  expect(output).toBe(expected)
 })
 
 it('can generate xmltv without season number', () => {
@@ -51,8 +68,8 @@ it('can generate xmltv without season number', () => {
     {
       title: 'Program 1',
       description: 'Description for Program 1',
-      start: 1616133600,
-      stop: 1616135400,
+      start: '2021-03-19T06:00:00.000Z',
+      stop: '2021-03-19T06:30:00.000Z',
       category: 'Test',
       episode: 239,
       icon: 'https://example.com/images/Program1.png?x=шеллы&sid=777',
@@ -71,8 +88,8 @@ it('can generate xmltv without episode number', () => {
     {
       title: 'Program 1',
       description: 'Description for Program 1',
-      start: 1616133600,
-      stop: 1616135400,
+      start: '2021-03-19T06:00:00.000Z',
+      stop: '2021-03-19T06:30:00.000Z',
       category: 'Test',
       season: 1,
       icon: 'https://example.com/images/Program1.png?x=шеллы&sid=777',
@@ -90,8 +107,8 @@ it('can generate xmltv without categories', () => {
   const programs = [
     {
       title: 'Program 1',
-      start: 1616133600,
-      stop: 1616135400,
+      start: '2021-03-19T06:00:00.000Z',
+      stop: '2021-03-19T06:30:00.000Z',
       channel: '1TV.com',
       lang: 'it'
     }
@@ -108,8 +125,8 @@ it('can generate xmltv with multiple categories', () => {
     {
       title: 'Program 1',
       description: 'Description for Program 1',
-      start: 1616133600,
-      stop: 1616135400,
+      start: '2021-03-19T06:00:00.000Z',
+      stop: '2021-03-19T06:30:00.000Z',
       category: ['Test1', 'Test2'],
       icon: 'https://example.com/images/Program1.png?x=шеллы&sid=777',
       channel: '1TV.com',
@@ -127,8 +144,8 @@ it('can generate xmltv with multiple urls', () => {
     {
       title: 'Program 1',
       description: 'Description for Program 1',
-      start: 1616133600,
-      stop: 1616135400,
+      start: '2021-03-19T06:00:00.000Z',
+      stop: '2021-03-19T06:30:00.000Z',
       category: ['Test1', 'Test2'],
       url: [
         'https://example.com/noattr.html',
@@ -150,8 +167,8 @@ it('can generate xmltv with multiple images', () => {
     {
       title: 'Program 1',
       description: 'Description for Program 1',
-      start: 1616133600,
-      stop: 1616135400,
+      start: '2021-03-19T06:00:00.000Z',
+      stop: '2021-03-19T06:30:00.000Z',
       category: ['Test1', 'Test2'],
       url: [
         'https://example.com/noattr.html',
@@ -188,15 +205,14 @@ it('can generate xmltv with multiple credits member', () => {
       sub_title: 'Sub-title 1',
       description: 'Description for Program 1',
       url: 'http://example.com/title.html',
-      start: 1616133600,
-      stop: 1616135400,
+      start: '2021-03-19T06:00:00.000Z',
+      stop: '2021-03-19T06:30:00.000Z',
       category: 'Test',
       season: 9,
       episode: 239,
       icon: 'https://example.com/images/Program1.png?x=шеллы&sid=777',
       channel: '1TV.com',
       lang: 'it',
-      date: '20220505',
       director: {
         value: 'Director 1',
         url: { value: 'http://example.com/director1.html', system: 'TestSystem' }
