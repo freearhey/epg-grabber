@@ -9,13 +9,7 @@ module.exports.generate = generate
 
 function generate({ channels, programs, date = getUTCDate() }) {
 	let output = `<?xml version="1.0" encoding="UTF-8" ?>`
-
 	output += createElements(channels, programs, date)
-	// console.log(JSON.stringify(elements, null, 2))
-
-	// elements.forEach(elem => {
-	// 	output += toString(elem)
-	// })
 
 	return output
 }
@@ -39,6 +33,7 @@ function createElements(channels, programs, date) {
 		}),
 		...programs.map(program => {
 			const lang = program.lang || 'en'
+			const programDate = program.date ? formatDate(program.date, 'YYYYMMDD') : ''
 
 			return (
 				'\r\n' +
@@ -53,15 +48,6 @@ function createElements(channels, programs, date) {
 						el('title', { lang }, [escapeString(program.title)]),
 						el('sub-title', { lang }, [escapeString(program.sub_title)]),
 						el('desc', { lang }, [escapeString(program.description)]),
-						el('date', {}, [date]),
-						el('icon', { src: program.icon }),
-						el('url', {}, [program.url]),
-						el('episode-num', { system: 'xmltv_ns' }, [
-							formatEpisodeNum(program.season, program.episode, 'xmltv_ns')
-						]),
-						el('episode-num', { system: 'onscreen' }, [
-							formatEpisodeNum(program.season, program.episode, 'onscreen')
-						]),
 						el('credits', {}, [
 							...toArray(program.director).map(data => createCastMember('director', data)),
 							...toArray(program.actor).map(data => createCastMember('actor', data)),
@@ -74,9 +60,18 @@ function createElements(channels, programs, date) {
 							...toArray(program.commentator).map(data => createCastMember('commentator', data)),
 							...toArray(program.guest).map(data => createCastMember('guest', data))
 						]),
+						el('date', {}, [programDate]),
 						...toArray(program.category).map(category =>
 							el('category', { lang }, [escapeString(category)])
 						),
+						el('icon', { src: program.icon }),
+						...toArray(program.url).map(createURL),
+						el('episode-num', { system: 'xmltv_ns' }, [
+							formatEpisodeNum(program.season, program.episode, 'xmltv_ns')
+						]),
+						el('episode-num', { system: 'onscreen' }, [
+							formatEpisodeNum(program.season, program.episode, 'onscreen')
+						]),
 						...toArray(program.rating).map(rating =>
 							el('rating', { system: rating.system }, [
 								el('value', {}, [rating.value]),
@@ -98,18 +93,18 @@ function formatEpisodeNum(s, e, system) {
 			return createOnScreen(s, e)
 	}
 
-	return null
+	return ''
 }
 
 function createXMLTVNS(s, e) {
-	if (!e) return null
+	if (!e) return ''
 	s = s || 1
 
 	return `${s - 1}.${e - 1}.0/1`
 }
 
 function createOnScreen(s, e) {
-	if (!e) return null
+	if (!e) return ''
 	s = s || 1
 
 	s = padStart(s, 2, '0')
@@ -177,7 +172,7 @@ function toString(elem) {
 		}
 	}
 
-	if (elem.children.length) {
+	if (elem.children.filter(Boolean).length) {
 		let children = ''
 		elem.children.forEach(childElem => {
 			children += toString(childElem)
@@ -187,6 +182,7 @@ function toString(elem) {
 	}
 
 	if (!attrs) return ''
+	if (!['icon'].includes(elem.name)) return ''
 
 	return `<${elem.name}${attrs}/>`
 }
