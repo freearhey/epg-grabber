@@ -164,9 +164,9 @@ module.exports = {
     return [
       {
         title, // program title (required)
-        sub_title, // program sub-title (optional)
         start, // start time of the program (required)
         stop, // end time of the program (required)
+        sub_title, // program sub-title (optional)
         description, // description of the program (optional)
         category, // type of program (optional)
         season, // season number (optional)
