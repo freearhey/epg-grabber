@@ -63,6 +63,21 @@ it('can generate xmltv', () => {
   )
 })
 
+it('can generate xmltv with unix timestamps', () => {
+  const programs = [
+    {
+      channel: '1TV.co',
+      title: 'Program 1',
+      start: 1616133600000,
+      stop: 1616135400000
+    }
+  ]
+  const output = xmltv.generate({ channels, programs })
+  expect(output).toBe(
+    '<?xml version="1.0" encoding="UTF-8" ?><tv date="20220505">\r\n<channel id="1TV.co"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.co"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.co"><title>Program 1</title></programme></tv>'
+  )
+})
+
 it('can generate xmltv without season number', () => {
   const programs = [
     {
