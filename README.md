@@ -164,14 +164,26 @@ module.exports = {
     return [
       {
         title, // program title (required)
+        sub_title, // program sub-title (optional)
         start, // start time of the program (required)
         stop, // end time of the program (required)
         description, // description of the program (optional)
-        category, // program type (optional)
+        category, // type of program (optional)
         season, // season number (optional)
         episode, // episode number (optional)
+        date, // the date the programme or film was finished (optional)
         icon, // image associated with the program (optional)
-        lang // language of the description (default: 'en')
+        rating, // program rating (optional)
+        director, // the name of director (optional)
+        actor, // the name of actor (optional)
+        writer, // the name of writer (optional)
+        adapter, // the name of adapter (optional)
+        producer, // the name of producer (optional)
+        composer, // the name of composer (optional)
+        editor, // the name of editor (optional)
+        presenter, // the name of presenter (optional)
+        commentator, // the name of commentator (optional)
+        guest // the name of guest (optional)
       },
       ...
     ]
