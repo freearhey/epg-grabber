@@ -32,7 +32,6 @@ function createElements(channels, programs, date) {
 			)
 		}),
 		...programs.map(program => {
-			const lang = program.lang || 'en'
 			const programDate = program.date ? formatDate(program.date, 'YYYYMMDD') : ''
 
 			return (
@@ -45,9 +44,9 @@ function createElements(channels, programs, date) {
 						channel: program.channel
 					},
 					[
-						el('title', { lang }, [escapeString(program.title)]),
-						el('sub-title', { lang }, [escapeString(program.sub_title)]),
-						el('desc', { lang }, [escapeString(program.description)]),
+						el('title', {}, [escapeString(program.title)]),
+						el('sub-title', {}, [escapeString(program.sub_title)]),
+						el('desc', {}, [escapeString(program.description)]),
 						el('credits', {}, [
 							...toArray(program.director).map(data => createCastMember('director', data)),
 							...toArray(program.actor).map(data => createCastMember('actor', data)),
@@ -62,7 +61,7 @@ function createElements(channels, programs, date) {
 						]),
 						el('date', {}, [programDate]),
 						...toArray(program.category).map(category =>
-							el('category', { lang }, [escapeString(category)])
+							el('category', {}, [escapeString(category)])
 						),
 						el('icon', { src: program.icon }),
 						...toArray(program.url).map(createURL),

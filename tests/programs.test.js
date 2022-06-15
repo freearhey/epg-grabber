@@ -8,7 +8,6 @@ it('can parse programs', done => {
       {
         title: 'Title',
         description: 'Description',
-        lang: 'en',
         category: ['Category1', 'Category2'],
         icon: 'https://example.com/image.jpg',
         season: 9,
@@ -25,7 +24,6 @@ it('can parse programs', done => {
         {
           title: 'Title',
           description: 'Description',
-          lang: 'en',
           category: ['Category1', 'Category2'],
           icon: 'https://example.com/image.jpg',
           season: 9,
@@ -46,7 +44,6 @@ it('can parse programs async', done => {
       {
         title: 'Title',
         description: 'Description',
-        lang: 'en',
         category: ['Category1', 'Category2'],
         icon: 'https://example.com/image.jpg',
         season: 9,

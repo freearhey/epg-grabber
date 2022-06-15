@@ -31,7 +31,6 @@ it('can generate xmltv', () => {
       episode: 239,
       icon: 'https://example.com/images/Program1.png?x=шеллы&sid=777',
       channel: '1TV.co',
-      lang: 'it',
       rating: {
         system: 'MPAA',
         value: 'PG',
@@ -60,7 +59,7 @@ it('can generate xmltv', () => {
   ]
   const output = xmltv.generate({ channels, programs })
   expect(output).toBe(
-    '<?xml version="1.0" encoding="UTF-8" ?><tv date="20220505">\r\n<channel id="1TV.co"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.co"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.co"><title lang="it">Program 1</title><sub-title lang="it">Sub-title &amp; 1</sub-title><desc lang="it">Description for Program 1</desc><credits><director>Director 1<url system="TestSystem">http://example.com/director1.html</url><image>https://example.com/image1.jpg</image><image type="person" size="2" orient="P" system="TestSystem">https://example.com/image2.jpg</image></director><director>Director 2</director><actor>Actor 1</actor><actor>Actor 2</actor><writer>Writer 1</writer></credits><date>20220506</date><category lang="it">Test</category><icon src="https://example.com/images/Program1.png?x=шеллы&amp;sid=777"/><url>http://example.com/title.html</url><episode-num system="xmltv_ns">8.238.0/1</episode-num><episode-num system="onscreen">S09E239</episode-num><rating system="MPAA"><value>PG</value><icon src="http://example.com/pg_symbol.png"/></rating></programme></tv>'
+    '<?xml version="1.0" encoding="UTF-8" ?><tv date="20220505">\r\n<channel id="1TV.co"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.co"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.co"><title>Program 1</title><sub-title>Sub-title &amp; 1</sub-title><desc>Description for Program 1</desc><credits><director>Director 1<url system="TestSystem">http://example.com/director1.html</url><image>https://example.com/image1.jpg</image><image type="person" size="2" orient="P" system="TestSystem">https://example.com/image2.jpg</image></director><director>Director 2</director><actor>Actor 1</actor><actor>Actor 2</actor><writer>Writer 1</writer></credits><date>20220506</date><category>Test</category><icon src="https://example.com/images/Program1.png?x=шеллы&amp;sid=777"/><url>http://example.com/title.html</url><episode-num system="xmltv_ns">8.238.0/1</episode-num><episode-num system="onscreen">S09E239</episode-num><rating system="MPAA"><value>PG</value><icon src="http://example.com/pg_symbol.png"/></rating></programme></tv>'
   )
 })
 
@@ -76,7 +75,7 @@ it('can generate xmltv without season number', () => {
   ]
   const output = xmltv.generate({ channels, programs })
   expect(output).toBe(
-    '<?xml version="1.0" encoding="UTF-8" ?><tv date="20220505">\r\n<channel id="1TV.co"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.co"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.co"><title lang="en">Program 1</title><episode-num system="xmltv_ns">0.238.0/1</episode-num><episode-num system="onscreen">S01E239</episode-num></programme></tv>'
+    '<?xml version="1.0" encoding="UTF-8" ?><tv date="20220505">\r\n<channel id="1TV.co"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.co"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.co"><title>Program 1</title><episode-num system="xmltv_ns">0.238.0/1</episode-num><episode-num system="onscreen">S01E239</episode-num></programme></tv>'
   )
 })
 
@@ -92,7 +91,7 @@ it('can generate xmltv without episode number', () => {
   ]
   const output = xmltv.generate({ channels, programs })
   expect(output).toBe(
-    '<?xml version="1.0" encoding="UTF-8" ?><tv date="20220505">\r\n<channel id="1TV.co"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.co"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.co"><title lang="en">Program 1</title></programme></tv>'
+    '<?xml version="1.0" encoding="UTF-8" ?><tv date="20220505">\r\n<channel id="1TV.co"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.co"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.co"><title>Program 1</title></programme></tv>'
   )
 })
 
@@ -107,7 +106,7 @@ it('can generate xmltv without categories', () => {
   ]
   const output = xmltv.generate({ channels, programs })
   expect(output).toBe(
-    '<?xml version="1.0" encoding="UTF-8" ?><tv date="20220505">\r\n<channel id="1TV.co"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.co"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.co"><title lang="en">Program 1</title></programme></tv>'
+    '<?xml version="1.0" encoding="UTF-8" ?><tv date="20220505">\r\n<channel id="1TV.co"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.co"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.co"><title>Program 1</title></programme></tv>'
   )
 })
 
@@ -123,7 +122,7 @@ it('can generate xmltv with multiple categories', () => {
   ]
   const output = xmltv.generate({ channels, programs })
   expect(output).toBe(
-    '<?xml version="1.0" encoding="UTF-8" ?><tv date="20220505">\r\n<channel id="1TV.co"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.co"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.co"><title lang="en">Program 1</title><category lang="en">Category 1</category><category lang="en">Category 2</category></programme></tv>'
+    '<?xml version="1.0" encoding="UTF-8" ?><tv date="20220505">\r\n<channel id="1TV.co"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.co"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.co"><title>Program 1</title><category>Category 1</category><category>Category 2</category></programme></tv>'
   )
 })
 
@@ -142,6 +141,6 @@ it('can generate xmltv with multiple urls', () => {
   ]
   const output = xmltv.generate({ channels, programs })
   expect(output).toBe(
-    '<?xml version="1.0" encoding="UTF-8" ?><tv date="20220505">\r\n<channel id="1TV.co"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.co"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.co"><title lang="en">Program 1</title><url>https://example.com/noattr.html</url><url system="TestSystem">https://example.com/attr.html</url></programme></tv>'
+    '<?xml version="1.0" encoding="UTF-8" ?><tv date="20220505">\r\n<channel id="1TV.co"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>\r\n<channel id="2TV.co"><display-name>2 TV</display-name><url>https://example.com</url></channel>\r\n<programme start="20210319060000 +0000" stop="20210319063000 +0000" channel="1TV.co"><title>Program 1</title><url>https://example.com/noattr.html</url><url system="TestSystem">https://example.com/attr.html</url></programme></tv>'
   )
 })
