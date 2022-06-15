@@ -5,7 +5,7 @@ const program = new Command()
 const { merge } = require('lodash')
 const { gzip } = require('node-gzip')
 const file = require('../src/file')
-const EPGGrabber = require('../src/index')
+const { EPGGrabber, parseChannels, generateXMLTV, loadLogo } = require('../src/index')
 const { create: createLogger } = require('../src/logger')
 const { parseInteger, getUTCDate } = require('../src/utils')
 const { name, version, description } = require('../package.json')
@@ -63,7 +63,7 @@ async function main() {
   const grabber = new EPGGrabber(config)
 
   const channelsXML = file.read(config.channels)
-  const { channels } = grabber.parseChannels(channelsXML)
+  const { channels } = parseChannels(channelsXML)
 
   let programs = []
   let i = 1
@@ -95,7 +95,7 @@ async function main() {
     }
   }
 
-  const xml = grabber.generateXMLTV({ channels, programs })
+  const xml = generateXMLTV({ channels, programs })
   let outputPath = options.output || config.output
   if (options.gzip) {
     outputPath = outputPath || 'guide.xml.gz'
