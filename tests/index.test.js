@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import EPGGrabber from '../src/index'
+import { EPGGrabber } from '../src/index'
 import axios from 'axios'
 
 jest.mock('axios')
