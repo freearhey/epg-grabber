@@ -12,8 +12,8 @@ it('can parse programs', done => {
         icon: 'https://example.com/image.jpg',
         season: 9,
         episode: 238,
-        start: 1640995200,
-        stop: 1640998800
+        start: 1640995200000,
+        stop: 1640998800000
       }
     ]
   }
@@ -28,8 +28,8 @@ it('can parse programs', done => {
           icon: 'https://example.com/image.jpg',
           season: 9,
           episode: 238,
-          start: 1640995200,
-          stop: 1640998800,
+          start: 1640995200000,
+          stop: 1640998800000,
           channel: '1tv'
         }
       ])
@@ -48,8 +48,8 @@ it('can parse programs async', done => {
         icon: 'https://example.com/image.jpg',
         season: 9,
         episode: 238,
-        start: 1640995200,
-        stop: 1640998800
+        start: 1640995200000,
+        stop: 1640998800000
       }
     ]
   }
