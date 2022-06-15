@@ -1,4 +1,3 @@
-const dayjs = require('dayjs')
 const { isPromise } = require('./utils')
 
 module.exports.parse = parse
@@ -22,8 +21,4 @@ async function parse(data) {
 
 			return program
 		})
-}
-
-function toBaseObject(data) {
-	return data
 }

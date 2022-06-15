@@ -1,5 +1,6 @@
 const { createLogger, format, transports } = require('winston')
 const { combine, timestamp, printf } = format
+const path = require('path')
 
 module.exports.create = create
 
@@ -8,7 +9,7 @@ function create(options) {
     return `[${timestamp}] ${level.toUpperCase()}: ${message}`
   })
 
-  const consoleFormat = printf(({ level, message, timestamp }) => {
+  const consoleFormat = printf(({ level, message }) => {
     if (level === 'error') return `  Error: ${message}`
 
     return message

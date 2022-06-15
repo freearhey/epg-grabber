@@ -1,9 +1,8 @@
-const { merge } = require('lodash')
 const { CurlGenerator } = require('curl-generator')
 const axios = require('axios').default
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
 const { setupCache } = require('axios-cache-interceptor')
-const { isPromise, getUTCDate } = require('./utils')
+const { isObject, isPromise, getUTCDate } = require('./utils')
 
 axiosCookieJarSupport(axios)
 
@@ -12,10 +11,6 @@ module.exports.buildRequest = buildRequest
 module.exports.parseResponse = parseResponse
 
 let timeout
-
-class Client {
-	constructor() {}
-}
 
 function create(config) {
 	const client = setupCache(
