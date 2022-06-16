@@ -5,7 +5,7 @@ const program = new Command()
 const { merge } = require('lodash')
 const { gzip } = require('node-gzip')
 const file = require('../src/file')
-const { EPGGrabber, parseChannels, generateXMLTV, loadLogo } = require('../src/index')
+const { EPGGrabber, parseChannels, generateXMLTV } = require('../src/index')
 const { create: createLogger } = require('../src/logger')
 const { parseNumber, getUTCDate } = require('../src/utils')
 const { name, version, description } = require('../package.json')
@@ -84,8 +84,8 @@ async function main() {
       await grabber
         .grab(channel, date, (data, err) => {
           logger.info(
-            `[${i}/${total}] ${config.site} - ${data.channel.xmltv_id} - ${dayjs(data.date)
-              .utc()
+            `[${i}/${total}] ${config.site} - ${data.channel.id} - ${dayjs
+              .utc(data.date)
               .format('MMM D, YYYY')} (${data.programs.length} programs)`
           )
 
