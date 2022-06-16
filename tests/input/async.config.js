@@ -1,6 +1,6 @@
 module.exports = {
   site: 'example.com',
-  channels: 'example.com.channels.xml',
+  channels: 'example.channels.xml',
   url() {
     return Promise.resolve('http://example.com/20210319/1tv.json')
   },
@@ -17,7 +17,13 @@ module.exports = {
     }
   },
   parser() {
-    return Promise.resolve([])
+    return Promise.resolve([
+      {
+        title: 'Program1',
+        start: 1640995200000,
+        stop: 1640998800000
+      }
+    ])
   },
   logo() {
     return Promise.resolve('http://example.com/logos/1TV.png?x=шеллы&sid=777')

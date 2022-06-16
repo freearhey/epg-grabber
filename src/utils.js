@@ -8,7 +8,10 @@ module.exports.getUTCDate = getUTCDate
 module.exports.isPromise = isPromise
 module.exports.isObject = isObject
 module.exports.escapeString = escapeString
-module.exports.parseInteger = parseInteger
+module.exports.parseNumber = parseNumber
+module.exports.formatDate = formatDate
+module.exports.toArray = toArray
+module.exports.toUnix = toUnix
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -26,6 +29,10 @@ function getUTCDate(d = null) {
   if (typeof d === 'string') return dayjs.utc(d).startOf('d')
 
   return dayjs.utc().startOf('d')
+}
+
+function toUnix(d) {
+  return dayjs.utc(d).valueOf()
 }
 
 function escapeString(string, defaultValue = '') {
@@ -56,6 +63,16 @@ function escapeString(string, defaultValue = '') {
     .trim()
 }
 
-function parseInteger(val) {
+function parseNumber(val) {
   return val ? parseInt(val) : null
+}
+
+function formatDate(date, format) {
+  return date ? dayjs.utc(date).format(format) : null
+}
+
+function toArray(value) {
+  if (Array.isArray(value)) return value.filter(Boolean)
+
+  return [value].filter(Boolean)
 }

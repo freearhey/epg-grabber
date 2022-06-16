@@ -7,8 +7,12 @@ const { gzip } = require('node-gzip')
 const file = require('../src/file')
 const { EPGGrabber, parseChannels, generateXMLTV, loadLogo } = require('../src/index')
 const { create: createLogger } = require('../src/logger')
-const { parseInteger, getUTCDate } = require('../src/utils')
+const { parseNumber, getUTCDate } = require('../src/utils')
 const { name, version, description } = require('../package.json')
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+
+dayjs.extend(utc)
 
 program
   .name(name)
@@ -18,13 +22,13 @@ program
   .option('-o, --output <output>', 'Path to output file')
   .option('--channels <channels>', 'Path to channels.xml file')
   .option('--lang <lang>', 'Set default language for all programs')
-  .option('--days <days>', 'Number of days for which to grab the program', parseInteger, 1)
-  .option('--delay <delay>', 'Delay between requests (in mileseconds)', parseInteger)
-  .option('--timeout <timeout>', 'Set a timeout for each request (in mileseconds)', parseInteger)
+  .option('--days <days>', 'Number of days for which to grab the program', parseNumber, 1)
+  .option('--delay <delay>', 'Delay between requests (in mileseconds)', parseNumber)
+  .option('--timeout <timeout>', 'Set a timeout for each request (in mileseconds)', parseNumber)
   .option(
     '--cache-ttl <cacheTtl>',
     'Maximum time for storing each request (in milliseconds)',
-    parseInteger
+    parseNumber
   )
   .option('--gzip', 'Compress the output', false)
   .option('--debug', 'Enable debug mode', false)
@@ -80,9 +84,9 @@ async function main() {
       await grabber
         .grab(channel, date, (data, err) => {
           logger.info(
-            `[${i}/${total}] ${config.site} - ${data.channel.xmltv_id} - ${data.date.format(
-              'MMM D, YYYY'
-            )} (${data.programs.length} programs)`
+            `[${i}/${total}] ${config.site} - ${data.channel.xmltv_id} - ${dayjs(data.date)
+              .utc()
+              .format('MMM D, YYYY')} (${data.programs.length} programs)`
           )
 
           if (err) logger.error(err.message)

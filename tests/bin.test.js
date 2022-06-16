@@ -10,7 +10,7 @@ function stdoutResultTester(stdout) {
 
 it('can load config', () => {
   const result = execSync(
-    `node ${pwd}/bin/epg-grabber.js --config=tests/input/example.com.config.js --delay=0`,
+    `node ${pwd}/bin/epg-grabber.js --config=tests/input/example.config.js --delay=0`,
     {
       encoding: 'utf8'
     }
@@ -23,7 +23,7 @@ it('can load mini config', () => {
   const result = execSync(
     `node ${pwd}/bin/epg-grabber.js \
       --config=tests/input/mini.config.js \
-      --channels=tests/input/example.com.channels.xml \
+      --channels=tests/input/example.channels.xml \
       --output=tests/output/mini.guide.xml \
       --lang=fr \
       --days=3 \
@@ -43,7 +43,7 @@ it('can generate gzip version', () => {
   const result = execSync(
     `node ${pwd}/bin/epg-grabber.js \
       --config=tests/input/mini.config.js \
-      --channels=tests/input/example.com.channels.xml \
+      --channels=tests/input/example.channels.xml \
       --output=tests/output/mini.guide.xml.gz \
       --gzip`,
     {

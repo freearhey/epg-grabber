@@ -5,7 +5,7 @@ dayjs.extend(utc)
 
 module.exports = {
   site: 'example.com',
-  channels: 'example.com.channels.xml',
+  channels: 'example.channels.xml',
   output: 'tests/output/guide.xml',
   url: () => 'http://example.com/20210319/1tv.json',
   request: {
@@ -21,15 +21,9 @@ module.exports = {
   parser: () => {
     return [
       {
-        title: 'Title',
-        description: 'Description',
-        lang: 'en',
-        category: ['Category1', 'Category2'],
-        icon: 'https://example.com/image.jpg',
-        season: 9,
-        episode: 238,
-        start: dayjs.utc('2022-01-01 00:00:00'),
-        stop: dayjs.utc('2022-01-01 01:00:00')
+        title: 'Program1',
+        start: 1640995200000,
+        stop: 1640998800000
       }
     ]
   },

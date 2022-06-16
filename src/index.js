@@ -1,8 +1,7 @@
 const { merge } = require('lodash')
 const { create: createClient, buildRequest, parseResponse } = require('./client')
+const { parseChannels, parsePrograms } = require('./parser')
 const { generate: generateXMLTV } = require('./xmltv')
-const { parse: parseChannels } = require('./channels')
-const { parse: parsePrograms } = require('./programs')
 const { load: loadConfig } = require('./config')
 const { sleep, isPromise } = require('./utils')
 

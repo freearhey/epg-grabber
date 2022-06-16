@@ -3,7 +3,7 @@ import path from 'path'
 import fs from 'fs'
 
 it('can load config', () => {
-  const config = loadConfig(require(path.resolve('./tests/input/example.com.config.js')))
+  const config = loadConfig(require(path.resolve('./tests/input/example.config.js')))
   expect(config).toMatchObject({
     days: 1,
     delay: 3000,

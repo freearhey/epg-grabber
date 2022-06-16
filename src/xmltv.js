@@ -1,9 +1,5 @@
-const { padStart } = require('lodash')
-const { escapeString, getUTCDate } = require('./utils')
-const dayjs = require('dayjs')
-const utc = require('dayjs/plugin/utc')
-
-dayjs.extend(utc)
+const { escapeString, getUTCDate, formatDate } = require('./utils')
+const el = createElement
 
 module.exports.generate = generate
 
@@ -14,26 +10,19 @@ function generate({ channels, programs, date = getUTCDate() }) {
 	return output
 }
 
-const el = createElement
-
 function createElements(channels, programs, date) {
-	date = formatDate(date, 'YYYYMMDD')
-	return el('tv', { date }, [
+	return el('tv', { date: formatDate(date, 'YYYYMMDD') }, [
 		...channels.map(channel => {
-			const url = channel.site ? `https://${channel.site}` : ''
-
 			return (
 				'\r\n' +
-				el('channel', { id: channel.xmltv_id }, [
+				el('channel', { id: channel.id }, [
 					el('display-name', {}, [escapeString(channel.name)]),
 					el('icon', { src: channel.logo }),
-					el('url', {}, [url])
+					el('url', {}, [channel.url])
 				])
 			)
 		}),
 		...programs.map(program => {
-			const programDate = program.date ? formatDate(program.date, 'YYYYMMDD') : ''
-
 			return (
 				'\r\n' +
 				el(
@@ -48,30 +37,25 @@ function createElements(channels, programs, date) {
 						el('sub-title', {}, [escapeString(program.sub_title)]),
 						el('desc', {}, [escapeString(program.description)]),
 						el('credits', {}, [
-							...toArray(program.director).map(data => createCastMember('director', data)),
-							...toArray(program.actor).map(data => createCastMember('actor', data)),
-							...toArray(program.writer).map(data => createCastMember('writer', data)),
-							...toArray(program.adapter).map(data => createCastMember('adapter', data)),
-							...toArray(program.producer).map(data => createCastMember('producer', data)),
-							...toArray(program.composer).map(data => createCastMember('composer', data)),
-							...toArray(program.editor).map(data => createCastMember('editor', data)),
-							...toArray(program.presenter).map(data => createCastMember('presenter', data)),
-							...toArray(program.commentator).map(data => createCastMember('commentator', data)),
-							...toArray(program.guest).map(data => createCastMember('guest', data))
+							...program.directors.map(data => createCastMember('director', data)),
+							...program.actors.map(data => createCastMember('actor', data)),
+							...program.writers.map(data => createCastMember('writer', data)),
+							...program.adapters.map(data => createCastMember('adapter', data)),
+							...program.producers.map(data => createCastMember('producer', data)),
+							...program.composers.map(data => createCastMember('composer', data)),
+							...program.editors.map(data => createCastMember('editor', data)),
+							...program.presenters.map(data => createCastMember('presenter', data)),
+							...program.commentators.map(data => createCastMember('commentator', data)),
+							...program.guests.map(data => createCastMember('guest', data))
 						]),
-						el('date', {}, [programDate]),
-						...toArray(program.category).map(category =>
-							el('category', {}, [escapeString(category)])
+						el('date', {}, [formatDate(program.date, 'YYYYMMDD')]),
+						...program.categories.map(category => el('category', {}, [escapeString(category)])),
+						el('icon', { src: program.icon.src }),
+						...program.urls.map(createURL),
+						...program.episodeNumbers.map(episode =>
+							el('episode-num', { system: episode.system }, [episode.value])
 						),
-						el('icon', { src: program.icon }),
-						...toArray(program.url).map(createURL),
-						el('episode-num', { system: 'xmltv_ns' }, [
-							formatEpisodeNum(program.season, program.episode, 'xmltv_ns')
-						]),
-						el('episode-num', { system: 'onscreen' }, [
-							formatEpisodeNum(program.season, program.episode, 'onscreen')
-						]),
-						...toArray(program.rating).map(rating =>
+						...program.ratings.map(rating =>
 							el('rating', { system: rating.system }, [
 								el('value', {}, [rating.value]),
 								el('icon', { src: rating.icon })
@@ -84,45 +68,15 @@ function createElements(channels, programs, date) {
 	])
 }
 
-function formatEpisodeNum(s, e, system) {
-	switch (system) {
-		case 'xmltv_ns':
-			return createXMLTVNS(s, e)
-		case 'onscreen':
-			return createOnScreen(s, e)
-	}
-
-	return ''
-}
-
-function createXMLTVNS(s, e) {
-	if (!e) return ''
-	s = s || 1
-
-	return `${s - 1}.${e - 1}.0/1`
-}
-
-function createOnScreen(s, e) {
-	if (!e) return ''
-	s = s || 1
-
-	s = padStart(s, 2, '0')
-	e = padStart(e, 2, '0')
-
-	return `S${s}E${e}`
-}
-
 function createCastMember(position, data) {
-	data = toObject(data)
 	return el(position, {}, [
 		escapeString(data.value),
-		...toArray(data.url).map(createURL),
-		...toArray(data.image).map(createImage)
+		...data.url.map(createURL),
+		...data.image.map(createImage)
 	])
 }
 
 function createImage(image) {
-	image = toObject(image)
 	return el(
 		'image',
 		{
@@ -136,24 +90,7 @@ function createImage(image) {
 }
 
 function createURL(url) {
-	url = toObject(url)
 	return el('url', { system: url.system }, [url.value])
-}
-
-function toObject(value) {
-	if (typeof value === 'string') return { value }
-
-	return value
-}
-
-function toArray(value) {
-	if (Array.isArray(value)) return value.filter(Boolean)
-
-	return [value].filter(Boolean)
-}
-
-function formatDate(date, format) {
-	return date ? dayjs.utc(date).format(format) : null
 }
 
 function createElement(name, attrs = {}, children = []) {
@@ -161,7 +98,7 @@ function createElement(name, attrs = {}, children = []) {
 }
 
 function toString(elem) {
-	if (typeof elem === 'string') return elem
+	if (typeof elem === 'string' || typeof elem === 'number') return elem
 
 	let attrs = ''
 	for (let key in elem.attrs) {
