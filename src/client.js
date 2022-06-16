@@ -2,7 +2,7 @@ const { CurlGenerator } = require('curl-generator')
 const axios = require('axios').default
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
 const { setupCache } = require('axios-cache-interceptor')
-const { isObject, isPromise, getUTCDate } = require('./utils')
+const { isObject, isPromise } = require('./utils')
 
 axiosCookieJarSupport(axios)
 
@@ -68,7 +68,6 @@ function create(config) {
 }
 
 async function buildRequest({ channel, date, config }) {
-	date = typeof date === 'string' ? getUTCDate(date) : date
 	const CancelToken = axios.CancelToken
 	const source = CancelToken.source()
 	const request = { ...config.request }

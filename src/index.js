@@ -1,9 +1,9 @@
 const { merge } = require('lodash')
 const { create: createClient, buildRequest, parseResponse } = require('./client')
 const { parseChannels, parsePrograms } = require('./parser')
+const { sleep, isPromise, getUTCDate } = require('./utils')
 const { generate: generateXMLTV } = require('./xmltv')
 const { load: loadConfig } = require('./config')
-const { sleep, isPromise } = require('./utils')
 const Channel = require('./Channel')
 const Program = require('./Program')
 
@@ -29,6 +29,7 @@ class EPGGrabber {
   async grab(channel, date, cb = () => {}) {
     await sleep(this.config.delay)
 
+    date = typeof date === 'string' ? getUTCDate(date) : date
     return buildRequest({ channel, date, config: this.config })
       .then(this.client)
       .then(parseResponse)
