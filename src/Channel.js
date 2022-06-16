@@ -1,13 +1,13 @@
 class Channel {
 	constructor(c) {
 		const data = {
-			id: c.xmltv_id,
+			id: c.id || c.xmltv_id,
 			name: c.name,
 			site: c.site || '',
 			site_id: c.site_id,
 			lang: c.lang || '',
 			logo: c.logo || '',
-			url: c.site ? `https://${c.site}` : ''
+			url: c.url || toURL(c.site)
 		}
 
 		for (let key in data) {
@@ -17,3 +17,7 @@ class Channel {
 }
 
 module.exports = Channel
+
+function toURL(site) {
+	return site ? `https://${site}` : ''
+}

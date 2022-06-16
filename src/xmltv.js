@@ -64,7 +64,8 @@ function createElements(channels, programs, date) {
 					]
 				)
 			)
-		})
+		}),
+		'\r\n'
 	])
 }
 

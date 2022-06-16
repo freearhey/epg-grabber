@@ -18,12 +18,12 @@ function parseChannels(xml) {
   const channels = channelsTag.elements
     .filter(el => el.name === 'channel')
     .map(el => {
-      const data = el.attributes
-      data.name = el.elements.find(el => el.type === 'text').text
-      data.site = data.site || rootSite
-      if (!data.name) throw new Error(`Channel '${data.xmltv_id}' has no valid name`)
+      const c = el.attributes
+      c.name = el.elements.find(el => el.type === 'text').text
+      c.site = c.site || rootSite
+      if (!c.name) throw new Error(`Channel '${c.xmltv_id}' has no valid name`)
 
-      return new Channel(data)
+      return new Channel(c)
     })
 
   return { site: rootSite, channels }
@@ -41,5 +41,11 @@ async function parsePrograms(data) {
     throw new Error('Parser should return an array')
   }
 
-  return programs.filter(i => i).map(p => new Program(p, channel))
+  return programs
+    .filter(i => i)
+    .map(p => {
+      p.channel = p.channel || channel.id
+
+      return new Program(p)
+    })
 }

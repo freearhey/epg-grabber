@@ -2,18 +2,18 @@ const { padStart } = require('lodash')
 const { toArray, toUnix, parseNumber } = require('./utils')
 
 class Program {
-	constructor(p, c) {
+	constructor(p) {
 		const data = {
-			channel: c.id,
+			channel: p.channel,
 			title: p.title,
 			sub_title: p.sub_title || '',
-			description: p.description || p.desc,
+			description: [p.description, p.desc, ''].find(i => i !== undefined),
 			icon: toIconObject(p.icon),
 			episodeNumbers: getEpisodeNumbers(p.season, p.episode),
 			date: p.date ? toUnix(p.date) : null,
 			start: toUnix(p.start),
 			stop: toUnix(p.stop),
-			urls: toArray(p.url).map(toUrlObject),
+			urls: toArray(p.urls || p.url).map(toUrlObject),
 			ratings: toArray(p.ratings || p.rating).map(toRatingObject),
 			categories: toArray(p.categories || p.category),
 			directors: toArray(p.directors || p.director).map(toPersonObject),
