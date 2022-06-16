@@ -1,10 +1,11 @@
 import Channel from '../src/Channel'
 import Program from '../src/Program'
 
-const channel = new Channel({ xmltv_id: '1tv', lang: 'en' })
+const channel = new Channel({ xmltv_id: '1tv', lang: 'en', site: 'example.com' })
 
 it('can create new Program', () => {
   const program = new Program({
+    site: channel.site,
     channel: channel.id,
     title: 'Title',
     sub_title: 'Subtitle',
@@ -48,6 +49,7 @@ it('can create new Program', () => {
   })
 
   expect(program).toMatchObject({
+    site: 'example.com',
     channel: '1tv',
     title: 'Title',
     sub_title: 'Subtitle',

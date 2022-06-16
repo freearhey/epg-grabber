@@ -12,9 +12,14 @@ module.exports.parseNumber = parseNumber
 module.exports.formatDate = formatDate
 module.exports.toArray = toArray
 module.exports.toUnix = toUnix
+module.exports.isDate = isDate
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+function isDate(d) {
+  return dayjs(d).isValid()
 }
 
 function isObject(a) {

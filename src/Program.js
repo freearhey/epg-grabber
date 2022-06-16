@@ -4,15 +4,16 @@ const { toArray, toUnix, parseNumber } = require('./utils')
 class Program {
 	constructor(p) {
 		const data = {
-			channel: p.channel,
-			title: p.title,
+			site: p.site || '',
+			channel: p.channel || '',
+			title: p.title || '',
 			sub_title: p.sub_title || '',
-			description: [p.description, p.desc, ''].find(i => i !== undefined),
+			description: [p.description, p.desc].find(i => i) || '',
 			icon: toIconObject(p.icon),
-			episodeNumbers: getEpisodeNumbers(p.season, p.episode),
+			episodeNumbers: p.episodeNumbers || getEpisodeNumbers(p.season, p.episode),
 			date: p.date ? toUnix(p.date) : null,
-			start: toUnix(p.start),
-			stop: toUnix(p.stop),
+			start: p.start ? toUnix(p.start) : null,
+			stop: p.stop ? toUnix(p.stop) : null,
 			urls: toArray(p.urls || p.url).map(toUrlObject),
 			ratings: toArray(p.ratings || p.rating).map(toRatingObject),
 			categories: toArray(p.categories || p.category),
@@ -84,7 +85,8 @@ function toUrlObject(url) {
 }
 
 function toIconObject(icon) {
-	if (!icon || typeof icon === 'string') return { src: icon }
+	if (!icon) return { src: '' }
+	if (typeof icon === 'string') return { src: icon }
 
 	return {
 		src: icon.src || ''

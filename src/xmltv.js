@@ -1,9 +1,23 @@
-const { escapeString, getUTCDate, formatDate } = require('./utils')
+const Channel = require('./Channel')
+const Program = require('./Program')
+const { escapeString, getUTCDate, formatDate, isDate } = require('./utils')
 const el = createElement
 
 module.exports.generate = generate
 
 function generate({ channels, programs, date = getUTCDate() }) {
+	if (!channels.every(c => c instanceof Channel)) {
+		throw new Error('"channels" must be an array of Channels')
+	}
+
+	if (!programs.every(p => p instanceof Program)) {
+		throw new Error('"programs" must be an array of Programs')
+	}
+
+	if (!isDate(date)) {
+		throw new Error('"date" must be a valid date')
+	}
+
 	let output = `<?xml version="1.0" encoding="UTF-8" ?>`
 	output += createElements(channels, programs, date)
 

@@ -4,9 +4,13 @@ const { parseChannels, parsePrograms } = require('./parser')
 const { generate: generateXMLTV } = require('./xmltv')
 const { load: loadConfig } = require('./config')
 const { sleep, isPromise } = require('./utils')
+const Channel = require('./Channel')
+const Program = require('./Program')
 
 module.exports.generateXMLTV = generateXMLTV
 module.exports.parseChannels = parseChannels
+module.exports.Channel = Channel
+module.exports.Program = Program
 
 class EPGGrabber {
   constructor(config = {}) {

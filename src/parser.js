@@ -44,6 +44,7 @@ async function parsePrograms(data) {
   return programs
     .filter(i => i)
     .map(p => {
+      p.site = channel.site
       p.channel = p.channel || channel.id
 
       return new Program(p)
