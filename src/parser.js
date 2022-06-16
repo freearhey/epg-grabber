@@ -18,12 +18,12 @@ function parseChannels(xml) {
   const channels = channelsTag.elements
     .filter(el => el.name === 'channel')
     .map(el => {
-      let { xmltv_id, site, logo } = el.attributes
-      const name = el.elements.find(el => el.type === 'text').text
-      if (!name) throw new Error(`Channel '${xmltv_id}' has no valid name`)
-      site = site || rootSite
+      const data = el.attributes
+      data.name = el.elements.find(el => el.type === 'text').text
+      data.site = data.site || rootSite
+      if (!data.name) throw new Error(`Channel '${data.xmltv_id}' has no valid name`)
 
-      return new Channel({ name, xmltv_id, logo, site })
+      return new Channel(data)
     })
 
   return { site: rootSite, channels }
