@@ -14,7 +14,7 @@ it('can parse valid channels.xml', () => {
 })
 
 it('can parse programs', done => {
-  const channel = { xmltv_id: '1tv' }
+  const channel = new Channel({ xmltv_id: '1tv' })
   const config = require('./input/example.config.js')
 
   parsePrograms({ channel, config })
@@ -27,7 +27,7 @@ it('can parse programs', done => {
 })
 
 it('can parse programs async', done => {
-  const channel = { xmltv_id: '1tv' }
+  const channel = new Channel({ xmltv_id: '1tv' })
   const config = require('./input/async.config.js')
 
   parsePrograms({ channel, config })

@@ -41,12 +41,5 @@ async function parsePrograms(data) {
     throw new Error('Parser should return an array')
   }
 
-  return programs
-    .filter(i => i)
-    .map(p => {
-      p.site = channel.site
-      p.channel = p.channel || channel.id
-
-      return new Program(p)
-    })
+  return programs.filter(i => i).map(p => new Program(p, channel))
 }

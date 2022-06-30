@@ -47,9 +47,15 @@ function createElements(channels, programs, date) {
 						channel: program.channel
 					},
 					[
-						el('title', {}, [escapeString(program.title)]),
-						el('sub-title', {}, [escapeString(program.sub_title)]),
-						el('desc', {}, [escapeString(program.description)]),
+						...program.titles.map(title =>
+							el('title', { lang: title.lang }, [escapeString(title.value)])
+						),
+						...program.sub_titles.map(sub_title =>
+							el('sub-title', { lang: sub_title.lang }, [escapeString(sub_title.value)])
+						),
+						...program.descriptions.map(desc =>
+							el('desc', { lang: desc.lang }, [escapeString(desc.value)])
+						),
 						el('credits', {}, [
 							...program.directors.map(data => createCastMember('director', data)),
 							...program.actors.map(data => createCastMember('actor', data)),
@@ -63,7 +69,9 @@ function createElements(channels, programs, date) {
 							...program.guests.map(data => createCastMember('guest', data))
 						]),
 						el('date', {}, [formatDate(program.date, 'YYYYMMDD')]),
-						...program.categories.map(category => el('category', {}, [escapeString(category)])),
+						...program.categories.map(category =>
+							el('category', { lang: category.lang }, [escapeString(category.value)])
+						),
 						el('icon', { src: program.icon.src }),
 						...program.urls.map(createURL),
 						...program.episodeNumbers.map(episode =>

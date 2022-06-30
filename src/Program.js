@@ -1,14 +1,21 @@
 const { padStart } = require('lodash')
 const { toArray, toUnix, parseNumber } = require('./utils')
+const Channel = require('./Channel')
 
 class Program {
-	constructor(p) {
+	constructor(p, c) {
+		if (!(c instanceof Channel)) {
+			throw new Error('The second argument in the constructor must be the "Channel" class')
+		}
+
 		const data = {
-			site: p.site || '',
-			channel: p.channel || '',
-			title: p.title || '',
-			sub_title: p.sub_title || '',
-			description: [p.description, p.desc].find(i => i) || '',
+			site: p.site || c.site || '',
+			channel: p.channel || c.id || '',
+			titles: toArray(p.titles || p.title).map(text => toTextObject(text, c.lang)),
+			sub_titles: toArray(p.sub_titles || p.sub_title).map(text => toTextObject(text, c.lang)),
+			descriptions: toArray(p.descriptions || p.description || p.desc).map(text =>
+				toTextObject(text, c.lang)
+			),
 			icon: toIconObject(p.icon),
 			episodeNumbers: p.episodeNumbers || getEpisodeNumbers(p.season, p.episode),
 			date: p.date ? toUnix(p.date) : null,
@@ -16,7 +23,7 @@ class Program {
 			stop: p.stop ? toUnix(p.stop) : null,
 			urls: toArray(p.urls || p.url).map(toUrlObject),
 			ratings: toArray(p.ratings || p.rating).map(toRatingObject),
-			categories: toArray(p.categories || p.category),
+			categories: toArray(p.categories || p.category).map(text => toTextObject(text, c.lang)),
 			directors: toArray(p.directors || p.director).map(toPersonObject),
 			actors: toArray(p.actors || p.actor).map(toPersonObject),
 			writers: toArray(p.writers || p.writer).map(toPersonObject),
@@ -36,6 +43,17 @@ class Program {
 }
 
 module.exports = Program
+
+function toTextObject(text, lang) {
+	if (typeof text === 'string') {
+		return { value: text, lang }
+	}
+
+	return {
+		value: text.value,
+		lang: text.lang
+	}
+}
 
 function toPersonObject(person) {
 	if (typeof person === 'string') {
