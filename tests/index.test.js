@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import { EPGGrabber } from '../src/index'
+import { EPGGrabber, Channel } from '../src/index'
 import axios from 'axios'
 
 jest.mock('axios')
@@ -20,13 +20,13 @@ it('return "Connection timeout" error if server does not response', done => {
     },
     parser: () => []
   }
-  const channel = {
+  const channel = new Channel({
     site: 'example.com',
     site_id: 'cnn',
     xmltv_id: 'CNN.us',
     lang: 'en',
     name: 'CNN'
-  }
+  })
   const grabber = new EPGGrabber(config)
   grabber.grab(channel, '2022-01-01', (data, err) => {
     expect(err.message).toBe('Connection timeout')
@@ -47,13 +47,13 @@ it('can grab single channel programs', done => {
     url: 'http://example.com/20210319/1tv.json',
     parser: () => []
   }
-  const channel = {
+  const channel = new Channel({
     site: 'example.com',
     site_id: '1',
     xmltv_id: '1TV.fr',
     lang: 'fr',
     name: '1TV'
-  }
+  })
   const grabber = new EPGGrabber(config)
   grabber
     .grab(channel, '2022-01-01', (data, err) => {
