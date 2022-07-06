@@ -27,6 +27,10 @@ class EPGGrabber {
   }
 
   async grab(channel, date, cb = () => {}) {
+    if (!(channel instanceof Channel)) {
+      throw new Error('The first argument must be the "Channel" class')
+    }
+
     await sleep(this.config.delay)
 
     date = typeof date === 'string' ? getUTCDate(date) : date
