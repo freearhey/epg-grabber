@@ -9,6 +9,7 @@ const { EPGGrabber, parseChannels, generateXMLTV } = require('../src/index')
 const { create: createLogger } = require('../src/logger')
 const { parseNumber, getUTCDate } = require('../src/utils')
 const { name, version, description } = require('../package.json')
+const _ = require('lodash')
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 
@@ -98,6 +99,8 @@ async function main() {
         })
     }
   }
+
+  programs = _.uniqBy(programs, p => p.start + p.channel)
 
   const xml = generateXMLTV({ channels, programs })
   let outputPath = options.output || config.output
