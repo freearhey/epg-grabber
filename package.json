@@ -35,6 +35,7 @@
     "commander": "^7.1.0",
     "curl-generator": "^0.2.0",
     "dayjs": "^1.10.4",
+    "epg-parser": "^0.1.6",
     "glob": "^7.1.6",
     "lodash": "^4.17.21",
     "node-gzip": "^1.1.2",
