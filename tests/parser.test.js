@@ -4,7 +4,7 @@ import Program from '../src/Program'
 import fs from 'fs'
 
 it('can parse valid channels.xml', () => {
-  const file = fs.readFileSync('./tests/input/example.channels.xml', { encoding: 'utf-8' })
+  const file = fs.readFileSync('./tests/__data__/input/example.channels.xml', { encoding: 'utf-8' })
   const { channels, site } = parseChannels(file)
 
   expect(typeof site).toBe('string')
@@ -15,7 +15,7 @@ it('can parse valid channels.xml', () => {
 
 it('can parse programs', done => {
   const channel = new Channel({ xmltv_id: '1tv' })
-  const config = require('./input/example.config.js')
+  const config = require('./__data__/input/example.config.js')
 
   parsePrograms({ channel, config })
     .then(programs => {
@@ -28,7 +28,7 @@ it('can parse programs', done => {
 
 it('can parse programs async', done => {
   const channel = new Channel({ xmltv_id: '1tv' })
-  const config = require('./input/async.config.js')
+  const config = require('./__data__/input/async.config.js')
 
   parsePrograms({ channel, config })
     .then(programs => {
