@@ -1,4 +1,6 @@
 const { execSync } = require('child_process')
+const fs = require('fs')
+const path = require('path')
 
 const pwd = `${__dirname}/..`
 
@@ -10,7 +12,7 @@ function stdoutResultTester(stdout) {
 
 it('can load config', () => {
   const result = execSync(
-    `node ${pwd}/bin/epg-grabber.js --config=tests/input/example.config.js --delay=0`,
+    `node ${pwd}/bin/epg-grabber.js --config=tests/__data__/input/example.config.js --delay=0`,
     {
       encoding: 'utf8'
     }
@@ -22,9 +24,9 @@ it('can load config', () => {
 it('can load mini config', () => {
   const result = execSync(
     `node ${pwd}/bin/epg-grabber.js \
-      --config=tests/input/mini.config.js \
-      --channels=tests/input/example.channels.xml \
-      --output=tests/output/mini.guide.xml \
+      --config=tests/__data__/input/mini.config.js \
+      --channels=tests/__data__/input/example.channels.xml \
+      --output=tests/__data__/output/mini.guide.xml \
       --lang=fr \
       --days=3 \
       --delay=0 \
@@ -36,15 +38,17 @@ it('can load mini config', () => {
   )
 
   expect(stdoutResultTester(result)).toBe(true)
-  expect(result.includes("File 'tests/output/mini.guide.xml' successfully saved")).toBe(true)
+  expect(result.includes("File 'tests/__data__/output/mini.guide.xml' successfully saved")).toBe(
+    true
+  )
 })
 
 it('can generate gzip version', () => {
   const result = execSync(
     `node ${pwd}/bin/epg-grabber.js \
-      --config=tests/input/mini.config.js \
-      --channels=tests/input/example.channels.xml \
-      --output=tests/output/mini.guide.xml.gz \
+      --config=tests/__data__/input/mini.config.js \
+      --channels=tests/__data__/input/example.channels.xml \
+      --output=tests/__data__/output/mini.guide.xml.gz \
       --gzip`,
     {
       encoding: 'utf8'
@@ -52,5 +56,24 @@ it('can generate gzip version', () => {
   )
 
   expect(stdoutResultTester(result)).toBe(true)
-  expect(result.includes("File 'tests/output/mini.guide.xml.gz' successfully saved")).toBe(true)
+  expect(result.includes("File 'tests/__data__/output/mini.guide.xml.gz' successfully saved")).toBe(
+    true
+  )
+})
+
+it('removes duplicates of the program', () => {
+  const result = execSync(
+    `node ${pwd}/bin/epg-grabber.js \
+      --config=tests/__data__/input/duplicates.config.js \
+      --channels=tests/__data__/input/example.channels.xml \
+      --output=tests/__data__/output/duplicates.guide.xml.gz \
+      --gzip`,
+    {
+      encoding: 'utf8'
+    }
+  )
+
+  expect(
+    fs.readFileSync(path.resolve(__dirname, '__data__/output/duplicates.guide.xml.gz'))
+  ).toEqual(fs.readFileSync(path.resolve(__dirname, '__data__/expected/duplicates.guide.xml.gz')))
 })
