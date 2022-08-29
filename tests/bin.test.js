@@ -1,6 +1,7 @@
 const { execSync } = require('child_process')
 const fs = require('fs')
 const path = require('path')
+const epgParser = require('epg-parser')
 
 const pwd = `${__dirname}/..`
 
@@ -66,14 +67,17 @@ it('removes duplicates of the program', () => {
     `node ${pwd}/bin/epg-grabber.js \
       --config=tests/__data__/input/duplicates.config.js \
       --channels=tests/__data__/input/example.channels.xml \
-      --output=tests/__data__/output/duplicates.guide.xml.gz \
-      --gzip`,
+      --output=tests/__data__/output/duplicates.guide.xml`,
     {
       encoding: 'utf8'
     }
   )
 
-  expect(
-    fs.readFileSync(path.resolve(__dirname, '__data__/output/duplicates.guide.xml.gz'))
-  ).toEqual(fs.readFileSync(path.resolve(__dirname, '__data__/expected/duplicates.guide.xml.gz')))
+  let output = fs.readFileSync(path.resolve(__dirname, '__data__/output/duplicates.guide.xml'))
+  let expected = fs.readFileSync(path.resolve(__dirname, '__data__/expected/duplicates.guide.xml'))
+
+  output = epgParser.parse(output)
+  expected = epgParser.parse(expected)
+
+  expect(output.programs).toEqual(expected.programs)
 })
