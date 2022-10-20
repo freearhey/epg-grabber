@@ -102,6 +102,15 @@ module.exports = {
 
     method: 'GET',
     timeout: 5000,
+    proxy: {
+      protocol: 'https',
+      host: '127.0.0.1',
+      port: 9000,
+      auth: {
+        username: 'mikeymike',
+        password: 'rapunz3l'
+      }
+    },
     cache: { // cache options (details: https://axios-cache-interceptor.js.org/#/pages/per-request-configuration)
       ttl: 60 * 1000 // 60s
     },
