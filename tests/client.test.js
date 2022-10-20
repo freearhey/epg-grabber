@@ -18,6 +18,15 @@ const config = {
       Cookie: 'abc=123',
       'User-Agent':
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
+    },
+    proxy: {
+      protocol: 'https',
+      host: '127.0.0.1',
+      port: 9000,
+      auth: {
+        username: 'mikeymike',
+        password: 'rapunz3l'
+      }
     }
   },
   url: 'http://example.com/20210319/1tv.json'
@@ -39,7 +48,16 @@ it('can build request', done => {
         responseType: 'arraybuffer',
         timeout: 5000,
         url: 'http://example.com/20210319/1tv.json',
-        withCredentials: true
+        withCredentials: true,
+        proxy: {
+          protocol: 'https',
+          host: '127.0.0.1',
+          port: 9000,
+          auth: {
+            username: 'mikeymike',
+            password: 'rapunz3l'
+          }
+        }
       })
       done()
     })
