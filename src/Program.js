@@ -17,7 +17,7 @@ class Program {
 				toTextObject(text, c.lang)
 			),
 			icon: toIconObject(p.icon),
-			episodeNumbers: p.episodeNumbers || getEpisodeNumbers(p.season, p.episode),
+			episodeNumbers: p.episodeNum || p.episodeNumbers || getEpisodeNumbers(p.season, p.episode),
 			date: p.date ? toUnix(p.date) : null,
 			start: p.start ? toUnix(p.start) : null,
 			stop: p.stop ? toUnix(p.stop) : null,
