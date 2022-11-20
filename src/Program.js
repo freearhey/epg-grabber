@@ -9,8 +9,8 @@ class Program {
 		}
 
 		const data = {
-			site: p.site || c.site || '',
-			channel: p.channel || c.id || '',
+			site: c.site || '',
+			channel: c.id || '',
 			titles: toArray(p.titles || p.title).map(text => toTextObject(text, c.lang)),
 			sub_titles: toArray(p.sub_titles || p.sub_title).map(text => toTextObject(text, c.lang)),
 			descriptions: toArray(p.descriptions || p.description || p.desc).map(text =>
