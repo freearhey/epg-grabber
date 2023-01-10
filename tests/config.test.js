@@ -5,7 +5,7 @@ import fs from 'fs'
 it('can load config', () => {
   const config = loadConfig(require(path.resolve('./tests/__data__/input/example.config.js')))
   expect(config).toMatchObject({
-    days: 1,
+    days: 2,
     delay: 3000,
     lang: 'en',
     site: 'example.com'
