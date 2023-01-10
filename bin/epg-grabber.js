@@ -23,7 +23,7 @@ program
   .option('-o, --output <output>', 'Path to output file')
   .option('--channels <channels>', 'Path to channels.xml file')
   .option('--lang <lang>', 'Set default language for all programs')
-  .option('--days <days>', 'Number of days for which to grab the program', parseNumber, 1)
+  .option('--days <days>', 'Number of days for which to grab the program', parseNumber)
   .option('--delay <delay>', 'Delay between requests (in mileseconds)', parseNumber)
   .option('--timeout <timeout>', 'Set a timeout for each request (in mileseconds)', parseNumber)
   .option(
@@ -72,10 +72,11 @@ async function main() {
 
   let programs = []
   let i = 1
-  let days = options.days || 1
+  let days = config.days || 1
   const total = channels.length * days
   const utcDate = getUTCDate()
-  const dates = Array.from({ length: config.days }, (_, i) => utcDate.add(i, 'd'))
+  const dates = Array.from({ length: days }, (_, i) => utcDate.add(i, 'd'))
+  console.log(dates)
   for (let channel of channels) {
     if (!channel.logo && config.logo) {
       channel.logo = await grabber.loadLogo(channel)
