@@ -5,6 +5,7 @@ dayjs.extend(utc)
 
 module.exports = {
   site: 'example.com',
+  days: 2,
   channels: 'example.channels.xml',
   output: 'tests/output/guide.xml',
   url: () => 'http://example.com/20210319/1tv.json',
