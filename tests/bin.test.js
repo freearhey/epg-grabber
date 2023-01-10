@@ -12,18 +12,18 @@ function stdoutResultTester(stdout) {
 }
 
 it('can load config', () => {
-  const result = execSync(
+  const stdout = execSync(
     `node ${pwd}/bin/epg-grabber.js --config=tests/__data__/input/example.config.js --delay=0`,
     {
       encoding: 'utf8'
     }
   )
 
-  expect(stdoutResultTester(result)).toBe(true)
+  expect(stdoutResultTester(stdout)).toBe(true)
 })
 
 it('can load mini config', () => {
-  const result = execSync(
+  const stdout = execSync(
     `node ${pwd}/bin/epg-grabber.js \
       --config=tests/__data__/input/mini.config.js \
       --channels=tests/__data__/input/example.channels.xml \
@@ -38,14 +38,14 @@ it('can load mini config', () => {
     }
   )
 
-  expect(stdoutResultTester(result)).toBe(true)
-  expect(result.includes("File 'tests/__data__/output/mini.guide.xml' successfully saved")).toBe(
+  expect(stdoutResultTester(stdout)).toBe(true)
+  expect(stdout.includes("File 'tests/__data__/output/mini.guide.xml' successfully saved")).toBe(
     true
   )
 })
 
 it('can generate gzip version', () => {
-  const result = execSync(
+  const stdout = execSync(
     `node ${pwd}/bin/epg-grabber.js \
       --config=tests/__data__/input/mini.config.js \
       --channels=tests/__data__/input/example.channels.xml \
@@ -56,14 +56,14 @@ it('can generate gzip version', () => {
     }
   )
 
-  expect(stdoutResultTester(result)).toBe(true)
-  expect(result.includes("File 'tests/__data__/output/mini.guide.xml.gz' successfully saved")).toBe(
+  expect(stdoutResultTester(stdout)).toBe(true)
+  expect(stdout.includes("File 'tests/__data__/output/mini.guide.xml.gz' successfully saved")).toBe(
     true
   )
 })
 
 it('removes duplicates of the program', () => {
-  const result = execSync(
+  const stdout = execSync(
     `node ${pwd}/bin/epg-grabber.js \
       --config=tests/__data__/input/duplicates.config.js \
       --channels=tests/__data__/input/example.channels.xml \
