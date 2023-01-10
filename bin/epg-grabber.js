@@ -76,7 +76,6 @@ async function main() {
   const total = channels.length * days
   const utcDate = getUTCDate()
   const dates = Array.from({ length: days }, (_, i) => utcDate.add(i, 'd'))
-  console.log(dates)
   for (let channel of channels) {
     if (!channel.logo && config.logo) {
       channel.logo = await grabber.loadLogo(channel)
