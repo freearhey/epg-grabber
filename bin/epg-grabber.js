@@ -24,8 +24,8 @@ program
   .option('--channels <channels>', 'Path to channels.xml file')
   .option('--lang <lang>', 'Set default language for all programs')
   .option('--days <days>', 'Number of days for which to grab the program', parseNumber)
-  .option('--delay <delay>', 'Delay between requests (in mileseconds)', parseNumber)
-  .option('--timeout <timeout>', 'Set a timeout for each request (in mileseconds)', parseNumber)
+  .option('--delay <delay>', 'Delay between requests (in milliseconds)', parseNumber)
+  .option('--timeout <timeout>', 'Set a timeout for each request (in milliseconds)', parseNumber)
   .option(
     '--cache-ttl <cacheTtl>',
     'Maximum time for storing each request (in milliseconds)',
