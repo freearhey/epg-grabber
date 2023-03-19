@@ -53,7 +53,9 @@ async function main() {
     curl: options.curl,
     lang: options.lang,
     delay: options.delay,
-    request: {}
+    request: {
+        ignoreCookieErrors: true,
+    }
   })
 
   if (options.timeout) config.request.timeout = options.timeout
