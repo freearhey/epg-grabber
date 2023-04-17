@@ -235,6 +235,34 @@ You can also specify the language and logo for each channel individually, like s
 >France 24</channel>
 ```
 
+## How to use SOCKS proxy?
+
+First, you need to install [socks-proxy-agent](https://www.npmjs.com/package/socks-proxy-agent):
+
+```sh
+npm install socks-proxy-agent
+```
+
+Then you can use it to create an agent that acts as a SOCKS proxy. Here is an example of how to do it with the Tor SOCKS proxy:
+
+```js
+const { SocksProxyAgent } = require('socks-proxy-agent')
+
+const torProxyAgent = new SocksProxyAgent('socks://localhost:9050')
+
+module.exports = {
+  site: 'example.com',
+  url: 'https://example.com/epg.json',
+  request: {
+    httpsAgent: torProxyAgent,
+    httpAgent: torProxyAgent
+  },
+  parser(context) {
+    // ...
+  }
+}
+```
+
 ## Contribution
 
 If you find a bug or want to contribute to the code or documentation, you can help by submitting an [issue](https://github.com/freearhey/epg-grabber/issues) or a [pull request](https://github.com/freearhey/epg-grabber/pulls).
