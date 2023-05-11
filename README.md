@@ -74,25 +74,25 @@ epg-grabber --config=example.com.config.js
 Arguments:
 
 - `-c, --config`: path to config file
-- `-o, --output`: path to output file (default: 'guide.xml')
-- `--channels`: path to list of channels (can be specified via config file)
-- `--lang`: set default language for all programs (default: 'en')
-- `--days`: number of days for which to grab the program (default: 1)
-- `--delay`: delay between requests in milliseconds (default: 3000)
-- `--timeout`: set a timeout for each request in milliseconds (default: 5000)
-- `--cache-ttl`: maximum time for storing each request in milliseconds (default: 0)
-- `--gzip`: compress the output (default: false)
-- `--debug`: enable debug mode (default: false)
-- `--curl`: display current request as CURL (default: false)
+- `-o, --output`: path to output file or path template (example: `guides/{site}.{lang}.xml`; default: `guide.xml`)
+- `--channels`: path to list of channels
+- `--lang`: set default language for all programs (default: `en`)
+- `--days`: number of days for which to grab the program (default: `1`)
+- `--delay`: delay between requests in milliseconds (default: `3000`)
+- `--timeout`: set a timeout for each request in milliseconds (default: `5000`)
+- `--cache-ttl`: maximum time for storing each request in milliseconds (default: `0`)
+- `--gzip`: compress the output (default: `false`)
+- `--debug`: enable debug mode (default: `false`)
+- `--curl`: display current request as CURL (default: `false`)
 - `--log`: path to log file (optional)
-- `--log-level`: set the log level (default: 'info')
+- `--log-level`: set the log level (default: `info`)
 
 ## Site Config
 
 ```js
 module.exports = {
   site: 'example.com', // site domain name (required)
-  output: 'example.com.guide.xml', // path to output file (default: 'guide.xml')
+  output: 'example.com.guide.xml', // path to output file or path template (example: 'guides/{site}.{lang}.xml'; default: 'guide.xml')
   channels: 'example.com.channels.xml', // path to channels.xml file (required)
   lang: 'fr', // default language for all programs (default: 'en')
   days: 3, // number of days for which to grab the program (default: 1)
