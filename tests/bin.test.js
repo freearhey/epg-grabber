@@ -1,5 +1,5 @@
 const { execSync } = require('child_process')
-const fs = require('fs')
+const fs = require('fs-extra')
 const path = require('path')
 const epgParser = require('epg-parser')
 
@@ -10,6 +10,10 @@ function stdoutResultTester(stdout) {
     return RegExp(val).test(stdout)
   })
 }
+
+beforeEach(() => {
+  fs.emptyDirSync('tests/__data__/output')
+})
 
 it('can load config', () => {
   const stdout = execSync(
@@ -60,6 +64,26 @@ it('can generate gzip version', () => {
   expect(stdout.includes("File 'tests/__data__/output/mini.guide.xml.gz' successfully saved")).toBe(
     true
   )
+})
+
+it('can produce multiple outputs', () => {
+  const stdout = execSync(
+    `node ${pwd}/bin/epg-grabber.js \
+      --config=tests/__data__/input/mini.config.js \
+      --channels=tests/__data__/input/example.channels.xml \
+      --output=tests/__data__/output/{lang}/{id}.xml`,
+    {
+      encoding: 'utf8'
+    }
+  )
+
+  expect(stdoutResultTester(stdout)).toBe(true)
+  expect(stdout.includes("File 'tests/__data__/output/fr/1TV.com.xml' successfully saved")).toBe(
+    true
+  )
+  expect(
+    stdout.includes("File 'tests/__data__/output/undefined/2TV.com.xml' successfully saved")
+  ).toBe(true)
 })
 
 it('removes duplicates of the program', () => {
