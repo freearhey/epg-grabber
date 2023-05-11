@@ -71,7 +71,7 @@ it('can produce multiple outputs', () => {
     `node ${pwd}/bin/epg-grabber.js \
       --config=tests/__data__/input/mini.config.js \
       --channels=tests/__data__/input/example.channels.xml \
-      --output=tests/__data__/output/{lang}/{id}.xml`,
+      --output=tests/__data__/output/{lang}/{xmltv_id}.xml`,
     {
       encoding: 'utf8'
     }

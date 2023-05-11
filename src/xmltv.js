@@ -29,7 +29,7 @@ function createElements(channels, programs, date) {
     ...channels.map(channel => {
       return (
         '\r\n' +
-        el('channel', { id: channel.id }, [
+        el('channel', { id: channel.xmltv_id }, [
           el('display-name', {}, [escapeString(channel.name)]),
           el('icon', { src: channel.logo }),
           el('url', {}, [channel.url])
