@@ -68,52 +68,70 @@ async function main() {
   const grabber = new EPGGrabber(config)
 
   const channelsXML = file.read(config.channels)
-  const { channels } = parseChannels(channelsXML)
+  const { channels: parsedChannels } = parseChannels(channelsXML)
 
-  let programs = []
-  let i = 1
-  let days = config.days || 1
-  const total = channels.length * days
-  const utcDate = getUTCDate()
-  const dates = Array.from({ length: days }, (_, i) => utcDate.add(i, 'd'))
-  for (let channel of channels) {
-    if (!channel.logo && config.logo) {
-      channel.logo = await grabber.loadLogo(channel)
+  let template = options.output || config.output
+  const variables = file.templateVariables(template)
+
+  const groups = _.groupBy(parsedChannels, channel => {
+    let groupId = ''
+    for (let key in channel) {
+      if (variables.includes(key)) {
+        groupId += channel[key]
+      }
     }
 
-    for (let date of dates) {
-      await grabber
-        .grab(channel, date, (data, err) => {
-          logger.info(
-            `[${i}/${total}] ${config.site} - ${data.channel.id} - ${dayjs
-              .utc(data.date)
-              .format('MMM D, YYYY')} (${data.programs.length} programs)`
-          )
+    return groupId
+  })
 
-          if (err) logger.error(err.message)
+  for (let groupId in groups) {
+    const channels = groups[groupId]
+    let programs = []
+    let i = 1
+    let days = config.days || 1
+    const total = channels.length * days
+    const utcDate = getUTCDate()
+    const dates = Array.from({ length: days }, (_, i) => utcDate.add(i, 'd'))
+    for (let channel of channels) {
+      if (!channel.logo && config.logo) {
+        channel.logo = await grabber.loadLogo(channel)
+      }
 
-          if (i < total) i++
-        })
-        .then(results => {
-          programs = programs.concat(results)
-        })
+      for (let date of dates) {
+        await grabber
+          .grab(channel, date, (data, err) => {
+            logger.info(
+              `[${i}/${total}] ${config.site} - ${data.channel.id} - ${dayjs
+                .utc(data.date)
+                .format('MMM D, YYYY')} (${data.programs.length} programs)`
+            )
+
+            if (err) logger.error(err.message)
+
+            if (i < total) i++
+          })
+          .then(results => {
+            programs = programs.concat(results)
+          })
+      }
     }
+
+    programs = _.uniqBy(programs, p => p.start + p.channel)
+
+    const xml = generateXMLTV({ channels, programs })
+    let outputPath = file.templateFormat(template, channels[0])
+    if (options.gzip) {
+      outputPath = outputPath || 'guide.xml.gz'
+      const compressed = await gzip(xml)
+      file.write(outputPath, compressed)
+    } else {
+      outputPath = outputPath || 'guide.xml'
+      file.write(outputPath, xml)
+    }
+
+    logger.info(`File '${outputPath}' successfully saved`)
   }
 
-  programs = _.uniqBy(programs, p => p.start + p.channel)
-
-  const xml = generateXMLTV({ channels, programs })
-  let outputPath = options.output || config.output
-  if (options.gzip) {
-    outputPath = outputPath || 'guide.xml.gz'
-    const compressed = await gzip(xml)
-    file.write(outputPath, compressed)
-  } else {
-    outputPath = outputPath || 'guide.xml'
-    file.write(outputPath, xml)
-  }
-
-  logger.info(`File '${outputPath}' successfully saved`)
   logger.info('Finish')
 }
 
