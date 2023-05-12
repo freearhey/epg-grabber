@@ -101,7 +101,7 @@ async function main() {
         await grabber
           .grab(channel, date, (data, err) => {
             logger.info(
-              `[${i}/${total}] ${config.site} - ${data.channel.id} - ${dayjs
+              `[${i}/${total}] ${config.site} - ${data.channel.xmltv_id} - ${dayjs
                 .utc(data.date)
                 .format('MMM D, YYYY')} (${data.programs.length} programs)`
             )
