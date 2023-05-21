@@ -34,6 +34,7 @@
     "axios-mock-adapter": "^1.20.0",
     "commander": "^7.1.0",
     "curl-generator": "^0.2.0",
+    "cwait": "^1.1.2",
     "dayjs": "^1.10.4",
     "epg-parser": "^0.1.6",
     "fs-extra": "^11.1.1",
