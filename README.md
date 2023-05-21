@@ -80,6 +80,7 @@ Arguments:
 - `--days`: number of days for which to grab the program (default: `1`)
 - `--delay`: delay between requests in milliseconds (default: `3000`)
 - `--timeout`: set a timeout for each request in milliseconds (default: `5000`)
+- `--max-connections`: set a limit on the number of concurrent requests per site (default: `1`)
 - `--cache-ttl`: maximum time for storing each request in milliseconds (default: `0`)
 - `--gzip`: compress the output (default: `false`)
 - `--debug`: enable debug mode (default: `false`)
@@ -97,6 +98,7 @@ module.exports = {
   lang: 'fr', // default language for all programs (default: 'en')
   days: 3, // number of days for which to grab the program (default: 1)
   delay: 5000, // delay between requests (default: 3000)
+  maxConnections: 200, // limit on the number of concurrent requests (default: 1)
 
   request: { // request options (details: https://github.com/axios/axios#request-config)
 
