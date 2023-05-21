@@ -12,6 +12,7 @@ const { name, version, description } = require('../package.json')
 const _ = require('lodash')
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
+const { TaskQueue } = require('cwait')
 
 dayjs.extend(utc)
 
@@ -26,6 +27,11 @@ program
   .option('--days <days>', 'Number of days for which to grab the program', parseNumber)
   .option('--delay <delay>', 'Delay between requests (in milliseconds)', parseNumber)
   .option('--timeout <timeout>', 'Set a timeout for each request (in milliseconds)', parseNumber)
+  .option(
+    '--max-connections <maxConnections>',
+    'Set a limit on the number of concurrent requests per site',
+    parseNumber
+  )
   .option(
     '--cache-ttl <cacheTtl>',
     'Maximum time for storing each request (in milliseconds)',
@@ -53,6 +59,7 @@ async function main() {
     curl: options.curl,
     lang: options.lang,
     delay: options.delay,
+    maxConnections: options.maxConnections,
     request: {}
   })
 
@@ -89,32 +96,44 @@ async function main() {
     let programs = []
     let i = 1
     let days = config.days || 1
+    const maxConnections = config.maxConnections || 1
     const total = channels.length * days
     const utcDate = getUTCDate()
     const dates = Array.from({ length: days }, (_, i) => utcDate.add(i, 'd'))
+    const taskQueue = new TaskQueue(Promise, maxConnections)
+
+    let queue = []
     for (let channel of channels) {
       if (!channel.logo && config.logo) {
         channel.logo = await grabber.loadLogo(channel)
       }
 
       for (let date of dates) {
-        await grabber
-          .grab(channel, date, (data, err) => {
-            logger.info(
-              `[${i}/${total}] ${config.site} - ${data.channel.xmltv_id} - ${dayjs
-                .utc(data.date)
-                .format('MMM D, YYYY')} (${data.programs.length} programs)`
-            )
-
-            if (err) logger.error(err.message)
-
-            if (i < total) i++
-          })
-          .then(results => {
-            programs = programs.concat(results)
-          })
+        queue.push({ channel, date })
       }
     }
+
+    await Promise.all(
+      queue.map(
+        taskQueue.wrap(async ({ channel, date }) => {
+          await grabber
+            .grab(channel, date, (data, err) => {
+              logger.info(
+                `[${i}/${total}] ${config.site} - ${data.channel.xmltv_id} - ${dayjs
+                  .utc(data.date)
+                  .format('MMM D, YYYY')} (${data.programs.length} programs)`
+              )
+
+              if (err) logger.error(err.message)
+
+              if (i < total) i++
+            })
+            .then(results => {
+              programs = programs.concat(results)
+            })
+        })
+      )
+    )
 
     programs = _.uniqBy(programs, p => p.start + p.channel)
 
