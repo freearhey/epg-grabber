@@ -75,7 +75,7 @@ Arguments:
 
 - `-c, --config`: path to config file
 - `-o, --output`: path to output file or path template (example: `guides/{site}.{lang}.xml`; default: `guide.xml`)
-- `--channels`: path to list of channels
+- `--channels`: path to list of channels; you can also use wildcard to specify the path to multiple files at once (example: `example.com_*.channels.xml`)
 - `--lang`: set default language for all programs (default: `en`)
 - `--days`: number of days for which to grab the program (default: `1`)
 - `--delay`: delay between requests in milliseconds (default: `3000`)
@@ -94,7 +94,7 @@ Arguments:
 module.exports = {
   site: 'example.com', // site domain name (required)
   output: 'example.com.guide.xml', // path to output file or path template (example: 'guides/{site}.{lang}.xml'; default: 'guide.xml')
-  channels: 'example.com.channels.xml', // path to channels.xml file (required)
+  channels: 'example.com.channels.xml', // path to list of channels; you can also use an array to specify the path to multiple files at once (example: ['channels1.xml', 'channels2.xml']; required)
   lang: 'fr', // default language for all programs (default: 'en')
   days: 3, // number of days for which to grab the program (default: 1)
   delay: 5000, // delay between requests (default: 3000)
