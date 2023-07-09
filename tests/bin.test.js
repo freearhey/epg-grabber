@@ -105,3 +105,14 @@ it('removes duplicates of the program', () => {
 
   expect(output.programs).toEqual(expected.programs)
 })
+
+it('can load multiple "channels.xml" files at once', () => {
+  const stdout = execSync(
+    `node ${pwd}/bin/epg-grabber.js --config=tests/__data__/input/example.config.js --channels=tests/__data__/input/example*.channels.xml --timeout=1`,
+    {
+      encoding: 'utf8'
+    }
+  )
+
+  expect(stdoutResultTester(stdout)).toBe(true)
+})
