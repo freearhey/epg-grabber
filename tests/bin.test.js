@@ -116,3 +116,14 @@ it('can load multiple "channels.xml" files at once', () => {
 
   expect(stdoutResultTester(stdout)).toBe(true)
 })
+
+it('can parse list of "channels.xml" from array', () => {
+  const stdout = execSync(
+    `node ${pwd}/bin/epg-grabber.js --config=tests/__data__/input/example_channels.config.js --timeout=1`,
+    {
+      encoding: 'utf8'
+    }
+  )
+
+  expect(stdoutResultTester(stdout)).toBe(true)
+})
