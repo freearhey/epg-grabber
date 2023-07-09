@@ -65,17 +65,30 @@ async function main() {
 
   if (options.timeout) config.request.timeout = options.timeout
   if (options.cacheTtl) config.request.cache.ttl = options.cacheTtl
+
   if (options.channels) config.channels = options.channels
-  else if (config.channels)
-    config.channels = file.join(file.dirname(options.config), config.channels)
-  else throw new Error("The required 'channels' property is missing")
 
-  if (!config.channels) return logger.error('Path to [site].channels.xml is missing')
-  logger.info(`Loading '${config.channels}'...`)
+  let parsedChannels = []
+  if (config.channels) {
+    let files = []
+    if (Array.isArray(config.channels)) {
+      files = config.channels
+    } else if (typeof config.channels === 'string') {
+      files = await file.list(config.channels)
+    } else {
+      throw new Error('The "channels" attribute must be of type array or string')
+    }
+
+    const dir = file.dirname(options.config)
+    for (let filepath of files) {
+      logger.info(`Loading '${filepath}'...`)
+      const channelsXML = file.read(filepath)
+      const { channels } = parseChannels(channelsXML)
+      parsedChannels = parsedChannels.concat(channels)
+    }
+  } else throw new Error('Path to [site].channels.xml is missing')
+
   const grabber = new EPGGrabber(config)
-
-  const channelsXML = file.read(config.channels)
-  const { channels: parsedChannels } = parseChannels(channelsXML)
 
   let template = options.output || config.output
   const variables = file.templateVariables(template)
