@@ -1,6 +1,8 @@
 const fs = require('fs')
 const path = require('path')
+const glob = require('glob')
 
+module.exports.list = list
 module.exports.read = read
 module.exports.write = write
 module.exports.resolve = resolve
@@ -8,6 +10,14 @@ module.exports.join = join
 module.exports.dirname = dirname
 module.exports.templateVariables = templateVariables
 module.exports.templateFormat = templateFormat
+
+function list(pattern) {
+  return new Promise(resolve => {
+    glob(pattern, function (err, files) {
+      resolve(files)
+    })
+  })
+}
 
 function read(filepath) {
   return fs.readFileSync(path.resolve(filepath), { encoding: 'utf-8' })
