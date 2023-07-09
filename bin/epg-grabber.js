@@ -22,7 +22,7 @@ program
   .description(description)
   .requiredOption('-c, --config <config>', 'Path to [site].config.js file')
   .option('-o, --output <output>', 'Path to output file')
-  .option('--channels <channels>', 'Path to channels.xml file')
+  .option('--channels <channels>', 'Path to list of channels')
   .option('--lang <lang>', 'Set default language for all programs')
   .option('--days <days>', 'Number of days for which to grab the program', parseNumber)
   .option('--delay <delay>', 'Delay between requests (in milliseconds)', parseNumber)
@@ -70,23 +70,24 @@ async function main() {
 
   let parsedChannels = []
   if (config.channels) {
+    const dir = file.dirname(options.config)
+
     let files = []
     if (Array.isArray(config.channels)) {
-      files = config.channels
+      files = config.channels.map(path => file.join(dir, path))
     } else if (typeof config.channels === 'string') {
       files = await file.list(config.channels)
     } else {
       throw new Error('The "channels" attribute must be of type array or string')
     }
 
-    const dir = file.dirname(options.config)
     for (let filepath of files) {
       logger.info(`Loading '${filepath}'...`)
       const channelsXML = file.read(filepath)
       const { channels } = parseChannels(channelsXML)
       parsedChannels = parsedChannels.concat(channels)
     }
-  } else throw new Error('Path to [site].channels.xml is missing')
+  } else throw new Error('Path to "channels" is missing')
 
   const grabber = new EPGGrabber(config)
 
