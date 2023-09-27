@@ -87,7 +87,7 @@ it('can produce multiple outputs', () => {
 })
 
 it('removes duplicates of the program', () => {
-  const stdout = execSync(
+  execSync(
     `node ${pwd}/bin/epg-grabber.js \
       --config=tests/__data__/input/duplicates.config.js \
       --channels=tests/__data__/input/example.channels.xml \

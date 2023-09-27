@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<channels>
+  <channel site="example.com" xmltv_id="1TV.com" site_id="1" lang="fr" logo="https://example.com/logos/1TV.png">1 TV</channel>
+  <channel site="example.com" xmltv_id="2TV.com" site_id="2">2 TV</channel>
+</channels>

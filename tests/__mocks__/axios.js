@@ -1,2 +1,3 @@
-import mockAxios from 'jest-mock-axios'
-export default mockAxios
+const mockAxios = require('jest-mock-axios')
+
+module.exports = mockAxios
