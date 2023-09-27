@@ -43,11 +43,9 @@ module.exports = {
 
 ```xml
 <?xml version="1.0" ?>
-<site site="example.com">
-  <channels>
-    <channel site_id="cnn-23" xmltv_id="CNN.us">CNN</channel>
-  </channels>
-</site>
+<channels site="example.com">
+  <channel site_id="cnn-23" xmltv_id="CNN.us">CNN</channel>
+</channels>
 ```
 
 ## Example Output
@@ -218,18 +216,17 @@ From each function in `config.js` you can access a `context` object containing t
 
 ```xml
 <?xml version="1.0" ?>
-<site site="example.com">
-  <channels>
-    <channel site_id="cnn-23" xmltv_id="CNN.us">CNN</channel>
-    ...
-  </channels>
-</site>
+<channels site="example.com">
+  <channel site_id="cnn-23" xmltv_id="CNN.us">CNN</channel>
+  ...
+</channels>
 ```
 
-You can also specify the language and logo for each channel individually, like so:
+You can also specify the language, site and logo for each channel individually, like so:
 
 ```xml
 <channel
+  site="example.com"
   site_id="france-24"
   xmltv_id="France24.fr"
   lang="fr"
