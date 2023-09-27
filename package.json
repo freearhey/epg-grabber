@@ -1,6 +1,6 @@
 {
   "name": "epg-grabber",
-  "version": "0.32.0",
+  "version": "0.33.0",
   "description": "Node.js CLI tool for grabbing EPG from different sites",
   "main": "src/index.js",
   "preferGlobal": true,
@@ -8,7 +8,7 @@
     "epg-grabber": "bin/epg-grabber.js"
   },
   "scripts": {
-    "lint": "npx eslint ./src/**/*.js",
+    "lint": "npx eslint ./src/**/*.js ./tests/**/*.js",
     "test": "npx jest"
   },
   "publishConfig": {
