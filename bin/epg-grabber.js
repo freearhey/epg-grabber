@@ -84,7 +84,7 @@ async function main() {
     for (let filepath of files) {
       logger.info(`Loading '${filepath}'...`)
       const channelsXML = file.read(filepath)
-      const { channels } = parseChannels(channelsXML)
+      const channels = parseChannels(channelsXML)
       parsedChannels = parsedChannels.concat(channels)
     }
   } else throw new Error('Path to "channels" is missing')
