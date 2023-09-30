@@ -53,4 +53,26 @@ class EPGGrabber {
   }
 }
 
+class EPGGrabberMock {
+  constructor(config) {
+    this.config = config
+  }
+
+  async grab(channel, date, cb) {
+    let _date = getUTCDate(date)
+    let _programs = await this.config.parser({ channel, date: _date })
+    let programs = _programs.map(data => new Program(data, channel))
+
+    if (this.config.request?.timeout !== undefined && this.config.request.timeout < 1) {
+      cb({ programs: [], date: _date, channel }, new Error('Connection timeout'))
+      return []
+    }
+
+    cb({ programs, date: _date, channel }, null)
+
+    return programs
+  }
+}
+
 module.exports.EPGGrabber = EPGGrabber
+module.exports.EPGGrabberMock = EPGGrabberMock
