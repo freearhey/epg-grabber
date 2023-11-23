@@ -1,11 +1,12 @@
 const { CurlGenerator } = require('curl-generator')
 const { default: axios } = require('axios')
 const { CookieJar } = require('tough-cookie')
-const { setupCache } = require('axios-cache-interceptor')
+const { setupCache, buildMemoryStorage } = require('axios-cache-interceptor')
 const { isObject, isPromise } = require('./utils')
 const { HttpCookieAgent, HttpsCookieAgent } = require('http-cookie-agent/http')
 
 const jar = new CookieJar()
+const storage = buildMemoryStorage()
 
 module.exports.create = create
 module.exports.buildRequest = buildRequest
@@ -14,6 +15,10 @@ module.exports.parseResponse = parseResponse
 let timeout
 
 function create(config) {
+  const cache = config?.cache || config?.request?.cache || {}
+  if (!cache.storage) {
+    cache.storage = storage
+  }
   const client = setupCookie(
     setupCache(
       axios.create({
@@ -23,7 +28,8 @@ function create(config) {
           'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
         }
-      })
+      }),
+      cache
     )
   )
 
