@@ -14,18 +14,20 @@ module.exports.parseResponse = parseResponse
 let timeout
 
 function create(config) {
-  const client = setupCookie(
-    setupCache(
-      axios.create({
-        jar,
-        ignoreCookieErrors: true,
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
-        }
-      })
-    )
-  )
+  const client = axios.defaults.cache
+    ? axios
+    : setupCookie(
+        setupCache(
+          axios.create({
+            jar,
+            ignoreCookieErrors: true,
+            headers: {
+              'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
+            }
+          })
+        )
+      )
 
   client.interceptors.request.use(
     function (request) {

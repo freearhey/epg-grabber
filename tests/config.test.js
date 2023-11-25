@@ -1,9 +1,9 @@
-import { load as loadConfig } from '../src/config'
+import { parse as parseConfig } from '../src/config'
 import path from 'path'
 import fs from 'fs'
 
 it('can load config', () => {
-  const config = loadConfig(require(path.resolve('./tests/__data__/input/example.config.js')))
+  const config = parseConfig(require(path.resolve('./tests/__data__/input/example.config.js')))
   expect(config).toMatchObject({
     days: 2,
     delay: 3000,

@@ -28,16 +28,18 @@ it('return "Connection timeout" error if server does not response', done => {
     name: 'CNN'
   })
   const grabber = new EPGGrabber(config)
-  grabber.grab(channel, '2022-01-01', (data, err) => {
-    expect(err.message).toBe('Connection timeout')
-    done()
-  })
+  grabber
+    .grab(channel, '2022-01-01', (data, err) => {
+      expect(err.message).toBe('Connection timeout')
+      done()
+    })
+    .catch(done)
 })
 
 it('can grab single channel programs', done => {
   const data = {
     data: {
-      toString: () => 'string'
+      toString: () => '[{"title":"Program1"}]'
     }
   }
   axios.mockImplementation(() => Promise.resolve(data))
@@ -45,7 +47,7 @@ it('can grab single channel programs', done => {
   const config = {
     site: 'example.com',
     url: 'http://example.com/20210319/1tv.json',
-    parser: () => []
+    parser: ({ content }) => JSON.parse(content)
   }
   const channel = new Channel({
     site: 'example.com',
@@ -56,13 +58,53 @@ it('can grab single channel programs', done => {
   })
   const grabber = new EPGGrabber(config)
   grabber
-    .grab(channel, '2022-01-01', (data, err) => {
+    .grab(channel, '2022-01-01')
+    .then(programs => {
+      expect(programs[0].titles).toMatchObject([
+        {
+          lang: 'fr',
+          value: 'Program1'
+        }
+      ])
+      done()
+    })
+    .catch(done)
+})
+
+it('can use a different config for different requests', done => {
+  const data = {
+    data: {
+      toString: () => '[{"title":"Program1"}]'
+    }
+  }
+  axios.mockImplementation(() => Promise.resolve(data))
+
+  const config = {
+    site: 'example.com',
+    url: 'http://example.com/20210319/1tv.json',
+    parser: ({ content }) => JSON.parse(content)
+  }
+  const channel = new Channel({
+    site: 'example.com',
+    site_id: '1',
+    xmltv_id: '1TV.fr',
+    lang: 'fr',
+    name: '1TV'
+  })
+  const grabber = new EPGGrabber()
+  grabber
+    .grab(channel, '2022-01-01', config, (data, err) => {
       if (err) {
-        done()
+        done(err)
       }
     })
     .then(programs => {
-      expect(programs.length).toBe(0)
+      expect(programs[0].titles).toMatchObject([
+        {
+          lang: 'fr',
+          value: 'Program1'
+        }
+      ])
       done()
     })
 })
