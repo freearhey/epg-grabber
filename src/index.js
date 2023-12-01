@@ -64,12 +64,18 @@ class EPGGrabberMock {
     this.config = config
   }
 
-  async grab(channel, date, cb) {
+  async grab(channel, date, config = {}, cb = () => {}) {
     let _date = getUTCDate(date)
-    let _programs = await this.config.parser({ channel, date: _date })
+    if (typeof config == 'function') {
+      cb = config
+      config = {}
+    }
+    config = merge(this.config, config)
+    config = parseConfig(config)
+    let _programs = await config.parser({ channel, date: _date })
     let programs = _programs.map(data => new Program(data, channel))
 
-    if (this.config.request?.timeout !== undefined && this.config.request.timeout < 1) {
+    if (config.request?.timeout !== undefined && config.request.timeout < 1) {
       cb({ programs: [], date: _date, channel }, new Error('Connection timeout'))
       return []
     }
