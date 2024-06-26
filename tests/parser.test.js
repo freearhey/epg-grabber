@@ -17,16 +17,16 @@ it('can parse channels.xml', () => {
     site_id: '1',
     xmltv_id: '1TV.com',
     lang: 'fr',
-    logo: 'https://example.com/logos/1TV.png',
-    name: '1 TV'
+    icons: [{ src: 'https://example.com/logos/1TV.png' }],
+    displayNames: [{ value: '1 TV', lang: 'fr' }]
   })
   expect(channels[1]).toMatchObject({
     site: 'example.com',
     site_id: '2',
     lang: '',
-    logo: '',
+    icons: [],
     xmltv_id: '2TV.com',
-    name: '2 TV'
+    displayNames: [{ value: '2 TV' }]
   })
 })
 
@@ -44,16 +44,16 @@ it('can parse channels.xml with inline site attribute', () => {
     site_id: '1',
     xmltv_id: '1TV.com',
     lang: 'fr',
-    logo: 'https://example.com/logos/1TV.png',
-    name: '1 TV'
+    icons: [{ src: 'https://example.com/logos/1TV.png' }],
+    displayNames: [{ value: '1 TV', lang: 'fr' }]
   })
   expect(channels[1]).toMatchObject({
     site: 'example.com',
     site_id: '2',
     lang: '',
-    logo: '',
+    icons: [],
     xmltv_id: '2TV.com',
-    name: '2 TV'
+    displayNames: [{ value: '2 TV' }]
   })
 })
 
@@ -69,16 +69,16 @@ it('can parse legacy channels.xml', () => {
     site_id: '1',
     xmltv_id: '1TV.com',
     lang: 'fr',
-    logo: 'https://example.com/logos/1TV.png',
-    name: '1 TV'
+    icons: [{ src: 'https://example.com/logos/1TV.png' }],
+    displayNames: [{ value: '1 TV', lang: 'fr' }]
   })
   expect(channels[1]).toMatchObject({
     site: 'example.com',
     site_id: '2',
     lang: '',
-    logo: '',
+    icons: [],
     xmltv_id: '2TV.com',
-    name: '2 TV'
+    displayNames: [{ value: '2 TV' }]
   })
 })
 

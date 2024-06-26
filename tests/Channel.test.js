@@ -11,12 +11,12 @@ it('can create new Channel', () => {
   })
 
   expect(channel).toMatchObject({
-    name: '1 TV',
+    displayNames: [{ lang: 'fr', value: '1 TV' }],
     xmltv_id: '1TV.com',
     site_id: '1',
     site: 'example.com',
-    url: 'https://example.com',
+    urls: [{ system: '', value: 'https://example.com' }],
     lang: 'fr',
-    logo: 'https://example.com/logos/1TV.png'
+    icons: [{ src: 'https://example.com/logos/1TV.png' }]
   })
 })

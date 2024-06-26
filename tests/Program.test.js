@@ -53,14 +53,14 @@ it('can create new Program', () => {
     site: 'example.com',
     channel: '1tv',
     titles: [{ value: 'Title', lang: 'fr' }],
-    sub_titles: [{ value: 'Subtitle', lang: 'fr' }],
+    subTitles: [{ value: 'Subtitle', lang: 'fr' }],
     descriptions: [{ value: 'Description', lang: 'fr' }],
     urls: [{ system: '', value: 'http://example.com/title.html' }],
     categories: [
       { value: 'Category1', lang: 'fr' },
       { value: 'Category2', lang: 'fr' }
     ],
-    icon: { src: 'https://example.com/image.jpg' },
+    icons: [{ src: 'https://example.com/image.jpg' }],
     episodeNumbers: [
       { system: 'xmltv_ns', value: '8.237.0/1' },
       { system: 'onscreen', value: 'S09E238' }
@@ -72,7 +72,7 @@ it('can create new Program', () => {
       {
         system: 'MPAA',
         value: 'PG',
-        icon: 'http://example.com/pg_symbol.png'
+        icon: [{ src: 'http://example.com/pg_symbol.png' }]
       }
     ],
     directors: [{ value: 'Director1', url: [], image: [] }],
@@ -154,11 +154,11 @@ it('can create program from exist object', () => {
   expect(program).toMatchObject({
     channel: '1tv',
     titles: [{ value: 'Program 1', lang: 'de' }],
-    sub_titles: [],
+    subTitles: [],
     descriptions: [],
     urls: [],
     categories: [],
-    icon: {},
+    icons: [],
     episodeNumbers: [],
     date: null,
     start: 1616133600000,
@@ -167,7 +167,7 @@ it('can create program from exist object', () => {
       {
         system: 'MPAA',
         value: 'PG',
-        icon: 'http://example.com/pg_symbol.png'
+        icon: [{ src: 'http://example.com/pg_symbol.png' }]
       }
     ],
     directors: [],

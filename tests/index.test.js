@@ -114,7 +114,7 @@ it('can mock epg grabber', done => {
     site: 'example.com',
     url: 'http://example.com/20210319/1tv.json',
     parser: ({ channel, date }) => [
-      { title: `Test (${channel.name})`, start: '2021-03-19T04:30:00.000Z' }
+      { title: `Test (${channel.displayNames[0].value})`, start: '2021-03-19T04:30:00.000Z' }
     ]
   }
   const channel = new Channel({
@@ -138,9 +138,9 @@ it('can mock epg grabber', done => {
           site: 'example.com',
           channel: '1TV.fr',
           titles: [{ value: 'Test (1TV)', lang: 'fr' }],
-          sub_titles: [],
+          subTitles: [],
           descriptions: [],
-          icon: { src: '' },
+          icons: [],
           episodeNumbers: [],
           date: null,
           start: 1616128200000,
@@ -152,6 +152,21 @@ it('can mock epg grabber', done => {
           actors: [],
           writers: [],
           adapters: [],
+          audio: {},
+          video: {},
+          images: [],
+          keywords: [],
+          languages: [],
+          lastChance: [],
+          length: [],
+          new: undefined,
+          origLanguages: [],
+          premiere: [],
+          previouslyShown: [],
+          reviews: [],
+          starRatings: [],
+          subtitles: [],
+          countries: [],
           producers: [],
           composers: [],
           editors: [],
