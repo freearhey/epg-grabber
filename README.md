@@ -374,7 +374,7 @@ Example:
 </channels>
 ```
 
-You can also specify the language, site and logo for each channel individually, like so:
+You can also specify the language, site, url, logo and LCN (Logical Channel Number) for each channel individually, like so:
 
 ```xml
 <channel
@@ -383,6 +383,8 @@ You can also specify the language, site and logo for each channel individually, 
   xmltv_id="France24.fr"
   lang="fr"
   logo="https://example.com/france24.png"
+  url="https://example.com/"
+  lcn="36"
 >France 24</channel>
 ```
 
