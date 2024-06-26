@@ -196,7 +196,7 @@ From each function in `config.js` you can access a `context` object containing t
 
 ## Program Object
 
-| Name            | Aliases                          | Type                                             | Required |
+| Property            | Aliases                          | Type                                             | Required |
 | --------------- | -------------------------------- | ------------------------------------------------ | -------- |
 | start           |                                  | `String` or `Number` or `Date()`                 | true     |
 | stop            |                                  | `String` or `Number` or `Date()`                 | true     |
