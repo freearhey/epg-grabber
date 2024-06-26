@@ -9,21 +9,43 @@ class Program {
     }
 
     const data = {
-      site: c.site || '',
+      start: p.start ? toUnix(p.start) : null,
+      stop: p.stop ? toUnix(p.stop) : null,
       channel: c.xmltv_id || '',
       titles: toArray(p.titles || p.title).map(text => toTextObject(text, c.lang)),
-      sub_titles: toArray(p.sub_titles || p.sub_title).map(text => toTextObject(text, c.lang)),
+      subTitles: toArray(p.subTitles || p.subTitle || p.sub_titles || p.sub_title).map(text =>
+        toTextObject(text, c.lang)
+      ),
       descriptions: toArray(p.descriptions || p.description || p.desc).map(text =>
         toTextObject(text, c.lang)
       ),
-      icon: toIconObject(p.icon),
-      episodeNumbers: p.episodeNum || p.episodeNumbers || getEpisodeNumbers(p.season, p.episode),
       date: p.date ? toUnix(p.date) : null,
-      start: p.start ? toUnix(p.start) : null,
-      stop: p.stop ? toUnix(p.stop) : null,
-      urls: toArray(p.urls || p.url).map(toUrlObject),
-      ratings: toArray(p.ratings || p.rating).map(toRatingObject),
       categories: toArray(p.categories || p.category).map(text => toTextObject(text, c.lang)),
+      keywords: toArray(p.keywords || p.keyword).map(text => toTextObject(text, c.lang)),
+      languages: toArray(p.languages || p.language).map(text => toTextObject(text, c.lang)),
+      origLanguages: toArray(p.origLanguages || p.origLanguage).map(text =>
+        toTextObject(text, c.lang)
+      ),
+      length: toArray(p.length).map(toLengthObject),
+      urls: toArray(p.urls || p.url).map(toUrlObject),
+      countries: toArray(p.countries || p.country).map(text => toTextObject(text, c.lang)),
+      site: c.site || '',
+      episodeNumbers: toArray(
+        p.episodeNum ||
+          p.episodeNumber ||
+          p.episodeNumbers ||
+          makeEpisodeNumberObjects(p.season, p.episode)
+      ).map(toEpisodeNumberObject),
+      video: toVideoObject(p.video),
+      audio: toAudioObject(p.audio),
+      previouslyShown: toArray(p.previouslyShown).map(toPreviouslyShownObject),
+      premiere: toArray(p.premiere).map(toTextObject),
+      lastChance: toArray(p.lastChance).map(toTextObject),
+      new: p.new,
+      subtitles: toArray(p.subtitles).map(toSubtitlesObject),
+      ratings: toArray(p.ratings || p.rating).map(toRatingObject),
+      starRatings: toArray(p.starRatings || p.starRating).map(toRatingObject),
+      reviews: toArray(p.reviews || p.review).map(toReviewObject),
       directors: toArray(p.directors || p.director).map(toPersonObject),
       actors: toArray(p.actors || p.actor).map(toPersonObject),
       writers: toArray(p.writers || p.writer).map(toPersonObject),
@@ -33,7 +55,9 @@ class Program {
       editors: toArray(p.editors || p.editor).map(toPersonObject),
       presenters: toArray(p.presenters || p.presenter).map(toPersonObject),
       commentators: toArray(p.commentators || p.commentator).map(toPersonObject),
-      guests: toArray(p.guests || p.guest).map(toPersonObject)
+      guests: toArray(p.guests || p.guest).map(toPersonObject),
+      images: toArray(p.images || p.image).map(toImageObject),
+      icons: toArray(p.icons || p.icon).map(toIconObject)
     }
 
     for (let key in data) {
@@ -71,6 +95,10 @@ function toPersonObject(person) {
   }
 }
 
+function toSubtitlesObject(subtitles) {
+  return { type: subtitles.type || '', language: toArray(subtitles.language).map(toTextObject) }
+}
+
 function toImageObject(image) {
   if (typeof image === 'string') return { type: '', size: '', orient: '', system: '', value: image }
 
@@ -84,12 +112,21 @@ function toImageObject(image) {
 }
 
 function toRatingObject(rating) {
-  if (typeof rating === 'string') return { system: '', icon: '', value: rating }
+  if (typeof rating === 'string') return { system: '', icon: [], value: rating }
 
   return {
     system: rating.system || '',
-    icon: rating.icon || '',
+    icon: toArray(rating.icon).map(toIconObject),
     value: rating.value || ''
+  }
+}
+
+function toLengthObject(length) {
+  if (typeof length === 'string') return { units: '', value: length }
+
+  return {
+    units: length.units || '',
+    value: length.value || ''
   }
 }
 
@@ -102,20 +139,72 @@ function toUrlObject(url) {
   }
 }
 
+function toVideoObject(video) {
+  if (!video) return {}
+
+  return {
+    present: video.present || '',
+    colour: video.colour || '',
+    aspect: video.aspect || '',
+    quality: video.quality || ''
+  }
+}
+
+function toAudioObject(audio) {
+  if (!audio) return {}
+
+  return {
+    present: audio.present || '',
+    stereo: audio.stereo || ''
+  }
+}
+
+function toReviewObject(review) {
+  if (!review) return {}
+
+  return {
+    type: review.type || '',
+    source: review.source || '',
+    reviewer: review.reviewer || '',
+    lang: review.lang || '',
+    value: review.value || ''
+  }
+}
+
+function toPreviouslyShownObject(previouslyShown) {
+  if (!previouslyShown) return {}
+
+  return {
+    start: previouslyShown.start || '',
+    channel: previouslyShown.channel || ''
+  }
+}
+
 function toIconObject(icon) {
   if (!icon) return { src: '' }
   if (typeof icon === 'string') return { src: icon }
 
   return {
-    src: icon.src || ''
+    src: icon.src,
+    width: icon.width,
+    height: icon.height
   }
 }
 
-function getEpisodeNumbers(s, e) {
+function makeEpisodeNumberObjects(s, e) {
   s = parseNumber(s)
   e = parseNumber(e)
 
   return [createXMLTVNS(s, e), createOnScreen(s, e)].filter(Boolean)
+}
+
+function toEpisodeNumberObject(episode) {
+  if (!episode) return {}
+
+  return {
+    system: episode.system || '',
+    value: episode.value || ''
+  }
 }
 
 function createXMLTVNS(s, e) {
