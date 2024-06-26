@@ -196,7 +196,7 @@ From each function in `config.js` you can access a `context` object containing t
 
 ## Program Object
 
-| Name            | Aliases                          | Type                                             | Required |
+| Property            | Aliases                          | Type                                             | Required |
 | --------------- | -------------------------------- | ------------------------------------------------ | -------- |
 | start           |                                  | `String` or `Number` or `Date()`                 | true     |
 | stop            |                                  | `String` or `Number` or `Date()`                 | true     |
@@ -248,7 +248,7 @@ Example:
   description: 'Description for Program 1',
   date: '2022-05-06',
   categories: ['Comedy', 'Drama'],
-  keyword: [
+  keywords: [
     { lang: 'en', value: 'physical-comedy' },
     { lang: 'en', value: 'romantic' }
   ],
