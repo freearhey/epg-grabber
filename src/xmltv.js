@@ -30,9 +30,12 @@ function createElements(channels, programs, date) {
       return (
         '\r\n' +
         el('channel', { id: channel.xmltv_id }, [
-          el('display-name', {}, [escapeString(channel.name)]),
-          el('icon', { src: channel.logo }),
-          el('url', {}, [channel.url])
+          ...channel.displayNames.map(name =>
+            el('display-name', { lang: name.lang }, [escapeString(name.value)])
+          ),
+          ...channel.icons.map(icon => el('icon', icon)),
+          ...channel.urls.map(createURLElement),
+          ...channel.lcn.map(lcn => el('lcn', {}, [escapeString(lcn.value)]))
         ])
       )
     }),
@@ -50,8 +53,8 @@ function createElements(channels, programs, date) {
             ...program.titles.map(title =>
               el('title', { lang: title.lang }, [escapeString(title.value)])
             ),
-            ...program.sub_titles.map(sub_title =>
-              el('sub-title', { lang: sub_title.lang }, [escapeString(sub_title.value)])
+            ...program.subTitles.map(subTitle =>
+              el('sub-title', { lang: subTitle.lang }, [escapeString(subTitle.value)])
             ),
             ...program.descriptions.map(desc =>
               el('desc', { lang: desc.lang }, [escapeString(desc.value)])
@@ -72,17 +75,83 @@ function createElements(channels, programs, date) {
             ...program.categories.map(category =>
               el('category', { lang: category.lang }, [escapeString(category.value)])
             ),
-            el('icon', { src: program.icon.src }),
-            ...program.urls.map(createURL),
+            ...program.keywords.map(keyword =>
+              el('keyword', { lang: keyword.lang }, [escapeString(keyword.value)])
+            ),
+            ...program.languages.map(language =>
+              el('language', { lang: language.lang }, [escapeString(language.value)])
+            ),
+            ...program.origLanguages.map(origLanguage =>
+              el('orig-language', { lang: origLanguage.lang }, [escapeString(origLanguage.value)])
+            ),
+            ...program.length.map(length =>
+              el('length', { units: length.units }, [escapeString(length.value)])
+            ),
+            ...program.countries.map(country =>
+              el('country', { lang: country.lang }, [escapeString(country.value)])
+            ),
+            ...program.urls.map(createURLElement),
             ...program.episodeNumbers.map(episode =>
               el('episode-num', { system: episode.system }, [episode.value])
+            ),
+            el('video', {}, [
+              el('present', {}, [program.video.present]),
+              el('colour', {}, [program.video.colour]),
+              el('aspect', {}, [program.video.aspect]),
+              el('quality', {}, [program.video.quality])
+            ]),
+            el('audio', {}, [
+              el('present', {}, [program.audio.present]),
+              el('stereo', {}, [program.audio.stereo])
+            ]),
+            ...program.previouslyShown.map(previouslyShown =>
+              el('previously-shown', {
+                start: previouslyShown.start,
+                channel: previouslyShown.channel
+              })
+            ),
+            ...program.premiere.map(premiere =>
+              el('premiere', { lang: premiere.lang }, [escapeString(premiere.value)])
+            ),
+            ...program.lastChance.map(lastChance =>
+              el('last-chance', { lang: lastChance.lang }, [escapeString(lastChance.value)])
+            ),
+            program.new ? el('new') : '',
+            ...program.subtitles.map(subtitles =>
+              el(
+                'subtitles',
+                { type: subtitles.type },
+                subtitles.language.map(language =>
+                  el('language', { lang: language.lang }, [escapeString(language.value)])
+                )
+              )
             ),
             ...program.ratings.map(rating =>
               el('rating', { system: rating.system }, [
                 el('value', {}, [escapeString(rating.value)]),
-                el('icon', { src: rating.icon })
+                ...rating.icon.map(icon => el('icon', icon))
               ])
-            )
+            ),
+            ...program.starRatings.map(rating =>
+              el('star-rating', { system: rating.system }, [
+                el('value', {}, [escapeString(rating.value)]),
+                ...rating.icon.map(icon => el('icon', icon))
+              ])
+            ),
+            ...program.reviews.map(review =>
+              el(
+                'review',
+                {
+                  type: review.type,
+                  source: review.source,
+                  reviewer: review.reviewer,
+                  lang: review.lang
+                },
+                [escapeString(review.value)]
+              )
+            ),
+            ...program.images.map(createImageElement),
+            ...program.icons.map(icon => el('icon', icon))
           ]
         )
       )
@@ -94,12 +163,12 @@ function createElements(channels, programs, date) {
 function createCastMember(position, data) {
   return el(position, {}, [
     escapeString(data.value),
-    ...data.url.map(createURL),
-    ...data.image.map(createImage)
+    ...data.url.map(createURLElement),
+    ...data.image.map(createImageElement)
   ])
 }
 
-function createImage(image) {
+function createImageElement(image) {
   return el(
     'image',
     {
@@ -112,16 +181,17 @@ function createImage(image) {
   )
 }
 
-function createURL(url) {
+function createURLElement(url) {
   return el('url', { system: url.system }, [url.value])
 }
 
-function createElement(name, attrs = {}, children = []) {
+function createElement(name, attrs, children) {
   return toString({ name, attrs, children })
 }
 
 function toString(elem) {
   if (typeof elem === 'string' || typeof elem === 'number') return elem
+  if (!elem.attrs && !elem.children) return `<${elem.name}/>`
 
   let attrs = ''
   for (let key in elem.attrs) {
@@ -131,17 +201,18 @@ function toString(elem) {
     }
   }
 
-  if (elem.children.filter(Boolean).length) {
-    let children = ''
+  let children = elem.children || []
+  if (children.filter(Boolean).length) {
+    let _children = ''
     elem.children.forEach(childElem => {
-      children += toString(childElem)
+      _children += toString(childElem)
     })
 
-    return `<${elem.name}${attrs}>${children}</${elem.name}>`
+    return `<${elem.name}${attrs}>${_children}</${elem.name}>`
   }
 
   if (!attrs) return ''
-  if (!['icon'].includes(elem.name)) return ''
+  if (!['icon', 'previously-shown'].includes(elem.name)) return ''
 
   return `<${elem.name}${attrs}/>`
 }
