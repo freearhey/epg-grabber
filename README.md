@@ -172,27 +172,9 @@ module.exports = {
 
     return [
       {
-        title, // program title (required)
-        start, // start time of the program (required)
-        stop, // end time of the program (required)
-        sub_title, // program sub-title (optional)
-        description, // description of the program (optional)
-        category, // type of program (optional)
-        season, // season number (optional)
-        episode, // episode number (optional)
-        date, // the date the programme or film was finished (optional)
-        icon, // image associated with the program (optional)
-        rating, // program rating (optional)
-        director, // the name of director (optional)
-        actor, // the name of actor (optional)
-        writer, // the name of writer (optional)
-        adapter, // the name of adapter (optional)
-        producer, // the name of producer (optional)
-        composer, // the name of composer (optional)
-        editor, // the name of editor (optional)
-        presenter, // the name of presenter (optional)
-        commentator, // the name of commentator (optional)
-        guest // the name of guest (optional)
+        title,
+        start,
+        stop
       },
       ...
     ]
@@ -211,6 +193,176 @@ From each function in `config.js` you can access a `context` object containing t
 - `headers`: The response headers
 - `request`: The request config
 - `cached`: A boolean to check whether this request was cached or not
+
+## Program Object
+
+| Name            | Aliases                          | Type                                             | Required |
+| --------------- | -------------------------------- | ------------------------------------------------ | -------- |
+| start           |                                  | `String` or `Number` or `Date()`                 | true     |
+| stop            |                                  | `String` or `Number` or `Date()`                 | true     |
+| title           | titles                           | `String` or `Object` or `String[]` or `Object[]` | true     |
+| subTitle        | subTitles, sub_title, sub_titles | `String` or `Object` or `String[]` or `Object[]` | false    |
+| description     | desc, descriptions               | `String` or `Object` or `String[]` or `Object[]` | false    |
+| date            |                                  | `String` or `Number` or `Date()`                 | false    |
+| category        | categories                       | `String` or `Object` or `String[]` or `Object[]` | false    |
+| keyword         | keywords                         | `String` or `Object` or `String[]` or `Object[]` | false    |
+| language        | languages                        | `String` or `Object` or `String[]` or `Object[]` | false    |
+| origLanguage    | origLanguages                    | `String` or `Object` or `String[]` or `Object[]` | false    |
+| length          |                                  | `String` or `Object` or `String[]` or `Object[]` | false    |
+| url             | urls                             | `String` or `Object` or `String[]` or `Object[]` | false    |
+| country         | countries                        | `String` or `Object` or `String[]` or `Object[]` | false    |
+| video           |                                  | `Object`                                         | false    |
+| audio           |                                  | `Object`                                         | false    |
+| season          |                                  | `String` or `Number`                             | false    |
+| episode         |                                  | `String` or `Number`                             | false    |
+| episodeNumber   | episodeNum, episodeNumbers       | `Object`                                         | false    |
+| previouslyShown |                                  | `String` or `Object` or `String[]` or `Object[]` | false    |
+| premiere        |                                  | `String` or `Object` or `String[]` or `Object[]` | false    |
+| lastChance      |                                  | `String` or `Object` or `String[]` or `Object[]` | false    |
+| new             |                                  | `Boolean`                                        | false    |
+| subtitles       |                                  | `Object` or `Object[]`                           | false    |
+| rating          | ratings                          | `String` or `Object` or `String[]` or `Object[]` | false    |
+| starRating      | starRatings                      | `String` or `Object` or `String[]` or `Object[]` | false    |
+| review          | reviews                          | `String` or `Object` or `String[]` or `Object[]` | false    |
+| director        | directors                        | `String` or `Object` or `String[]` or `Object[]` | false    |
+| actor           | actors                           | `String` or `Object` or `String[]` or `Object[]` | false    |
+| writer          | writers                          | `String` or `Object` or `String[]` or `Object[]` | false    |
+| adapter         | adapters                         | `String` or `Object` or `String[]` or `Object[]` | false    |
+| producer        | producers                        | `String` or `Object` or `String[]` or `Object[]` | false    |
+| presenter       | presenters                       | `String` or `Object` or `String[]` or `Object[]` | false    |
+| composer        | composers                        | `String` or `Object` or `String[]` or `Object[]` | false    |
+| editor          | editors                          | `String` or `Object` or `String[]` or `Object[]` | false    |
+| commentator     | commentators                     | `String` or `Object` or `String[]` or `Object[]` | false    |
+| guest           | guests                           | `String` or `Object` or `String[]` or `Object[]` | false    |
+| image           | images                           | `String` or `Object` or `String[]` or `Object[]` | false    |
+| icon            | icons                            | `String` or `Object` or `String[]` or `Object[]` | false    |
+
+Example:
+
+```js
+{
+  start: '2021-03-19T06:00:00.000Z',
+  stop: '2021-03-19T06:30:00.000Z',
+  title: 'Program 1',
+  subTitle: 'Sub-title & 1',
+  description: 'Description for Program 1',
+  date: '2022-05-06',
+  categories: ['Comedy', 'Drama'],
+  keyword: [
+    { lang: 'en', value: 'physical-comedy' },
+    { lang: 'en', value: 'romantic' }
+  ],
+  language: 'English',
+  origLanguage: { lang: 'en', value: 'French' },
+  length: { units: 'minutes', value: '60' },
+  url: 'http://example.com/title.html',
+  country: 'US',
+  video: {
+    present: 'yes',
+    colour: 'no',
+    aspect: '16:9',
+    quality: 'HDTV'
+  },
+  audio: {
+    present: 'yes',
+    stereo: 'Dolby Digital'
+  },
+  season: 9,
+  episode: 239,
+  previouslyShown: [{ start: '20080711000000', channel: 'channel-two.tv' }],
+  premiere: 'First time on British TV',
+  lastChance: [{ lang: 'en', value: 'Last time on this channel' }],
+  new: true,
+  subtitles: [
+    { type: 'teletext', language: 'English' },
+    { type: 'onscreen', language: [{ lang: 'en', value: 'Spanish' }] }
+  ],
+  rating: {
+    system: 'MPAA',
+    value: 'P&G',
+    icon: 'http://example.com/pg_symbol.png'
+  },
+  starRatings: [
+    {
+      system: 'TV Guide',
+      value: '4/5',
+      icon: [{ src: 'stars.png', width: 100, height: 100 }]
+    },
+    {
+      system: 'IMDB',
+      value: '8/10'
+    }
+  ],
+  reviews: [
+    {
+      type: 'text',
+      source: 'Rotten Tomatoes',
+      reviewer: 'Joe Bloggs',
+      lang: 'en',
+      value: 'This is a fantastic show!'
+    },
+    {
+      type: 'text',
+      source: 'IDMB',
+      reviewer: 'Jane Doe',
+      lang: 'en',
+      value: 'I love this show!'
+    },
+    {
+      type: 'url',
+      source: 'Rotten Tomatoes',
+      reviewer: 'Joe Bloggs',
+      lang: 'en',
+      value: 'https://example.com/programme_one_review'
+    }
+  ],
+  directors: [
+    {
+      value: 'Director 1',
+      url: { value: 'http://example.com/director1.html', system: 'TestSystem' },
+      image: [
+        'https://example.com/image1.jpg',
+        {
+          value: 'https://example.com/image2.jpg',
+          type: 'person',
+          size: '2',
+          system: 'TestSystem',
+          orient: 'P'
+        }
+      ]
+    },
+    'Director 2'
+  ],
+  actors: ['Actor 1', 'Actor 2'],
+  writer: 'Writer 1',
+  producers: 'Roger Dobkowitz',
+  presenters: 'Drew Carey',
+  images: [
+    {
+      type: 'poster',
+      size: '1',
+      orient: 'P',
+      system: 'tvdb',
+      value: 'https://tvdb.com/programme_one_poster_1.jpg'
+    },
+    {
+      type: 'poster',
+      size: '2',
+      orient: 'P',
+      system: 'tmdb',
+      value: 'https://tmdb.com/programme_one_poster_2.jpg'
+    },
+    {
+      type: 'backdrop',
+      size: '3',
+      orient: 'L',
+      system: 'tvdb',
+      value: 'https://tvdb.com/programme_one_backdrop_3.jpg'
+    }
+  ],
+  icon: 'https://example.com/images/Program1.png?x=шеллы&sid=777'
+}
+```
 
 ## Channels List
 
