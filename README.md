@@ -248,7 +248,7 @@ Example:
   description: 'Description for Program 1',
   date: '2022-05-06',
   categories: ['Comedy', 'Drama'],
-  keyword: [
+  keywords: [
     { lang: 'en', value: 'physical-comedy' },
     { lang: 'en', value: 'romantic' }
   ],
