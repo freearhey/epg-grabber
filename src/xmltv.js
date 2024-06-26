@@ -30,12 +30,10 @@ function createElements(channels, programs, date) {
       return (
         '\r\n' +
         el('channel', { id: channel.xmltv_id }, [
-          ...channel.displayNames.map(name =>
-            el('display-name', { lang: name.lang }, [escapeString(name.value)])
-          ),
-          ...channel.icons.map(icon => el('icon', icon)),
-          ...channel.urls.map(createURLElement),
-          ...channel.lcn.map(lcn => el('lcn', {}, [escapeString(lcn.value)]))
+          el('display-name', {}, [escapeString(channel.name)]),
+          el('icon', { src: channel.icon }),
+          el('url', {}, [escapeString(channel.url)]),
+          el('lcn', {}, [escapeString(channel.lcn)])
         ])
       )
     }),
