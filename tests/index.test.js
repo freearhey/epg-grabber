@@ -114,7 +114,7 @@ it('can mock epg grabber', done => {
     site: 'example.com',
     url: 'http://example.com/20210319/1tv.json',
     parser: ({ channel, date }) => [
-      { title: `Test (${channel.displayNames[0].value})`, start: '2021-03-19T04:30:00.000Z' }
+      { title: `Test (${channel.name})`, start: '2021-03-19T04:30:00.000Z' }
     ]
   }
   const channel = new Channel({

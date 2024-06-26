@@ -7,16 +7,19 @@ it('can create new Channel', () => {
     site_id: '1',
     site: 'example.com',
     lang: 'fr',
-    logo: 'https://example.com/logos/1TV.png'
+    url: 'https://example.com',
+    logo: 'https://example.com/logos/1TV.png',
+    lcn: 36
   })
 
   expect(channel).toMatchObject({
-    displayNames: [{ lang: 'fr', value: '1 TV' }],
+    name: '1 TV',
     xmltv_id: '1TV.com',
     site_id: '1',
     site: 'example.com',
-    urls: [{ system: '', value: 'https://example.com' }],
+    url: 'https://example.com',
     lang: 'fr',
-    icons: [{ src: 'https://example.com/logos/1TV.png' }]
+    icon: 'https://example.com/logos/1TV.png',
+    lcn: 36
   })
 })
