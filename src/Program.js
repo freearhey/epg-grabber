@@ -1,7 +1,6 @@
 const { padStart } = require('lodash')
 const { toArray, toUnix, parseNumber } = require('./utils')
 const Channel = require('./Channel')
-const xmlescape = require('xml-escape');
 
 class Program {
   constructor(p, c) {
@@ -101,14 +100,14 @@ function toSubtitlesObject(subtitles) {
 }
 
 function toImageObject(image) {
-  if (typeof image === 'string') return { type: '', size: '', orient: '', system: '', value: xmlescape(image) }
+  if (typeof image === 'string') return { type: '', size: '', orient: '', system: '', value: '<![CDATA['+image+']]>' }
 
   return {
     type: image.type || '',
     size: image.size || '',
     orient: image.orient || '',
     system: image.system || '',
-    value: xmlescape(image.value)
+    value: '<![CDATA['+image.value+']]>'
   }
 }
 
