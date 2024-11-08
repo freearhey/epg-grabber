@@ -175,12 +175,12 @@ function createImageElement(image) {
       orient: image.orient,
       system: image.system
     },
-    [image.value]
+    [escapeString(image.value)]
   )
 }
 
 function createURLElement(url) {
-  return el('url', { system: url.system }, [url.value])
+  return el('url', { system: url.system }, [escapeString(url.value)])
 }
 
 function createElement(name, attrs, children) {
