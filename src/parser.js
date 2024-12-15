@@ -27,12 +27,14 @@ function parseChannels(xml) {
     .filter(el => el.name === 'channel')
     .map(el => {
       const c = el.attributes
+      if (!Array.isArray(el.elements)) return
       c.name = el.elements.find(el => el.type === 'text').text
       c.site = c.site || rootSite
-      if (!c.name) throw new Error(`Channel '${c.xmltv_id}' has no valid name`)
+      if (!c.name) return
 
       return new Channel(c)
     })
+    .filter(Boolean)
 
   return channels
 }
