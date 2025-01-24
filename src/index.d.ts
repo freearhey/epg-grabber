@@ -101,19 +101,21 @@ export type GrabCallbackData = {
 }
 
 export declare class EPGGrabber {
-  constructor(config: SiteConfig)
+  constructor(config?: SiteConfig)
   grab(
     channel: Channel,
     date: string | dayjs.Dayjs,
-    cb: (data: GrabCallbackData, err: Error | null) => void
+    config?: SiteConfig,
+    cb?: (data: GrabCallbackData, err: Error | null) => void
   ): Promise<Program[]>
 }
 
 export declare class EPGGrabberMock {
-  constructor(config: SiteConfig)
+  constructor(config?: SiteConfig)
   grab(
     channel: Channel,
     date: string | dayjs.Dayjs,
-    cb: (data: GrabCallbackData, err: Error | null) => void
+    config?: SiteConfig,
+    cb?: (data: GrabCallbackData, err: Error | null) => void
   ): Promise<Program[]>
 }
