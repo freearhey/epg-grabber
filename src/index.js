@@ -60,7 +60,7 @@ class EPGGrabber {
 }
 
 class EPGGrabberMock {
-  constructor(config) {
+  constructor(config = {}) {
     this.config = config
   }
 
