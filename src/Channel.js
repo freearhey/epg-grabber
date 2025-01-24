@@ -1,5 +1,3 @@
-const { toArray } = require('./utils')
-
 class Channel {
   constructor(c) {
     const data = {
