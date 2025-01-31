@@ -36,6 +36,7 @@ it('can load mini config', () => {
       --days=3 \
       --delay=0 \
       --debug \
+      --proxy=socks://127.0.0.1:1086 \
       --timeout=1`,
     {
       encoding: 'utf8'
