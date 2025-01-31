@@ -1,3 +1,4 @@
+const { URL } = require('node:url')
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 
@@ -13,6 +14,21 @@ module.exports.formatDate = formatDate
 module.exports.toArray = toArray
 module.exports.toUnix = toUnix
 module.exports.isDate = isDate
+module.exports.parseProxy = parseProxy
+
+function parseProxy(_url) {
+  const parsed = new URL(_url)
+
+  return {
+    protocol: parsed.protocol.replace(':', '') || null,
+    auth: {
+      username: parsed.username || null,
+      password: parsed.password || null
+    },
+    host: parsed.hostname,
+    port: parsed.port ? parseInt(parsed.port) : null
+  }
+}
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
