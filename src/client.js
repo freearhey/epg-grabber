@@ -2,7 +2,6 @@ const { CurlGenerator } = require('curl-generator')
 const { default: axios } = require('axios')
 const { setupCache } = require('axios-cache-interceptor')
 const { isObject, isPromise, parseProxy } = require('./utils')
-const { SocksProxyAgent } = require('socks-proxy-agent')
 
 module.exports.create = create
 module.exports.buildRequest = buildRequest
@@ -15,11 +14,7 @@ function create(config) {
     ? axios
     : setupCache(
         axios.create({
-          ignoreCookieErrors: true,
-          headers: {
-            'User-Agent':
-              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
-          }
+          ignoreCookieErrors: true
         })
       )
 
@@ -89,8 +84,6 @@ async function buildRequest({ channel, date, config }) {
     })
     console.log(curl)
   }
-
-  // console.log(request)
 
   return request
 }
