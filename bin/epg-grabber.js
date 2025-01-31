@@ -111,7 +111,7 @@ async function main() {
   const grabber =
     process.env.NODE_ENV === 'test' ? new EPGGrabberMock(config) : new EPGGrabber(config)
 
-  let template = options.output || config.output
+  let template = options.output || config.output || 'guide.xml'
   const variables = file.templateVariables(template)
 
   const groups = _.groupBy(parsedChannels, channel => {
