@@ -23,6 +23,7 @@ program
   .description(description)
   .requiredOption('-c, --config <config>', 'Path to [site].config.js file')
   .option('-o, --output <output>', 'Path to output file')
+  .option('-x, --proxy <url>', 'Use the specified proxy')
   .option('--channels <channels>', 'Path to list of channels')
   .option('--lang <lang>', 'Set default language for all programs')
   .option('--days <days>', 'Number of days for which to grab the program', parseNumber)
@@ -38,7 +39,6 @@ program
     'Maximum time for storing each request (in milliseconds)',
     parseNumber
   )
-  .option('-x, --proxy <url>', 'Use the specified proxy')
   .option('--gzip', 'Compress the output', false)
   .option('--debug', 'Enable debug mode', false)
   .option('--curl', 'Display request as CURL', false)
@@ -62,7 +62,6 @@ async function main() {
     lang: options.lang,
     delay: options.delay,
     maxConnections: options.maxConnections,
-    proxy: options.proxy,
     request: {}
   })
 
@@ -153,9 +152,11 @@ async function main() {
           await grabber
             .grab(channel, date, (data, err) => {
               logger.info(
-                `[${i}/${total}] ${config.site} - ${data.channel.xmltv_id} - ${dayjs
-                  .utc(data.date)
-                  .format('MMM D, YYYY')} (${data.programs.length} programs)`
+                `[${i}/${total}] ${config.site} - ${
+                  data.channel.xmltv_id || data.channel.site_id
+                } - ${dayjs.utc(data.date).format('MMM D, YYYY')} (${
+                  data.programs.length
+                } programs)`
               )
 
               if (err) logger.error(err.message)
