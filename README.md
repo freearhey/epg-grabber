@@ -73,7 +73,7 @@ Arguments:
 
 - `-c, --config`: path to config file
 - `-o, --output`: path to output file or path template (example: `guides/{site}.{lang}.xml`; default: `guide.xml`)
-- `-x, --proxy`: use the specified proxy
+- `-x, --proxy`: use the specified proxy (example: `socks5://username:password@127.0.0.1:1234`)
 - `--channels`: path to list of channels; you can also use wildcard to specify the path to multiple files at once (example: `example.com_*.channels.xml`)
 - `--lang`: set default language for all programs (default: `en`)
 - `--days`: number of days for which to grab the program (default: `1`)
