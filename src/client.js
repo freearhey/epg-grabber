@@ -1,11 +1,8 @@
 const { CurlGenerator } = require('curl-generator')
 const { default: axios } = require('axios')
-const { CookieJar } = require('tough-cookie')
 const { setupCache } = require('axios-cache-interceptor')
-const { isObject, isPromise } = require('./utils')
-const { HttpCookieAgent, HttpsCookieAgent } = require('http-cookie-agent/http')
-
-const jar = new CookieJar()
+const { isObject, isPromise, parseProxy } = require('./utils')
+const { SocksProxyAgent } = require('socks-proxy-agent')
 
 module.exports.create = create
 module.exports.buildRequest = buildRequest
@@ -16,17 +13,14 @@ let timeout
 function create(config) {
   const client = axios.defaults.cache
     ? axios
-    : setupCookie(
-        setupCache(
-          axios.create({
-            jar,
-            ignoreCookieErrors: true,
-            headers: {
-              'User-Agent':
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
-            }
-          })
-        )
+    : setupCache(
+        axios.create({
+          ignoreCookieErrors: true,
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 Edg/79.0.309.71'
+          }
+        })
       )
 
   client.interceptors.request.use(
@@ -96,6 +90,8 @@ async function buildRequest({ channel, date, config }) {
     console.log(curl)
   }
 
+  // console.log(request)
+
   return request
 }
 
@@ -141,45 +137,4 @@ async function getRequestUrl({ channel, date, config }) {
     return url
   }
   return config.url
-}
-
-const AGENT_CREATED_BY_AXIOS_COOKIEJAR_SUPPORT = Symbol('AGENT_CREATED_BY_AXIOS_COOKIEJAR_SUPPORT')
-
-function requestInterceptor(config) {
-  if (!config.jar) {
-    return config
-  }
-
-  config.httpAgent = new HttpCookieAgent({ cookies: { jar: config.jar } })
-  Object.defineProperty(config.httpAgent, AGENT_CREATED_BY_AXIOS_COOKIEJAR_SUPPORT, {
-    configurable: false,
-    enumerable: false,
-    value: true,
-    writable: false
-  })
-
-  config.httpsAgent = new HttpsCookieAgent({ cookies: { jar: config.jar } })
-  Object.defineProperty(config.httpsAgent, AGENT_CREATED_BY_AXIOS_COOKIEJAR_SUPPORT, {
-    configurable: false,
-    enumerable: false,
-    value: true,
-    writable: false
-  })
-
-  return config
-}
-
-function setupCookie(axios) {
-  axios.interceptors.request.use(requestInterceptor)
-
-  if ('create' in axios) {
-    const create = axios.create
-    axios.create = (...args) => {
-      const instance = create.apply(axios, args)
-      instance.interceptors.request.use(requestInterceptor)
-      return instance
-    }
-  }
-
-  return axios
 }
