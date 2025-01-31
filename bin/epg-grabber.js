@@ -5,14 +5,15 @@ const program = new Command()
 const { merge } = require('lodash')
 const { gzip } = require('node-gzip')
 const file = require('../src/file')
-const { EPGGrabber, parseChannels, generateXMLTV } = require('../src/index')
+const { EPGGrabber, EPGGrabberMock, parseChannels, generateXMLTV } = require('../src/index')
 const { create: createLogger } = require('../src/logger')
-const { parseNumber, getUTCDate } = require('../src/utils')
+const { parseNumber, getUTCDate, parseProxy } = require('../src/utils')
 const { name, version, description } = require('../package.json')
 const _ = require('lodash')
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 const { TaskQueue } = require('cwait')
+const { SocksProxyAgent } = require('socks-proxy-agent')
 
 dayjs.extend(utc)
 
@@ -37,6 +38,7 @@ program
     'Maximum time for storing each request (in milliseconds)',
     parseNumber
   )
+  .option('-x, --proxy <url>', 'Use the specified proxy')
   .option('--gzip', 'Compress the output', false)
   .option('--debug', 'Enable debug mode', false)
   .option('--curl', 'Display request as CURL', false)
@@ -60,13 +62,30 @@ async function main() {
     lang: options.lang,
     delay: options.delay,
     maxConnections: options.maxConnections,
+    proxy: options.proxy,
     request: {}
   })
 
-  if (options.timeout) config.request.timeout = options.timeout
-  if (options.cacheTtl) config.request.cache.ttl = options.cacheTtl
+  if (options.timeout !== undefined) config.request.timeout = options.timeout
+  if (options.cacheTtl !== undefined) config.request.cache.ttl = options.cacheTtl
+  if (options.channels !== undefined) config.channels = options.channels
+  if (options.proxy !== undefined) {
+    const proxy = parseProxy(options.proxy)
 
-  if (options.channels) config.channels = options.channels
+    if (
+      proxy.protocol &&
+      ['socks', 'socks5', 'socks5h', 'socks4', 'socks4a'].includes(String(proxy.protocol))
+    ) {
+      const socksProxyAgent = new SocksProxyAgent(options.proxy)
+
+      config.request = {
+        ...config.request,
+        ...{ httpAgent: socksProxyAgent, httpsAgent: socksProxyAgent }
+      }
+    } else {
+      config.request = { ...config.request, ...{ proxy } }
+    }
+  }
 
   let parsedChannels = []
   if (config.channels) {
@@ -89,7 +108,8 @@ async function main() {
     }
   } else throw new Error('Path to "channels" is missing')
 
-  const grabber = new EPGGrabber(config)
+  const grabber =
+    process.env.NODE_ENV === 'test' ? new EPGGrabberMock(config) : new EPGGrabber(config)
 
   let template = options.output || config.output
   const variables = file.templateVariables(template)
