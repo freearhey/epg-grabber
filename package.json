@@ -4,6 +4,7 @@
   "description": "Node.js CLI tool for grabbing EPG from different sites",
   "main": "src/index.js",
   "preferGlobal": true,
+  "homepage": "https://github.com/freearhey/epg-grabber",
   "bin": {
     "epg-grabber": "bin/epg-grabber.js"
   },
