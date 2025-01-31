@@ -1,7 +1,7 @@
 const { CurlGenerator } = require('curl-generator')
 const { default: axios } = require('axios')
 const { setupCache } = require('axios-cache-interceptor')
-const { isObject, isPromise, parseProxy } = require('./utils')
+const { isObject, isPromise } = require('./utils')
 
 module.exports.create = create
 module.exports.buildRequest = buildRequest
