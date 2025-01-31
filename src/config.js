@@ -1,4 +1,5 @@
 const { merge } = require('lodash')
+const { version, homepage } = require('../package.json')
 
 module.exports.parse = parse
 
@@ -24,7 +25,10 @@ function parse(config) {
       timeout: 5000,
       withCredentials: true,
       responseType: 'arraybuffer',
-      cache: false
+      cache: false,
+      headers: {
+        'User-Agent': `EPGGrabber/${version} (${homepage})`
+      }
     }
   }
 
