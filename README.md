@@ -73,6 +73,7 @@ Arguments:
 
 - `-c, --config`: path to config file
 - `-o, --output`: path to output file or path template (example: `guides/{site}.{lang}.xml`; default: `guide.xml`)
+- `-x, --proxy`: use the specified proxy
 - `--channels`: path to list of channels; you can also use wildcard to specify the path to multiple files at once (example: `example.com_*.channels.xml`)
 - `--lang`: set default language for all programs (default: `en`)
 - `--days`: number of days for which to grab the program (default: `1`)
@@ -196,7 +197,7 @@ From each function in `config.js` you can access a `context` object containing t
 
 ## Program Object
 
-| Property            | Aliases                          | Type                                             | Required |
+| Property        | Aliases                          | Type                                             | Required |
 | --------------- | -------------------------------- | ------------------------------------------------ | -------- |
 | start           |                                  | `String` or `Number` or `Date()`                 | true     |
 | stop            |                                  | `String` or `Number` or `Date()`                 | true     |
@@ -390,30 +391,8 @@ You can also specify the language, site, url, logo and LCN (Logical Channel Numb
 
 ## How to use SOCKS proxy?
 
-First, you need to install [socks-proxy-agent](https://www.npmjs.com/package/socks-proxy-agent):
-
-```sh
-npm install socks-proxy-agent
 ```
-
-Then you can use it to create an agent that acts as a SOCKS proxy. Here is an example of how to do it with the Tor SOCKS proxy:
-
-```js
-const { SocksProxyAgent } = require('socks-proxy-agent')
-
-const torProxyAgent = new SocksProxyAgent('socks://localhost:9050')
-
-module.exports = {
-  site: 'example.com',
-  url: 'https://example.com/epg.json',
-  request: {
-    httpsAgent: torProxyAgent,
-    httpAgent: torProxyAgent
-  },
-  parser(context) {
-    // ...
-  }
-}
+epg-grabber --config=example.com.config.js --proxy=socks://localhost:9050
 ```
 
 ## Contribution
