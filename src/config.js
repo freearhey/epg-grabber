@@ -1,4 +1,3 @@
-const tough = require('tough-cookie')
 const { merge } = require('lodash')
 
 module.exports.parse = parse
@@ -24,7 +23,6 @@ function parse(config) {
       maxContentLength: 5 * 1024 * 1024,
       timeout: 5000,
       withCredentials: true,
-      jar: new tough.CookieJar(),
       responseType: 'arraybuffer',
       cache: false
     }
