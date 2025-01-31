@@ -64,6 +64,14 @@ class EPGGrabberMock {
     this.config = config
   }
 
+  async loadLogo(channel) {
+    const logo = this.config.logo({ channel })
+    if (isPromise(logo)) {
+      return await logo
+    }
+    return logo
+  }
+
   async grab(channel, date, config = {}, cb = () => {}) {
     let _date = getUTCDate(date)
     if (typeof config == 'function') {
