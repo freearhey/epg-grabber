@@ -80,6 +80,9 @@ class EPGGrabberMock {
     }
     config = merge(this.config, config)
     config = parseConfig(config)
+
+    await buildRequest({ channel, date, config })
+
     let _programs = await config.parser({ channel, date: _date })
     let programs = _programs.map(data => new Program(data, channel))
 
