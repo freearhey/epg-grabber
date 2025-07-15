@@ -80,6 +80,7 @@ export declare type SiteConfig = {
   url: () => string | string | Promise<string>
   logo?: () => string | string | Promise<string>
   parser: () => object[] | Promise<object[]>
+  curl?: boolean
 }
 
 export declare function generateXMLTV({
