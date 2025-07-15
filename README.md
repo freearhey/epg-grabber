@@ -98,6 +98,7 @@ module.exports = {
   days: 3, // number of days for which to grab the program (default: 1)
   delay: 5000, // delay between requests (default: 3000)
   maxConnections: 200, // limit on the number of concurrent requests (default: 1)
+  curl: true, // display each request as CURL (default: false)
 
   request: { // request options (details: https://github.com/axios/axios#request-config)
 
