@@ -209,7 +209,7 @@ function toString(elem) {
     return `<${elem.name}${attrs}>${_children}</${elem.name}>`
   }
 
-  if (!['icon', 'previously-shown'].includes(elem.name)) return ''
+  if (!attrs && !['previously-shown'].includes(elem.name)) return ''
 
   return `<${elem.name}${attrs}/>`
 }
