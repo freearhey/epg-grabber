@@ -25,11 +25,12 @@ function parseChannels(xml) {
 
   const channels = channelsTag.elements
     .filter(el => el.name === 'channel')
-    .map(el => {
+    .map((el, index) => {
       const c = el.attributes
       if (!Array.isArray(el.elements)) return
       c.name = el.elements.find(el => el.type === 'text').text
       c.site = c.site || rootSite
+      c.index = index
       if (!c.name) return
 
       return new Channel(c)

@@ -8,7 +8,8 @@ class Channel {
       lang: c.lang || '',
       icon: c.icon || c.logo || '',
       url: c.url || toURL(c.site),
-      lcn: c.lcn
+      lcn: c.lcn !== undefined ? +c.lcn : undefined,
+      index: c.index !== undefined ? c.index : -1
     }
 
     for (let key in data) {
