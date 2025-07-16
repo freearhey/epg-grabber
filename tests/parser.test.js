@@ -18,7 +18,9 @@ it('can parse channels.xml', () => {
     xmltv_id: '1TV.com',
     lang: 'fr',
     icon: 'https://example.com/logos/1TV.png',
-    name: '1 TV'
+    name: '1 TV',
+    index: 0,
+    lcn: 36
   })
   expect(channels[1]).toMatchObject({
     site: 'example.com',
@@ -26,7 +28,8 @@ it('can parse channels.xml', () => {
     lang: '',
     icon: '',
     xmltv_id: '2TV.com',
-    name: '2 TV'
+    name: '2 TV',
+    index: 1
   })
 })
 

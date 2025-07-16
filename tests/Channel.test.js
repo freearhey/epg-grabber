@@ -9,7 +9,8 @@ it('can create new Channel', () => {
     lang: 'fr',
     url: 'https://example.com',
     logo: 'https://example.com/logos/1TV.png',
-    lcn: 36
+    lcn: 36,
+    index: 2
   })
 
   expect(channel).toMatchObject({
@@ -20,6 +21,7 @@ it('can create new Channel', () => {
     url: 'https://example.com',
     lang: 'fr',
     icon: 'https://example.com/logos/1TV.png',
-    lcn: 36
+    lcn: 36,
+    index: 2
   })
 })
