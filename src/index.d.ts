@@ -7,6 +7,8 @@ export declare class Channel {
   site_id: string
   lang?: string
   logo?: string
+  lcn?: number
+  index: number
 }
 
 type TextObject = {
