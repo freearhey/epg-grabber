@@ -95,7 +95,7 @@ export declare function generateXMLTV({
   date?: string | null
 }): string
 
-export declare function parseChannels(xml: string): { site: string; channels: Channel[] }
+export declare function parseChannels(xml: string): Channel[]
 
 export type GrabCallbackData = {
   channel: Channel
