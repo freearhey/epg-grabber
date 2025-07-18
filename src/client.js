@@ -7,8 +7,6 @@ module.exports.create = create
 module.exports.buildRequest = buildRequest
 module.exports.parseResponse = parseResponse
 
-let timeout
-
 function create(config) {
   const client = axios.defaults.cache
     ? axios
@@ -51,11 +49,13 @@ function create(config) {
         )
       }
 
-      clearTimeout(timeout)
       return response
     },
     function (error) {
-      clearTimeout(timeout)
+      if (error.name === 'CanceledError') {
+        error.message = 'Connection timeout'
+        return Promise.reject(error)
+      }
       return Promise.reject(error)
     }
   )
@@ -64,16 +64,11 @@ function create(config) {
 }
 
 async function buildRequest({ channel, date, config }) {
-  const CancelToken = axios.CancelToken
-  const source = CancelToken.source()
   const request = { ...config.request }
-  timeout = setTimeout(() => {
-    source.cancel('Connection timeout')
-  }, request.timeout)
   request.headers = await getRequestHeaders({ channel, date, config })
   request.url = await getRequestUrl({ channel, date, config })
   request.data = await getRequestData({ channel, date, config })
-  request.cancelToken = source.token
+  request.signal = AbortSignal.timeout(request.timeout)
 
   if (config.curl) {
     const curl = CurlGenerator({
