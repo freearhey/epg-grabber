@@ -6,7 +6,7 @@ export declare class Channel {
   site?: string
   site_id: string
   lang?: string
-  logo?: string
+  icon?: string
   lcn?: number
   index: number
 }
