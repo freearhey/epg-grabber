@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const glob = require('glob')
+const { glob } = require('glob')
 
 module.exports.list = list
 module.exports.read = read
@@ -12,11 +12,7 @@ module.exports.templateVariables = templateVariables
 module.exports.templateFormat = templateFormat
 
 function list(pattern) {
-  return new Promise(resolve => {
-    glob(pattern, function (err, files) {
-      resolve(files)
-    })
-  })
+  return glob(pattern)
 }
 
 function read(filepath) {
