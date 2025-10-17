@@ -2,15 +2,22 @@
   "name": "epg-grabber",
   "version": "0.41.0",
   "description": "Node.js CLI tool for grabbing EPG from different sites",
-  "main": "src/index.js",
-  "preferGlobal": true,
   "homepage": "https://github.com/freearhey/epg-grabber",
-  "bin": {
-    "epg-grabber": "bin/epg-grabber.js"
+  "preferGlobal": true,
+  "type": "module",
+  "bin": "./dist/cli.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
   "scripts": {
-    "lint": "npx eslint ./src/**/*.js ./tests/**/*.js",
-    "test": "npx jest"
+    "cli": "tsx ./src/cli.ts",
+    "build": "pkgroll --clean-dist",
+    "lint": "npx eslint ./src/**/*.ts ./tests/**/*.ts",
+    "test": "npx vitest run"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
@@ -26,36 +33,37 @@
     "url": "https://github.com/freearhey/epg-grabber.git"
   },
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=22.12.0"
   },
   "dependencies": {
-    "axios": "^1.6.1",
-    "axios-cache-interceptor": "^1.8.0",
+    "@freearhey/core": "^0.14.0",
+    "@types/bluebird": "^3.5.42",
+    "@types/fs-extra": "^11.0.4",
+    "@types/lodash": "^4.17.20",
+    "@types/pako": "^2.0.4",
+    "axios": "^1.12.2",
+    "axios-cache-interceptor": "^1.8.3",
+    "bluebird": "^3.7.2",
     "commander": "^14.0.0",
     "curl-generator": "^0.4.2",
     "cwait": "^1.1.2",
-    "dayjs": "^1.11.13",
-    "epg-parser": "^0.3.1",
+    "dayjs": "^1.11.18",
     "fs-extra": "^11.3.0",
     "glob": "^11.0.3",
     "lodash": "^4.17.21",
-    "node-gzip": "^1.1.2",
+    "pako": "^2.1.0",
     "socks-proxy-agent": "^8.0.5",
     "winston": "^3.17.0",
     "xml-js": "^1.6.11"
   },
   "devDependencies": {
-    "@babel/core": "^7.13.14",
-    "@babel/preset-env": "^7.28.0",
-    "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.31.0",
-    "babel-jest": "^30.0.4",
+    "@eslint/js": "^9.36.0",
     "eslint": "^9.31.0",
-    "globals": "^16.3.0",
-    "jest": "^30.0.4",
-    "jest-mock-axios": "^4.5.0"
-  },
-  "jest": {
-    "testEnvironment": "node"
+    "msw": "^2.11.3",
+    "pkgroll": "^2.15.4",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.44.1",
+    "vitest": "^3.2.4"
   }
 }
