@@ -1,10 +1,21 @@
-import Channel from '../src/Channel'
-import Program from '../src/Program'
+import { Channel } from '../../src/models/channel'
+import { Program } from '../../src/models/program'
+import { it, expect } from 'vitest'
 
-const channel = new Channel({ xmltv_id: '1tv', lang: 'fr', site: 'example.com' })
+const channel = new Channel({
+  xmltv_id: '1tv',
+  name: '1TV',
+  site: 'example.com',
+  site_id: '#',
+  lang: 'fr',
+  icon: null,
+  url: null,
+  lcn: null,
+  index: -1
+})
 
-it('can create new Program', () => {
-  const program = new Program(
+it('can create new Program from Parser data', () => {
+  const program = Program.fromParserData(
     {
       title: 'Title',
       sub_title: 'Subtitle',
@@ -49,7 +60,7 @@ it('can create new Program', () => {
     channel
   )
 
-  expect(program).toMatchObject({
+  expect(program.toObject()).toMatchObject({
     site: 'example.com',
     channel: '1tv',
     titles: [{ value: 'Title', lang: 'fr' }],
@@ -135,23 +146,23 @@ it('can create new Program', () => {
   })
 })
 
-it('can create program from exist object', () => {
-  const program = new Program(
-    {
-      titles: [{ value: 'Program 1', lang: 'de' }],
-      start: '2021-03-19T06:00:00.000Z',
-      stop: '2021-03-19T06:30:00.000Z',
-      ratings: {
+it('can create program from data object', () => {
+  const program = new Program({
+    channel: '1tv',
+    titles: [{ value: 'Program 1', lang: 'de' }],
+    start: 1616133600000,
+    stop: 1616135400000,
+    ratings: [
+      {
         system: 'MPAA',
         value: 'PG',
-        icon: 'http://example.com/pg_symbol.png'
-      },
-      actors: [{ value: 'Actor1', url: [], image: [] }]
-    },
-    channel
-  )
+        icon: [{ src: 'http://example.com/pg_symbol.png' }]
+      }
+    ],
+    actors: [{ value: 'Actor1', url: [], image: [] }]
+  })
 
-  expect(program).toMatchObject({
+  expect(program.toObject()).toMatchObject({
     channel: '1tv',
     titles: [{ value: 'Program 1', lang: 'de' }],
     subTitles: [],
@@ -184,7 +195,7 @@ it('can create program from exist object', () => {
 })
 
 it('can create program without season number', () => {
-  const program = new Program(
+  const program = Program.fromParserData(
     {
       title: 'Program 1',
       start: '2021-03-19T06:00:00.000Z',
@@ -201,9 +212,9 @@ it('can create program without season number', () => {
 })
 
 it('can create program without episode number', () => {
-  const program = new Program(
+  const program = Program.fromParserData(
     {
-      channel: channel.id,
+      channel: channel.xmltv_id,
       title: 'Program 1',
       start: '2021-03-19T06:00:00.000Z',
       stop: '2021-03-19T06:30:00.000Z',

@@ -1,4 +1,5 @@
-import Channel from '../src/Channel'
+import { Channel } from '../../src/models/channel'
+import { it, expect } from 'vitest'
 
 it('can create new Channel', () => {
   const channel = new Channel({
@@ -9,19 +10,19 @@ it('can create new Channel', () => {
     lang: 'fr',
     url: 'https://example.com',
     logo: 'https://example.com/logos/1TV.png',
-    lcn: 36,
+    lcn: '36',
     index: 2
   })
 
-  expect(channel).toMatchObject({
+  expect(channel.toObject()).toMatchObject({
     name: '1 TV',
     xmltv_id: '1TV.com',
     site_id: '1',
     site: 'example.com',
     url: 'https://example.com',
     lang: 'fr',
-    icon: 'https://example.com/logos/1TV.png',
-    lcn: 36,
+    logo: 'https://example.com/logos/1TV.png',
+    lcn: '36',
     index: 2
   })
 })

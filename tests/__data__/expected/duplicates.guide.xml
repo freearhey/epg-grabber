@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?><tv date="20220828">
-<channel id="1TV.com"><display-name>1 TV</display-name><icon src="https://example.com/logos/1TV.png"/><url>https://example.com</url></channel>
-<channel id="2TV.com"><display-name>2 TV</display-name><url>https://example.com</url></channel>
-<programme start="20220101000000 +0000" stop="20220101010000 +0000" channel="1TV.com"><title lang="fr">Program1</title></programme>
-<programme start="20220101000000 +0000" stop="20220101010000 +0000" channel="2TV.com"><title>Program1</title></programme>
-</tv>
