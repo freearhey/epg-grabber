@@ -118,9 +118,9 @@ module.exports = {
     },
 
     /**
-     * @param {object} context
+     * @param {object} Request context
      *
-     * @return {string} The function should return headers for each request (optional)
+     * @return {object} The function should return headers for each request (optional)
      */
     headers: function(context) {
       return {
@@ -130,9 +130,9 @@ module.exports = {
     },
 
     /**
-     * @param {object} context
+     * @param {object} Request context
      *
-     * @return {string} The function should return data for each request (optional)
+     * @return {any} The function should return data for each request (optional)
      */
     data: function(context) {
       const { channel, date } = context
@@ -146,7 +146,7 @@ module.exports = {
   },
 
   /**
-   * @param {object} context
+   * @param {object} Request context
    *
    * @return {string} The function should return URL of the program page for the channel
    */
@@ -155,7 +155,7 @@ module.exports = {
   },
 
   /**
-   * @param {object} context
+   * @param {object} Request context
    *
    * @return {string} The function should return URL of the channel logo (optional)
    */
@@ -164,7 +164,7 @@ module.exports = {
   },
 
   /**
-   * @param {object} context
+   * @param {object} Parser context
    *
    * @return {array} The function should return an array of programs with their descriptions
    */
@@ -184,9 +184,16 @@ module.exports = {
 }
 ```
 
-## Context Object
+## Request Context Object
 
-From each function in `config.js` you can access a `context` object containing the following data:
+Inside `url()`, `logo()`, `request.data()`, `request.headers()` functions in `config.js` you can access a `context` object containing the following data:
+
+- `channel`: The object describing the current channel (xmltv_id, site_id, name, lang)
+- `date`: The 'dayjs' instance with the requested date
+
+## Parser Context Object
+
+Inside `parser()` function in `config.js` you can access a `context` object containing the following data:
 
 - `channel`: The object describing the current channel (xmltv_id, site_id, name, lang)
 - `date`: The 'dayjs' instance with the requested date
