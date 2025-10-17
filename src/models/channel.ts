@@ -14,7 +14,7 @@ export class Channel {
   index: number
 
   constructor(data: ChannelData) {
-    this.xmltv_id = data.xmltv_id || data.site_id
+    this.xmltv_id = data.xmltv_id
     this.name = data.name
     this.site = data.site
     this.site_id = data.site_id
