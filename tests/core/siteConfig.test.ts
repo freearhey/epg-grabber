@@ -36,15 +36,13 @@ describe('SiteConfig', () => {
         Cookie: 'abc=123'
       }
     })
-    expect(typeof siteConfig.request?.data).toEqual('function')
-    expect(typeof siteConfig.url).toEqual('function')
-    expect(typeof siteConfig.logo).toEqual('function')
 
     const requestContext = { channel, date: dayjs() }
 
-    if (siteConfig.request?.data)
-      expect(siteConfig.request?.data(requestContext)).toEqual({ accountID: '123' })
-    else throw new Error('"request.data" is missing')
+    const data = siteConfig.request?.data
+    if (data && typeof data === 'function') {
+      expect(data(requestContext)).toEqual({ accountID: '123' })
+    } else throw new Error('"request.data" is missing')
 
     const url = siteConfig.url
     if (url && typeof url === 'function') {

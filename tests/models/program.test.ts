@@ -8,14 +8,14 @@ const channel = new Channel({
   site: 'example.com',
   site_id: '#',
   lang: 'fr',
-  icon: null,
+  logo: null,
   url: null,
   lcn: null,
   index: -1
 })
 
 it('can create new Program from Parser data', () => {
-  const program = Program.fromParserData(
+  const program = Program.fromParserResult(
     {
       title: 'Title',
       sub_title: 'Subtitle',
@@ -195,7 +195,7 @@ it('can create program from data object', () => {
 })
 
 it('can create program without season number', () => {
-  const program = Program.fromParserData(
+  const program = Program.fromParserResult(
     {
       title: 'Program 1',
       start: '2021-03-19T06:00:00.000Z',
@@ -212,7 +212,7 @@ it('can create program without season number', () => {
 })
 
 it('can create program without episode number', () => {
-  const program = Program.fromParserData(
+  const program = Program.fromParserResult(
     {
       channel: channel.xmltv_id,
       title: 'Program 1',
