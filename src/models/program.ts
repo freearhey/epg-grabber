@@ -1,5 +1,6 @@
-import { escapeString, formatDate, createXMLElement, toArray } from '../utils'
-import { SiteConfigParser } from '../types/siteConfig'
+import { escapeString, formatDate, createXMLElement, toArray } from '../core/utils'
+import { SiteConfigParserResult } from '../types/siteConfig'
+import { ProgramData } from '../types'
 import utc from 'dayjs/plugin/utc.js'
 import dayjs, { Dayjs } from 'dayjs'
 import { Channel } from './channel'
@@ -12,42 +13,42 @@ export class Program {
   start: number
   stop: number
   channel: string
-  titles: Program.TextObject[]
-  subTitles: Program.TextObject[]
-  descriptions: Program.TextObject[]
+  titles: ProgramData.TextObject[]
+  subTitles: ProgramData.TextObject[]
+  descriptions: ProgramData.TextObject[]
   date: number | null
-  categories: Program.TextObject[]
-  keywords: Program.TextObject[]
-  languages: Program.TextObject[]
-  origLanguages: Program.TextObject[]
-  length: Program.LenghtObject[]
-  urls: Program.UrlObject[]
-  countries: Program.TextObject[]
-  episodeNumbers: Program.EpisodeNumberObject[]
-  video: Program.VideoObject | null
-  audio: Program.AudioObject | null
-  previouslyShown: Program.PreviouslyShownObject[]
-  premiere: Program.TextObject[]
-  lastChance: Program.TextObject[]
+  categories: ProgramData.TextObject[]
+  keywords: ProgramData.TextObject[]
+  languages: ProgramData.TextObject[]
+  origLanguages: ProgramData.TextObject[]
+  length: ProgramData.LenghtObject[]
+  urls: ProgramData.UrlObject[]
+  countries: ProgramData.TextObject[]
+  episodeNumbers: ProgramData.EpisodeNumberObject[]
+  video: ProgramData.VideoObject | null
+  audio: ProgramData.AudioObject | null
+  previouslyShown: ProgramData.PreviouslyShownObject[]
+  premiere: ProgramData.TextObject[]
+  lastChance: ProgramData.TextObject[]
   new: boolean
-  subtitles: Program.SubtitlesObject[]
-  ratings: Program.RatingObject[]
-  starRatings: Program.RatingObject[]
-  reviews: Program.ReviewObject[]
-  directors: Program.PersonObject[]
-  actors: Program.PersonObject[]
-  writers: Program.PersonObject[]
-  adapters: Program.PersonObject[]
-  producers: Program.PersonObject[]
-  composers: Program.PersonObject[]
-  editors: Program.PersonObject[]
-  presenters: Program.PersonObject[]
-  commentators: Program.PersonObject[]
-  guests: Program.PersonObject[]
-  images: Program.ImageObject[]
-  icons: Program.IconObject[]
+  subtitles: ProgramData.SubtitlesObject[]
+  ratings: ProgramData.RatingObject[]
+  starRatings: ProgramData.RatingObject[]
+  reviews: ProgramData.ReviewObject[]
+  directors: ProgramData.PersonObject[]
+  actors: ProgramData.PersonObject[]
+  writers: ProgramData.PersonObject[]
+  adapters: ProgramData.PersonObject[]
+  producers: ProgramData.PersonObject[]
+  composers: ProgramData.PersonObject[]
+  editors: ProgramData.PersonObject[]
+  presenters: ProgramData.PersonObject[]
+  commentators: ProgramData.PersonObject[]
+  guests: ProgramData.PersonObject[]
+  images: ProgramData.ImageObject[]
+  icons: ProgramData.IconObject[]
 
-  constructor(data: Program.Data) {
+  constructor(data: ProgramData) {
     this.site = data.site
     this.start = data.start
     this.stop = data.stop
@@ -88,15 +89,11 @@ export class Program {
     this.icons = data.icons || []
   }
 
-  static fromParserData(data: SiteConfigParser.Data, channel: Channel): Program {
-    if (!(channel instanceof Channel)) {
-      throw new Error('The second argument in the constructor must be the "Channel" class')
-    }
-
+  static fromParserResult(data: SiteConfigParserResult, channel: Channel): Program {
     function toTextObject(
-      text: Program.TextObject | string | null,
+      text: ProgramData.TextObject | string | null,
       lang?: string
-    ): Program.TextObject {
+    ): ProgramData.TextObject {
       text = text || ''
 
       if (typeof text === 'string') {
@@ -109,7 +106,7 @@ export class Program {
       }
     }
 
-    function toPersonObject(person: Program.PersonObject | string): Program.PersonObject {
+    function toPersonObject(person: ProgramData.PersonObject | string): ProgramData.PersonObject {
       if (typeof person === 'string') {
         return {
           value: person,
@@ -125,14 +122,14 @@ export class Program {
       }
     }
 
-    function toSubtitlesObject(subtitles: Program.SubtitlesObject) {
+    function toSubtitlesObject(subtitles: ProgramData.SubtitlesObject) {
       return {
         type: subtitles.type || '',
         language: toArray(subtitles.language).map(text => toTextObject(text))
       }
     }
 
-    function toImageObject(image: Program.ImageObject | string): Program.ImageObject {
+    function toImageObject(image: ProgramData.ImageObject | string): ProgramData.ImageObject {
       if (typeof image === 'string')
         return { type: '', size: '', orient: '', system: '', value: image }
 
@@ -145,7 +142,7 @@ export class Program {
       }
     }
 
-    function toRatingObject(rating: Program.RatingObject | string): Program.RatingObject {
+    function toRatingObject(rating: ProgramData.RatingObject | string): ProgramData.RatingObject {
       if (typeof rating === 'string') return { system: '', icon: [], value: rating }
 
       return {
@@ -155,8 +152,11 @@ export class Program {
       }
     }
 
-    function toLengthObject(length: Program.LenghtObject | string): Program.LenghtObject {
+    function toLengthObject(
+      length: ProgramData.LenghtObject | string | number
+    ): ProgramData.LenghtObject {
       if (typeof length === 'string') return { units: '', value: length }
+      if (typeof length === 'number') return { units: '', value: length.toString() }
 
       return {
         units: length.units || '',
@@ -164,7 +164,7 @@ export class Program {
       }
     }
 
-    function toUrlObject(url: Program.UrlObject | string): Program.UrlObject {
+    function toUrlObject(url: ProgramData.UrlObject | string): ProgramData.UrlObject {
       if (typeof url === 'string') return { system: '', value: url }
 
       return {
@@ -173,7 +173,7 @@ export class Program {
       }
     }
 
-    function toVideoObject(video?: Program.VideoObject | null): Program.VideoObject {
+    function toVideoObject(video?: ProgramData.VideoObject | null): ProgramData.VideoObject {
       if (!video) return {}
 
       return {
@@ -184,7 +184,7 @@ export class Program {
       }
     }
 
-    function toAudioObject(audio?: Program.AudioObject | null): Program.AudioObject {
+    function toAudioObject(audio?: ProgramData.AudioObject | null): ProgramData.AudioObject {
       if (!audio) return {}
 
       return {
@@ -193,7 +193,7 @@ export class Program {
       }
     }
 
-    function toReviewObject(review?: Program.ReviewObject | null): Program.ReviewObject {
+    function toReviewObject(review?: ProgramData.ReviewObject | null): ProgramData.ReviewObject {
       if (!review) return {}
 
       return {
@@ -206,8 +206,8 @@ export class Program {
     }
 
     function toPreviouslyShownObject(
-      previouslyShown?: Program.PreviouslyShownObject
-    ): Program.PreviouslyShownObject {
+      previouslyShown?: ProgramData.PreviouslyShownObject
+    ): ProgramData.PreviouslyShownObject {
       if (!previouslyShown) return {}
 
       return {
@@ -216,7 +216,7 @@ export class Program {
       }
     }
 
-    function toIconObject(icon?: Program.IconObject | string): Program.IconObject {
+    function toIconObject(icon?: ProgramData.IconObject | string): ProgramData.IconObject {
       if (!icon) return { src: '' }
       if (typeof icon === 'string') return { src: icon }
 
@@ -234,7 +234,7 @@ export class Program {
     function makeEpisodeNumberObjects(
       seasonNumberAny?: string | number | null,
       episodeNumberAny?: string | number | null
-    ): Program.EpisodeNumberObject[] {
+    ): ProgramData.EpisodeNumberObject[] {
       if (!seasonNumberAny) seasonNumberAny = 1
       if (!episodeNumberAny) return []
 
@@ -246,12 +246,12 @@ export class Program {
       return [
         createXMLTVNS(seasonNumber, episodeNumber),
         createOnScreen(seasonNumber, episodeNumber)
-      ].filter((value: Program.EpisodeNumberObject | null) => value !== null)
+      ].filter((value: ProgramData.EpisodeNumberObject | null) => value !== null)
     }
 
     function toEpisodeNumberObject(
-      episode?: Program.EpisodeNumberObject
-    ): Program.EpisodeNumberObject {
+      episode?: ProgramData.EpisodeNumberObject
+    ): ProgramData.EpisodeNumberObject {
       if (!episode) return {}
 
       return {
@@ -263,7 +263,7 @@ export class Program {
     function createXMLTVNS(
       seasonNumber: number,
       episodeNumber: number
-    ): Program.EpisodeNumberObject | null {
+    ): ProgramData.EpisodeNumberObject | null {
       if (!episodeNumber) return null
       seasonNumber = seasonNumber || 1
 
@@ -276,7 +276,7 @@ export class Program {
     function createOnScreen(
       seasonNumber: number,
       episodeNumber: number
-    ): Program.EpisodeNumberObject | null {
+    ): ProgramData.EpisodeNumberObject | null {
       if (!episodeNumber) return null
       seasonNumber = seasonNumber || 1
 
@@ -349,7 +349,7 @@ export class Program {
   toXML(): string {
     const el = createXMLElement
 
-    function createCastMember(position: string, person: Program.PersonObject) {
+    function createCastMember(position: string, person: ProgramData.PersonObject) {
       return el(position, {}, [
         escapeString(person.value),
         ...toArray(person.url).map(createURLElement),
@@ -357,7 +357,7 @@ export class Program {
       ])
     }
 
-    function createImageElement(image: Program.ImageObject) {
+    function createImageElement(image: ProgramData.ImageObject) {
       return el(
         'image',
         {
@@ -370,7 +370,7 @@ export class Program {
       )
     }
 
-    function createURLElement(url: Program.UrlObject) {
+    function createURLElement(url: ProgramData.UrlObject) {
       return el('url', { system: url.system }, [escapeString(url.value)])
     }
 
@@ -494,7 +494,7 @@ export class Program {
     )
   }
 
-  toObject(): Program.Data {
+  toObject(): ProgramData {
     return {
       site: this.site,
       start: this.start,

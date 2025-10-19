@@ -4,13 +4,13 @@ import { AxiosResponseHeaders } from 'axios'
 import { Channel } from '../models/channel'
 import { Dayjs } from 'dayjs'
 
-export type ClientRequestConfig = {
+export interface ClientRequestConfig {
   channel: Channel
   date: Dayjs
   siteConfig: SiteConfig
 }
 
-export type ClientResponse = {
+export interface ClientResponse {
   content: string
   buffer: Buffer
   headers: AxiosResponseHeaders | Partial<AxiosResponseHeaders>

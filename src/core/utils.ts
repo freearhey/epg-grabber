@@ -1,27 +1,53 @@
+import { ProxyParserResult, XMLElement } from '../types/utils'
 import dayjs, { Dayjs } from 'dayjs'
 import utc from 'dayjs/plugin/utc.js'
+import { URL } from 'node:url'
 import path from 'node:path'
 
 dayjs.extend(utc)
+
+export function parseProxy(proxy: string): ProxyParserResult {
+  const parsed = new URL(proxy)
+
+  const result: ProxyParserResult = {
+    protocol: parsed.protocol.replace(':', '') || null,
+    host: parsed.hostname,
+    port: parsed.port ? parseInt(parsed.port) : null
+  }
+
+  if (parsed.username || parsed.password) {
+    result.auth = {}
+    if (parsed.username) result.auth.username = parsed.username
+    if (parsed.password) result.auth.password = parsed.password
+  }
+
+  return result
+}
+
+export async function loadJs(filepath: string) {
+  const absPath = path.resolve(filepath)
+
+  return (await import(absPath)).default
+}
 
 export function parseNumber(value: string): number {
   return parseInt(value)
 }
 
-export function sleep(ms: number) {
+export function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-export function isDate(date: any): boolean {
+export function isDate(date: string | number | Date | Dayjs | null | undefined): boolean {
   return dayjs(date).isValid()
 }
 
-export function isObject(value: any): boolean {
+export function isObject(value: unknown): boolean {
   return !!value && value.constructor === Object
 }
 
-export function isPromise(promise: any): boolean {
-  return !!promise && typeof promise.then === 'function'
+export function isPromise(promise: unknown): boolean {
+  return promise instanceof Promise
 }
 
 export function getUTCDate(date: string | number | Date | Dayjs | null = null) {
@@ -68,39 +94,41 @@ export function escapeString(value: string | number | null, defaultValue = '') {
 export function formatDate(
   date: string | number | Date | Dayjs | null | undefined,
   format: string
-) {
-  return date ? dayjs.utc(date).format(format) : null
+): string {
+  return date ? dayjs.utc(date).format(format) : ''
 }
 
 export function toURL(domain: string) {
   return domain ? `https://${domain}` : ''
 }
 
-export function createXMLElement(name: string, attrs?: Record<string, any>, children?: any[]) {
-  return toString({ name, attrs, children })
+export function createXMLElement(
+  name: string,
+  attrs?: Record<string, string>,
+  children?: XMLElement[]
+) {
+  return convertXMLElementToString({ name, attrs, children })
 }
 
-function toString(
-  elem: string | number | { name: string; attrs?: Record<string, any>; children?: any[] }
-): string {
+function convertXMLElementToString(elem: XMLElement): string {
   if (!elem) return ''
   if (typeof elem === 'string') return elem
   if (typeof elem === 'number') return elem.toString()
   if (!elem.attrs && !elem.children) return `<${elem.name}/>`
 
   let attrs = ''
-  for (let key in elem.attrs) {
-    let value = elem.attrs[key]
+  for (const key in elem.attrs) {
+    const value = elem.attrs[key]
     if (value) {
       attrs += ` ${key}="${escapeString(value)}"`
     }
   }
 
-  let children = elem.children || []
+  const children = elem.children || []
   if (children.filter(Boolean).length) {
     let _children = ''
     children.forEach(childElem => {
-      _children += toString(childElem)
+      _children += convertXMLElementToString(childElem)
     })
 
     return `<${elem.name}${attrs}>${_children}</${elem.name}>`
@@ -111,7 +139,7 @@ function toString(
   return `<${elem.name}${attrs}/>`
 }
 
-export function toArray(value: any): any[] {
+export function toArray(value: unknown): unknown[] {
   if (Array.isArray(value)) return value.filter(Boolean)
 
   return [value].filter(Boolean)

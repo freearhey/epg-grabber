@@ -1,14 +1,13 @@
 #! /usr/bin/env node
 
-import { EPGGrabber, generateXMLTV, Program, Channel } from '../src/index'
-import { parseNumber, getUTCDate, getAbsPath } from '../src/utils'
+import { parseNumber, getUTCDate, loadJs, parseProxy } from './core/utils'
 import { Collection, Dictionary, Template } from '@freearhey/core'
 import { name, version, description } from '../package.json'
 import { Command, OptionValues, Option } from 'commander'
 import { SocksProxyAgent } from 'socks-proxy-agent'
-import { ProxyParser } from './core/proxyParser'
-import { Storage } from './core/storage'
+import { Program, Channel } from './models'
 import { Logger } from './core/logger'
+import { EPGGrabber } from './index'
 import { TaskQueue } from 'cwait'
 import Promise from 'bluebird'
 import { Dayjs } from 'dayjs'
@@ -83,7 +82,7 @@ async function main() {
   logger.debug(`Options: ${JSON.stringify(options, null, 2)}`)
 
   logger.info(`Loading '${options.config}'...`)
-  let configObject = await Storage.loadJs(options.config)
+  let configObject = await loadJs(options.config)
 
   configObject = _.merge(configObject, {
     filepath: path.resolve(options.config),
@@ -103,7 +102,7 @@ async function main() {
   if (options.cacheTtl !== undefined) configObject.request.cache = { ttl: options.cacheTtl }
 
   if (options.proxy !== undefined) {
-    const proxy = ProxyParser.parse(options.proxy)
+    const proxy = parseProxy(options.proxy)
 
     if (
       proxy.protocol &&
@@ -122,32 +121,44 @@ async function main() {
 
   const grabber = new EPGGrabber(configObject, { logger })
 
-  logger.info('Loading channel list...')
-  const channelList = await grabber.loadChannels()
+  logger.info('Loading channels...')
+  const channels = await grabber.loadChannels()
   const template = new Template(configObject.output)
-  const groups: Dictionary<Channel[]> = channelList.getGroups({ template })
+  const variables = template.variables()
 
-  if (channelList.getChannels().isEmpty()) {
+  if (!channels.length) {
     logger.info('No channels found')
     logger.info('Exit')
 
     return
   }
 
+  const groups: Dictionary<Channel[]> = new Collection(channels).groupBy((channel: Channel) => {
+    let groupId = ''
+    for (const key in channel) {
+      if (variables.includes(key)) {
+        const obj = channel.toObject() as Record<string, any>
+        groupId += obj[key]
+      }
+    }
+
+    return groupId
+  })
+
   logger.info('Processing...')
   for (let groupId of groups.keys()) {
     const group = groups.get(groupId)
-    const channels = new Collection<Channel>(group)
+    const groupChannels = new Collection<Channel>(group)
     let programs = new Collection<Program>()
     let index = 1
     let days = configObject.days
     const maxConnections = configObject.maxConnections
-    const total = channels.count() * days
+    const total = groupChannels.count() * days
     const utcDate = getUTCDate(process.env.CURR_DATE)
     const dates = Array.from({ length: days }, (_, i) => utcDate.add(i, 'd'))
 
     let queue = new Collection<QueueItem>()
-    channels.forEach(channel => {
+    groupChannels.forEach((channel: Channel) => {
       for (let date of dates) {
         queue.add({ channel, date })
       }
@@ -159,7 +170,7 @@ async function main() {
         const { channel, date } = queueItem
 
         if (!channel.logo && configObject.logo) {
-          channel.logo = await grabber.loadLogo({ channel, date })
+          channel.logo = await grabber.loadLogo(channel, date)
         }
 
         const _programs = await grabber.grab(channel, date, (context, error) => {
@@ -184,8 +195,8 @@ async function main() {
 
     programs = programs.uniqBy((program: Program) => program.start + program.channel)
 
-    const xml = generateXMLTV(channels.all(), programs.all(), utcDate)
-    const channelSample = channels.sample()
+    const xml = EPGGrabber.generateXMLTV(groupChannels.all(), programs.all(), utcDate)
+    const channelSample = groupChannels.sample()
     let outputPath = template.format(channelSample.toObject() as { [key: string]: any })
     const outputDir = path.dirname(outputPath)
 

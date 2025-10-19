@@ -1,4 +1,4 @@
-export type ChannelData = {
+export interface ChannelData {
   xmltv_id: string
   name: string
   site: string

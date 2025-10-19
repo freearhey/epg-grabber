@@ -1,15 +1,15 @@
-declare namespace Program {
-  export type TextObject = {
+declare namespace ProgramData {
+  export interface TextObject {
     value: string
     lang?: string
   }
 
-  export type UrlObject = {
+  export interface UrlObject {
     system: string
     value: string
   }
 
-  export type ImageObject = {
+  export interface ImageObject {
     type: string
     size: string
     orient: string
@@ -17,102 +17,102 @@ declare namespace Program {
     value: string
   }
 
-  export type PersonObject = {
+  export interface PersonObject {
     value: string
-    url: Program.UrlObject[]
-    image: Program.ImageObject[]
+    url: ProgramData.UrlObject[]
+    image: ProgramData.ImageObject[]
   }
 
-  export type LenghtObject = {
+  export interface LenghtObject {
     units: string
     value: string
   }
 
-  export type EpisodeNumberObject = {
+  export interface EpisodeNumberObject {
     system?: string
     value?: string
   }
 
-  export type VideoObject = {
+  export interface VideoObject {
     present?: string
     colour?: string
     aspect?: string
     quality?: string
   }
 
-  export type AudioObject = {
+  export interface AudioObject {
     present?: string
     stereo?: string
   }
 
-  export type PreviouslyShownObject = {
+  export interface PreviouslyShownObject {
     start?: string
     channel?: string
   }
 
-  export type SubtitlesObject = {
+  export interface SubtitlesObject {
     type: string
-    language: Program.TextObject[]
+    language: ProgramData.TextObject[]
   }
 
-  export type IconObject = {
+  export interface IconObject {
     src: string
     width?: string
     height?: string
   }
 
-  export type RatingObject = {
+  export interface RatingObject {
     system: string
-    icon: Program.IconObject[]
+    icon: ProgramData.IconObject[]
     value: string
   }
 
-  export type ReviewObject = {
+  export interface ReviewObject {
     type?: string
     source?: string
     reviewer?: string
     lang?: string
     value?: string
   }
+}
 
-  export type Data = {
-    site: string
-    start: number
-    stop: number
-    channel: string
-    titles: Program.TextObject[]
-    subTitles: Program.TextObject[]
-    descriptions: Program.TextObject[]
-    date: number | null
-    categories: Program.TextObject[]
-    keywords: Program.TextObject[]
-    languages: Program.TextObject[]
-    origLanguages: Program.TextObject[]
-    length: Program.LenghtObject[]
-    urls: Program.UrlObject[]
-    countries: Program.TextObject[]
-    episodeNumbers: Program.EpisodeNumberObject[]
-    video: Program.VideoObject | null
-    audio: Program.AudioObject | null
-    previouslyShown: Program.PreviouslyShownObject[]
-    premiere: Program.TextObject[]
-    lastChance: Program.TextObject[]
-    new: boolean
-    subtitles: Program.SubtitlesObject[]
-    ratings: Program.RatingObject[]
-    starRatings: Program.RatingObject[]
-    reviews: Program.ReviewObject[]
-    directors: Program.PersonObject[]
-    actors: Program.PersonObject[]
-    writers: Program.PersonObject[]
-    adapters: Program.PersonObject[]
-    producers: Program.PersonObject[]
-    composers: Program.PersonObject[]
-    editors: Program.PersonObject[]
-    presenters: Program.PersonObject[]
-    commentators: Program.PersonObject[]
-    guests: Program.PersonObject[]
-    images: Program.ImageObject[]
-    icons: Program.IconObject[]
-  }
+export interface ProgramData {
+  site: string
+  start: number
+  stop: number
+  channel: string
+  titles: ProgramData.TextObject[]
+  subTitles: ProgramData.TextObject[]
+  descriptions: ProgramData.TextObject[]
+  date: number | null
+  categories: ProgramData.TextObject[]
+  keywords: ProgramData.TextObject[]
+  languages: ProgramData.TextObject[]
+  origLanguages: ProgramData.TextObject[]
+  length: ProgramData.LenghtObject[]
+  urls: ProgramData.UrlObject[]
+  countries: ProgramData.TextObject[]
+  episodeNumbers: ProgramData.EpisodeNumberObject[]
+  video: ProgramData.VideoObject | null
+  audio: ProgramData.AudioObject | null
+  previouslyShown: ProgramData.PreviouslyShownObject[]
+  premiere: ProgramData.TextObject[]
+  lastChance: ProgramData.TextObject[]
+  new: boolean
+  subtitles: ProgramData.SubtitlesObject[]
+  ratings: ProgramData.RatingObject[]
+  starRatings: ProgramData.RatingObject[]
+  reviews: ProgramData.ReviewObject[]
+  directors: ProgramData.PersonObject[]
+  actors: ProgramData.PersonObject[]
+  writers: ProgramData.PersonObject[]
+  adapters: ProgramData.PersonObject[]
+  producers: ProgramData.PersonObject[]
+  composers: ProgramData.PersonObject[]
+  editors: ProgramData.PersonObject[]
+  presenters: ProgramData.PersonObject[]
+  commentators: ProgramData.PersonObject[]
+  guests: ProgramData.PersonObject[]
+  images: ProgramData.ImageObject[]
+  icons: ProgramData.IconObject[]
 }

@@ -1,4 +1,4 @@
-import { toURL, escapeString, createXMLElement } from '../utils'
+import { toURL, escapeString, createXMLElement } from '../core/utils'
 import { ChannelData } from '../types/channel'
 import xmlJs from 'xml-js'
 

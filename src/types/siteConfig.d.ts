@@ -1,19 +1,20 @@
 import { CacheRequestConfig } from 'axios-cache-interceptor'
 import { AxiosResponseHeaders } from 'axios'
+import { ProgramData } from './program'
 import { Logger } from '../core/logger'
 import { Channel } from '../models'
 import { Dayjs } from 'dayjs'
 
-export type SiteConfigOptions = {
+export interface SiteConfigOptions {
   logger: Logger
 }
 
-export type SiteConfigProps = {
+export interface SiteConfigObject {
   site: string
-  url: ((context: SiteConfigRequest.Context) => string | Promise<string>) | string
+  url: ((context: SiteConfigRequestContext) => string | Promise<string>) | string
   parser: (
-    context: SiteConfigParser.Context
-  ) => SiteConfigParser.Data[] | Promise<SiteConfigParser.Data[]>
+    context: SiteConfigParserContext
+  ) => SiteConfigParserResult[] | Promise<SiteConfigParserResult[]>
   filepath: string
   days?: number
   lang?: string
@@ -24,128 +25,143 @@ export type SiteConfigProps = {
   debug?: boolean
   output?: string
   channels?: string | string[]
-  request?: Omit<CacheRequestConfig, 'headers' | 'data'> & SiteConfigRequest.Config
-  logo?: ((context: SiteConfigRequest.Context) => string | Promise<string>) | string
+  request?: Omit<CacheRequestConfig, 'headers' | 'data'> & SiteConfigRequestConfig
+  logo?: ((context: SiteConfigRequestContext) => string | Promise<string>) | string
 }
 
-declare namespace SiteConfigRequest {
-  type Data = ArrayBuffer | ArrayBufferView | Blob | FormData | URLSearchParams | string | null
+export type SiteConfigRequestConfigData =
+  | ArrayBuffer
+  | ArrayBufferView
+  | Blob
+  | FormData
+  | URLSearchParams
+  | string
+  | Record<string, unknown>
+  | null
 
-  export type Config = {
-    data?: ((context: SiteConfigRequest.Context) => Data | Promise<Data>) | Data | Promise<Data>
-    headers?:
-      | ((
-          context: SiteConfigRequest.Context
-        ) => Record<string, string> | Promise<Record<string, string>>)
-      | Record<string, string>
-      | Promise<Record<string, string>>
-  }
-
-  export type Context = {
-    channel: Channel
-    date: Dayjs
-  }
+export interface SiteConfigRequestConfig {
+  data?:
+    | ((
+        context: SiteConfigRequestContext
+      ) => SiteConfigRequestConfigData | Promise<SiteConfigRequestConfigData>)
+    | SiteConfigRequestConfigData
+  headers?:
+    | ((
+        context: SiteConfigRequestContext
+      ) => Record<string, string> | Promise<Record<string, string>>)
+    | Record<string, string>
 }
 
-declare namespace SiteConfigParser {
-  export type Context = {
-    content?: string
-    buffer?: Buffer
-    headers?: AxiosResponseHeaders | Partial<AxiosResponseHeaders>
-    request?: CacheRequestConfig
-    cached: boolean
-    channel: Channel
-    config: SiteConfigProps
-    date: Dayjs
-  }
+export interface SiteConfigRequestContext {
+  channel: Channel
+  date: Dayjs
+}
 
-  export type Data = {
-    start?: DateObject
-    stop?: DateObject
-    channel?: string | null
-    title?: TextObject
-    titles?: TextObject
-    subTitles?: TextObject
-    subTitle?: TextObject
-    sub_titles?: TextObject
-    sub_title?: TextObject
-    descriptions?: TextObject
-    description?: TextObject
-    desc?: TextObject
-    date?: DateObject
-    categories?: TextObject
-    category?: TextObject
-    keywords?: TextObject
-    keyword?: TextObject
-    languages?: TextObject
-    language?: TextObject
-    origLanguages?: TextObject
-    origLanguage?: TextObject
-    length?: string | Program.LenghtObject | null
-    urls?: UrlObject
-    url?: UrlObject
-    countries?: TextObject
-    country?: TextObject
-    site?: string | null
-    episodeNumbers?: EpisodeNumberObject
-    episodeNumber?: EpisodeNumberObject
-    episodeNum?: EpisodeNumberObject
-    season?: string | number | null
-    episode?: string | number | null
-    video?: Program.VideoObject | null
-    audio?: Program.AudioObject | null
-    previouslyShown?: Program.PreviouslyShownObject | Program.PreviouslyShownObject[] | null
-    premiere?: string | Program.TextObject | null
-    lastChance?: string | Program.TextObject | null
-    new?: boolean
-    subtitles?: Program.SubtitlesObject | Program.SubtitlesObject[] | null
-    ratings?: Program.RatingObject | Program.RatingObject[] | null
-    rating?: Program.RatingObject | Program.RatingObject[] | null
-    starRatings?: Program.RatingObject | Program.RatingObject[] | null
-    starRating?: Program.RatingObject | Program.RatingObject[] | null
-    reviews?: Program.ReviewObject | Program.ReviewObject[] | null
-    review?: Program.ReviewObject | Program.ReviewObject[] | null
-    directors?: PersonObject
-    director?: PersonObject
-    actors?: PersonObject
-    actor?: PersonObject
-    writers?: PersonObject
-    writer?: PersonObject
-    adapters?: PersonObject
-    adapter?: PersonObject
-    producers?: PersonObject
-    producer?: PersonObject
-    composers?: PersonObject
-    composer?: PersonObject
-    editors?: PersonObject
-    editor?: PersonObject
-    presenters?: PersonObject
-    presenter?: PersonObject
-    commentators?: PersonObject
-    commentator?: PersonObject
-    guests?: PersonObject
-    guest?: PersonObject
-    images?: ImageObject
-    image?: ImageObject
-    icons?: IconObject
-    icon?: IconObject
-  }
+export interface SiteConfigParserContext {
+  content?: string
+  buffer?: Buffer
+  headers?: AxiosResponseHeaders | Partial<AxiosResponseHeaders>
+  request?: CacheRequestConfig
+  cached: boolean
+  channel: Channel
+  config: SiteConfigObject
+  date: Dayjs
+}
 
-  export type DateObject = string | number | Date | Dayjs | null
-  export type TextObject = string | string[] | Program.TextObject | Program.TextObject[] | null
-  export type PersonObject =
-    | string
-    | string[]
-    | Program.PersonObject
-    | Program.PersonObject[]
-    | null
-  export type ImageObject = string | string[] | Program.ImageObject | Program.ImageObject[] | null
-  export type IconObject = string | string[] | Program.IconObject | Program.IconObject[] | null
-  export type EpisodeNumberObject =
-    | string
-    | number
-    | Program.EpisodeNumberObject
-    | Program.EpisodeNumberObject[]
-    | null
-  export type UrlObject = string | string[] | Program.UrlObject | Program.UrlObject[] | null
+type DateObject = string | number | Date | Dayjs | null
+type TextObject = string | ProgramData.TextObject
+type PersonObject =
+  | string
+  | {
+      value: string
+      url?: string | string[] | ProgramData.UrlObject | ProgramData.UrlObject[]
+      image?: string | string[] | ProgramData.ImageObject | ProgramData.ImageObject[]
+    }
+  | ProgramData.PersonObject
+type ImageObject = string | ProgramData.ImageObject
+type IconObject = string | ProgramData.IconObject
+type EpisodeNumberObject = string | number | ProgramData.EpisodeNumberObject
+type UrlObject = string | ProgramData.UrlObject
+type LenghtObject = string | ProgramData.LenghtObject
+type RatingObject =
+  | string
+  | { system?: string; value: string; icon: string | IconObject }
+  | ProgramData.RatingObject
+  | null
+type ReviewObject = ProgramData.ReviewObject
+type VideoObject = ProgramData.VideoObject
+type AudioObject = ProgramData.AudioObject
+type PreviouslyShownObject = ProgramData.PreviouslyShownObject
+type SubtitlesObject = ProgramData.SubtitlesObject
+
+export interface SiteConfigParserResult {
+  start?: DateObject
+  stop?: DateObject
+  channel?: string | null
+  title?: TextObject | TextObject[] | null
+  titles?: TextObject | TextObject[] | null
+  subTitles?: TextObject | TextObject[] | null
+  subTitle?: TextObject | TextObject[] | null
+  sub_titles?: TextObject | TextObject[] | null
+  sub_title?: TextObject | TextObject[] | null
+  descriptions?: TextObject | TextObject[] | null
+  description?: TextObject | TextObject[] | null
+  desc?: TextObject | TextObject[] | null
+  date?: DateObject | null
+  categories?: TextObject | TextObject[] | null
+  category?: TextObject | TextObject[] | null
+  keywords?: TextObject | TextObject[] | null
+  keyword?: TextObject | TextObject[] | null
+  languages?: TextObject | TextObject[] | null
+  language?: TextObject | TextObject[] | null
+  origLanguages?: TextObject | TextObject[] | null
+  origLanguage?: TextObject | TextObject[] | null
+  length?: LenghtObject | LenghtObject[] | null
+  urls?: UrlObject | UrlObject[] | null
+  url?: UrlObject | UrlObject[] | null
+  countries?: TextObject | TextObject[] | null
+  country?: TextObject | TextObject[] | null
+  site?: string | null
+  episodeNumbers?: EpisodeNumberObject | EpisodeNumberObject[] | null
+  episodeNumber?: EpisodeNumberObject | EpisodeNumberObject[] | null
+  episodeNum?: EpisodeNumberObject | EpisodeNumberObject[] | null
+  season?: string | number | null
+  episode?: string | number | null
+  video?: VideoObject | null
+  audio?: AudioObject | null
+  previouslyShown?: PreviouslyShownObject | PreviouslyShownObject[] | null
+  premiere?: TextObject | null
+  lastChance?: TextObject | null
+  new?: boolean
+  subtitles?: SubtitlesObject | SubtitlesObject[] | null
+  ratings?: RatingObject | RatingObject[] | null
+  rating?: RatingObject | RatingObject[] | null
+  starRatings?: RatingObject | RatingObject[] | null
+  starRating?: RatingObject | RatingObject[] | null
+  reviews?: ReviewObject | ReviewObject[] | null
+  review?: ReviewObject | ReviewObject[] | null
+  directors?: PersonObject | PersonObject[] | null
+  director?: PersonObject | PersonObject[] | null
+  actors?: PersonObject | PersonObject[] | null
+  actor?: PersonObject | PersonObject[] | null
+  writers?: PersonObject | PersonObject[] | null
+  writer?: PersonObject | PersonObject[] | null
+  adapters?: PersonObject | PersonObject[] | null
+  adapter?: PersonObject | PersonObject[] | null
+  producers?: PersonObject | PersonObject[] | null
+  producer?: PersonObject | PersonObject[] | null
+  composers?: PersonObject | PersonObject[] | null
+  composer?: PersonObject | PersonObject[] | null
+  editors?: PersonObject | PersonObject[] | null
+  editor?: PersonObject | PersonObject[] | null
+  presenters?: PersonObject | PersonObject[] | null
+  presenter?: PersonObject | PersonObject[] | null
+  commentators?: PersonObject | PersonObject[] | null
+  commentator?: PersonObject | PersonObject[] | null
+  guests?: PersonObject | PersonObject[] | null
+  guest?: PersonObject | PersonObject[] | null
+  images?: ImageObject | ImageObject[] | null
+  image?: ImageObject | ImageObject[] | null
+  icons?: IconObject | IconObject[] | null
+  icon?: IconObject | IconObject[] | null
 }

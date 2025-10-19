@@ -1,20 +1,19 @@
 import { ClientRequestConfig, ClientResponse } from '../types/client'
 import axios, { AxiosHeaders, AxiosRequestConfig } from 'axios'
-import { SiteConfigProps } from '../types/siteConfig'
-import { isObject, isPromise } from '../utils'
 import { CurlGenerator } from 'curl-generator'
+import { isObject, isPromise } from './utils'
+import { Logger } from './logger'
 import {
   AxiosCacheInstance,
   CacheAxiosResponse,
   CacheRequestConfig,
   setupCache
 } from 'axios-cache-interceptor'
-import { Logger } from './logger'
 
 export class Client {
   #instance: AxiosCacheInstance
 
-  constructor(config?: SiteConfigProps, options?: { logger: Logger }) {
+  constructor(options?: { logger: Logger }) {
     const logger = options && options.logger ? options.logger : new Logger()
     const instance = setupCache(axios.create())
 
