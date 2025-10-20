@@ -16,6 +16,7 @@
   "scripts": {
     "cli": "tsx ./src/cli.ts",
     "build": "pkgroll --clean-dist",
+    "dev": "pkgroll --watch",
     "lint": "npx eslint ./src/**/*.ts ./tests/**/*.ts",
     "test": "npx vitest run"
   },
