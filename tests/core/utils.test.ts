@@ -1,5 +1,6 @@
-import { escapeString, parseProxy, sleep } from '../../src/core/utils'
+import { escapeString, getUTCDate, parseProxy, sleep } from '../../src/core/utils'
 import { it, expect, describe, test, vi } from 'vitest'
+import dayjs from 'dayjs'
 
 describe('sleep()', () => {
   it('can be skiped during test', async () => {
@@ -30,5 +31,12 @@ test('parseProxy()', () => {
 
   expect(parseProxy(string)).toMatchObject({
     protocol: 'socks'
+  })
+})
+
+describe('getUTCDate()', () => {
+  it('return original value if it is already UTC date', () => {
+    const date = dayjs.utc('2022-10-20')
+    expect(getUTCDate(date).toJSON()).toBe('2022-10-20T00:00:00.000Z')
   })
 })

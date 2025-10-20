@@ -216,6 +216,66 @@ export class EPGGrabberMock extends EPGGrabber {
     config?: SiteConfigObject | GrabCallback,
     callback?: GrabCallback
   ): Promise<Program[]> {
-    return []
+    if (!callback) callback = () => {}
+    if (typeof config === 'function') {
+      callback = config
+      config = undefined
+    }
+
+    if (!(channel instanceof Channel)) {
+      throw new Error('The first argument must be the "Channel" class')
+    }
+
+    const utcDate = getUTCDate(date)
+
+    try {
+      const configObject = config || this.globalConfig
+      if (!configObject) throw new Error('Site config is missing')
+
+      const siteConfig = new SiteConfig(configObject)
+
+      siteConfig.update(this.globalConfig)
+
+      this.logger.debug(`Config (local): ${JSON.stringify(siteConfig, null, 2)}`)
+
+      siteConfig.validate()
+
+      const requestContext = { channel, date: utcDate, siteConfig }
+
+      await Client.buildRequest(requestContext, { logger: this.logger })
+
+      const response = { cached: false }
+
+      if (!siteConfig.parser) {
+        throw new Error('Could not find parser() in the config file')
+      }
+
+      const parserContext = {
+        ...response,
+        channel,
+        date: utcDate,
+        config: siteConfig
+      }
+      let parsedPrograms = siteConfig.parser(parserContext)
+
+      if (isPromise(parsedPrograms)) {
+        parsedPrograms = await parsedPrograms
+      }
+
+      const programs = await EPGGrabber.parseParserResults(
+        parsedPrograms as SiteConfigParserResult[],
+        channel
+      )
+
+      callback({ channel, date: utcDate, programs }, null)
+
+      return programs
+    } catch (error: unknown) {
+      this.logger.debug(`Error: ${JSON.stringify(error, null, 2)}`)
+
+      callback({ channel, date: utcDate, programs: [] }, error as Error)
+
+      return []
+    }
   }
 }

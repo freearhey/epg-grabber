@@ -1,27 +1,26 @@
-import { ProxyParserResult, XMLElement } from '../types/utils'
+import { XMLElement } from '../types/utils'
 import dayjs, { Dayjs } from 'dayjs'
 import utc from 'dayjs/plugin/utc.js'
 import { URL } from 'node:url'
 import path from 'node:path'
+import { AxiosProxyConfig } from 'axios'
 
 dayjs.extend(utc)
 
-export function parseProxy(proxy: string): ProxyParserResult {
-  const parsed = new URL(proxy)
+export function parseProxy(string: string): AxiosProxyConfig {
+  const parsed = new URL(string)
 
-  const result: ProxyParserResult = {
-    protocol: parsed.protocol.replace(':', '') || null,
+  const proxy: AxiosProxyConfig = {
+    protocol: parsed.protocol.replace(':', ''),
     host: parsed.hostname,
-    port: parsed.port ? parseInt(parsed.port) : null
+    port: parsed.port ? parseInt(parsed.port) : 8080
   }
 
   if (parsed.username || parsed.password) {
-    result.auth = {}
-    if (parsed.username) result.auth.username = parsed.username
-    if (parsed.password) result.auth.password = parsed.password
+    proxy.auth = { username: parsed.username, password: parsed.password }
   }
 
-  return result
+  return proxy
 }
 
 export async function loadJs(filepath: string) {
@@ -50,10 +49,10 @@ export function isPromise(promise: unknown): boolean {
   return promise instanceof Promise
 }
 
-export function getUTCDate(date: string | number | Date | Dayjs | null = null) {
-  if (typeof date === 'string') return dayjs.utc(date).startOf('d')
+export function getUTCDate(date?: string | number | Date | Dayjs | null) {
+  if (dayjs.isDayjs(date) && date.isUTC()) return date
 
-  return dayjs.utc().startOf('d')
+  return dayjs.utc(date).startOf('d')
 }
 
 export function getAbsPath(filepath: string, rootDir: string) {

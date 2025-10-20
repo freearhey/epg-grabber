@@ -25,7 +25,7 @@ export interface SiteConfigObject {
   debug?: boolean
   output?: string
   channels?: string | string[]
-  request?: Omit<CacheRequestConfig, 'headers' | 'data'> & SiteConfigRequestConfig
+  request?: SiteConfigRequestConfig
   logo?: ((context: SiteConfigRequestContext) => string | Promise<string>) | string
 }
 
@@ -39,7 +39,7 @@ export type SiteConfigRequestConfigData =
   | Record<string, unknown>
   | null
 
-export interface SiteConfigRequestConfig {
+export type SiteConfigRequestConfig = Omit<CacheRequestConfig, 'headers' | 'data'> & {
   data?:
     | ((
         context: SiteConfigRequestContext
