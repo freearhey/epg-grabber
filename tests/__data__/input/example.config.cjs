@@ -7,7 +7,7 @@ module.exports = {
   site: 'example.com',
   days: 2,
   channels: 'example.channels.xml',
-  output: 'tests/__data__/output/guide.xml',
+  output: 'tests/__data__/output/example.guide.xml',
   url: () => 'http://example.com/20210319/1tv.json',
   request: {
     method: 'POST',
