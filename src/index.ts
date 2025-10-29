@@ -1,71 +1,42 @@
 import { sleep, getUTCDate, isPromise, isDate, createXMLElement, formatDate } from './core/utils'
-import { SiteConfigOptions, SiteConfigObject, SiteConfigParserResult } from './types/siteConfig'
-import { SiteConfig } from './core/siteConfig'
-import { Collection } from '@freearhey/core'
+import { ProgramParserResult } from './types/program'
+import AxiosMockAdapter from 'axios-mock-adapter'
+import { SiteConfig } from './types/siteConfig'
 import { GrabCallback } from './types/index'
+import defaultConfig from './default.config'
 import { Channel, Program } from './models'
 import { Client } from './core/client'
-import { Logger } from './core/logger'
 import type * as Types from './types'
+import merge from 'lodash.merge'
 import { Dayjs } from 'dayjs'
 import xmlJs from 'xml-js'
-import fs from 'fs-extra'
-import _ from 'lodash'
 
 export { Channel, Program, Types }
 
 export class EPGGrabber {
-  globalConfig?: SiteConfigObject
+  globalConfig: SiteConfig = {}
   client: Client
-  logger: Logger
 
-  constructor(globalConfig?: SiteConfigObject, options?: SiteConfigOptions) {
-    const logger = options && options.logger ? options.logger : new Logger()
-
-    this.globalConfig = globalConfig
-    this.client = new Client({ logger })
-    this.logger = logger
-
-    logger.debug(`Config (global): ${JSON.stringify(globalConfig, null, 2)}`)
-  }
-
-  async loadChannels(config?: SiteConfigObject): Promise<Channel[]> {
-    const configObject = config || this.globalConfig
-
-    if (!configObject) throw new Error('Site config is missing')
-
-    const siteConfig = new SiteConfig(configObject)
-
-    const channels = new Collection<Channel>()
-
-    const files = await siteConfig.getChannelFiles()
-
-    files.forEach((filepath: string) => {
-      const channelsXML = fs.readFileSync(filepath, 'utf8')
-      const channelsFromXML = EPGGrabber.parseChannelsXML(channelsXML)
-      channels.concat(new Collection(channelsFromXML))
-    })
-
-    return channels.all()
+  constructor(config: SiteConfig = {}) {
+    this.globalConfig = merge(defaultConfig, config)
+    this.client = new Client()
   }
 
   async loadLogo(
     channel: Channel,
     date: string | number | Date | Dayjs | null,
-    config?: SiteConfigObject
-  ): Promise<string> {
-    if (!(channel instanceof Channel)) {
+    config: SiteConfig = {}
+  ): Promise<string | null> {
+    if (!(channel instanceof Channel))
       throw new Error('The first argument must be the "Channel" class')
-    }
 
-    const configObject = config || this.globalConfig
+    config = merge(config, this.globalConfig)
 
-    if (!configObject) throw new Error('Site config is missing')
+    if (typeof config.logo !== 'function') return null
 
-    if (!configObject.logo || typeof configObject.logo !== 'function') return ''
+    const requestContext = { channel, date: getUTCDate(date), config }
 
-    const context = { channel, date: getUTCDate(date) }
-    const logo = configObject.logo(context)
+    const logo = config.logo(requestContext)
     if (isPromise(logo)) {
       return await logo
     }
@@ -75,67 +46,60 @@ export class EPGGrabber {
   async grab(
     channel: Channel,
     date: string | number | Date | Dayjs | null,
-    config?: SiteConfigObject | GrabCallback,
-    callback?: GrabCallback
+    config: SiteConfig | GrabCallback = {},
+    callback: GrabCallback = () => {}
   ): Promise<Program[]> {
-    if (!callback) callback = () => {}
+    if (!(channel instanceof Channel))
+      throw new Error('The first argument must be the "Channel" class')
+
     if (typeof config === 'function') {
       callback = config
-      config = undefined
-    }
-
-    if (!(channel instanceof Channel)) {
-      throw new Error('The first argument must be the "Channel" class')
+      config = {}
     }
 
     const utcDate = getUTCDate(date)
+    const requestContext = { channel, date: utcDate, config }
+
+    config = merge(config, this.globalConfig)
+
+    if (!config.parser) throw new Error('Could not find parser() in the config file')
+    if (!config.site) throw new Error("The required 'site' property is missing")
+    if (!config.url) throw new Error("The required 'url' property is missing")
+    if (typeof config.url !== 'function' && typeof config.url !== 'string')
+      throw new Error("The 'url' property should return the function or string")
+    if (!config.parser) throw new Error("The required 'parser' function is missing")
+    if (typeof config.parser !== 'function')
+      throw new Error("The 'parser' property should return the function")
+    if (config.logo && typeof config.logo !== 'function')
+      throw new Error("The 'logo' property should return the function")
 
     try {
-      const configObject = config || this.globalConfig
-      if (!configObject) throw new Error('Site config is missing')
+      if (typeof config.delay === 'number') await sleep(config.delay)
 
-      const siteConfig = new SiteConfig(configObject)
-
-      siteConfig.update(this.globalConfig)
-
-      this.logger.debug(`Config (local): ${JSON.stringify(siteConfig, null, 2)}`)
-
-      siteConfig.validate()
-
-      await sleep(siteConfig.delay)
-
-      const requestContext = { channel, date: utcDate, siteConfig }
-      const request = await Client.buildRequest(requestContext, { logger: this.logger })
+      const request = await Client.buildRequest(requestContext)
 
       const response = await this.client.sendRequest(request)
-
-      if (!siteConfig.parser) {
-        throw new Error('Could not find parser() in the config file')
-      }
 
       const parserContext = {
         ...response,
         channel,
         date: utcDate,
-        config: siteConfig
+        config
       }
-      let parsedPrograms = siteConfig.parser(parserContext)
+      let parsedPrograms = config.parser(parserContext)
 
       if (isPromise(parsedPrograms)) {
         parsedPrograms = await parsedPrograms
       }
 
-      const programs = await EPGGrabber.parseParserResults(
-        parsedPrograms as SiteConfigParserResult[],
-        channel
-      )
+      const programs = (parsedPrograms as ProgramParserResult[])
+        .filter(Boolean)
+        .map((data: ProgramParserResult) => Program.fromParserResult(data, channel))
 
       callback({ channel, date: utcDate, programs }, null)
 
       return programs
     } catch (error: unknown) {
-      this.logger.debug(`Error: ${JSON.stringify(error, null, 2)}`)
-
       callback({ channel, date: utcDate, programs: [] }, error as Error)
 
       return []
@@ -166,19 +130,6 @@ export class EPGGrabber {
       .filter(Boolean)
 
     return channels
-  }
-
-  static async parseParserResults(
-    results: SiteConfigParserResult[],
-    channel: Channel
-  ): Promise<Program[]> {
-    if (!Array.isArray(results)) {
-      throw new Error('Parser should return an array')
-    }
-
-    return results
-      .filter(Boolean)
-      .map((data: SiteConfigParserResult) => Program.fromParserResult(data, channel))
   }
 
   static generateXMLTV(
@@ -213,66 +164,51 @@ export class EPGGrabberMock extends EPGGrabber {
   override async grab(
     channel: Channel,
     date: string | number | Date | Dayjs | null,
-    config?: SiteConfigObject | GrabCallback,
-    callback?: GrabCallback
+    config: SiteConfig | GrabCallback = {},
+    callback: GrabCallback = () => {}
   ): Promise<Program[]> {
-    if (!callback) callback = () => {}
     if (typeof config === 'function') {
       callback = config
-      config = undefined
-    }
-
-    if (!(channel instanceof Channel)) {
-      throw new Error('The first argument must be the "Channel" class')
+      config = {}
     }
 
     const utcDate = getUTCDate(date)
 
+    config = merge(config, this.globalConfig)
+
+    if (!config.parser) throw new Error('Could not find parser() in the config file')
+
+    const requestContext = { channel, date: utcDate, config }
+
     try {
-      const configObject = config || this.globalConfig
-      if (!configObject) throw new Error('Site config is missing')
+      const request = await Client.buildRequest(requestContext)
 
-      const siteConfig = new SiteConfig(configObject)
+      const mock = new AxiosMockAdapter(this.client.instance)
 
-      siteConfig.update(this.globalConfig)
+      mock.onAny().reply(200, Buffer.from(JSON.stringify([]), 'utf8'))
 
-      this.logger.debug(`Config (local): ${JSON.stringify(siteConfig, null, 2)}`)
-
-      siteConfig.validate()
-
-      const requestContext = { channel, date: utcDate, siteConfig }
-
-      await Client.buildRequest(requestContext, { logger: this.logger })
-
-      const response = { cached: false }
-
-      if (!siteConfig.parser) {
-        throw new Error('Could not find parser() in the config file')
-      }
+      const response = await this.client.sendRequest(request)
 
       const parserContext = {
         ...response,
         channel,
         date: utcDate,
-        config: siteConfig
+        config
       }
-      let parsedPrograms = siteConfig.parser(parserContext)
 
+      let parsedPrograms = config.parser(parserContext)
       if (isPromise(parsedPrograms)) {
         parsedPrograms = await parsedPrograms
       }
 
-      const programs = await EPGGrabber.parseParserResults(
-        parsedPrograms as SiteConfigParserResult[],
-        channel
-      )
+      const programs = (parsedPrograms as ProgramParserResult[])
+        .filter(Boolean)
+        .map((data: ProgramParserResult) => Program.fromParserResult(data, channel))
 
       callback({ channel, date: utcDate, programs }, null)
 
       return programs
     } catch (error: unknown) {
-      this.logger.debug(`Error: ${JSON.stringify(error, null, 2)}`)
-
       callback({ channel, date: utcDate, programs: [] }, error as Error)
 
       return []

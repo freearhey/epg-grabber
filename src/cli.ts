@@ -1,24 +1,29 @@
 #! /usr/bin/env node
 
-import { parseNumber, getUTCDate, loadJs, parseProxy } from './core/utils'
+import { parseNumber, getUTCDate, loadJs, parseProxy, isObject, getAbsPath } from './core/utils'
 import { Collection, Dictionary, Template } from '@freearhey/core'
 import { name, version, description } from '../package.json'
+import { CurlBody } from 'curl-generator/dist/bodies/body'
 import { Command, OptionValues, Option } from 'commander'
+import { EPGGrabber, EPGGrabberMock } from './index'
 import { SocksProxyAgent } from 'socks-proxy-agent'
+import { CurlGenerator } from 'curl-generator'
 import { Program, Channel } from './models'
 import { Logger } from './core/logger'
-import { EPGGrabber } from './index'
+import { SiteConfig } from './types'
+import { AxiosHeaders } from 'axios'
 import { TaskQueue } from 'cwait'
+import merge from 'lodash.merge'
 import Promise from 'bluebird'
 import { Dayjs } from 'dayjs'
 import path from 'node:path'
+import { glob } from 'glob'
 import fs from 'fs-extra'
 import pako from 'pako'
-import _ from 'lodash'
 
 const program = new Command()
 
-type QueueItem = {
+interface QueueItem {
   channel: Channel
   date: Dayjs
 }
@@ -30,32 +35,27 @@ program
   .addOption(
     new Option('-c, --config <config>', 'Path to [site].config.js file').makeOptionMandatory()
   )
-  .addOption(new Option('-o, --output <output>', 'Path to output file').default('guide.xml'))
+  .addOption(new Option('-o, --output <output>', 'Path to output file'))
   .addOption(new Option('-x, --proxy <url>', 'Use the specified proxy'))
   .addOption(new Option('--channels <channels>', 'Path to list of channels'))
-  .addOption(new Option('--lang <lang>', 'Set default language for all programs'))
   .addOption(
-    new Option('--days <days>', 'Number of days for which to grab the program')
-      .argParser(parseNumber)
-      .default(1)
+    new Option('--days <days>', 'Number of days for which to grab the program').argParser(
+      parseNumber
+    )
   )
   .addOption(
-    new Option('--delay <delay>', 'Delay between requests (in milliseconds)')
-      .argParser(parseNumber)
-      .default(3000)
+    new Option('--delay <delay>', 'Delay between requests (in milliseconds)').argParser(parseNumber)
   )
   .addOption(
-    new Option('--timeout <timeout>', 'Set a timeout for each request (in milliseconds)')
-      .argParser(parseNumber)
-      .default(5000)
+    new Option('--timeout <timeout>', 'Set a timeout for each request (in milliseconds)').argParser(
+      parseNumber
+    )
   )
   .addOption(
     new Option(
       '--max-connections <maxConnections>',
       'Set a limit on the number of concurrent requests per site'
-    )
-      .argParser(parseNumber)
-      .default(1)
+    ).argParser(parseNumber)
   )
   .addOption(
     new Option(
@@ -63,77 +63,148 @@ program
       'Maximum time for storing each request (in milliseconds)'
     ).argParser(parseNumber)
   )
-  .addOption(new Option('--gzip', 'Compress the output').default(false))
-  .addOption(new Option('--debug', 'Enable debug mode').default(false))
-  .addOption(new Option('--curl', 'Display request as CURL').default(false))
+  .addOption(new Option('--gzip', 'Compress the output'))
+  .addOption(new Option('--debug', 'Enable debug mode'))
+  .addOption(new Option('--curl', 'Display request as CURL'))
   .addOption(new Option('--log <log>', 'Path to log file'))
-  .addOption(new Option('--log-level <level>', 'Set log level').default('info'))
+  .addOption(new Option('--log-level <level>', 'Set log level'))
   .parse(process.argv)
 
 const options: OptionValues = program.opts()
 const logger = new Logger({
   log: options.log,
-  logLevel: options.debug ? 'debug' : options.logLevel
+  logLevel: options.debug === true ? 'debug' : options.logLevel
 })
 
 async function main() {
   logger.info('Starting...')
 
-  logger.debug(`Options: ${JSON.stringify(options, null, 2)}`)
-
   logger.info(`Loading '${options.config}'...`)
-  let configObject = await loadJs(options.config)
+  let config: SiteConfig = await loadJs(options.config)
 
-  configObject = _.merge(configObject, {
-    filepath: path.resolve(options.config),
-    channels: typeof options.channels === 'string' ? path.resolve(options.channels) : undefined,
-    request: {}
-  })
+  config.channels = Array.isArray(config.channels)
+    ? config.channels
+    : typeof config.channels === 'string'
+    ? [config.channels]
+    : []
 
-  if (configObject.output === undefined) configObject.output = options.output
-  if (configObject.days === undefined) configObject.days = options.days
-  if (configObject.delay === undefined) configObject.delay = options.delay
-  if (configObject.curl === undefined) configObject.curl = options.curl
-  if (configObject.debug === undefined) configObject.debug = options.debug
-  if (configObject.gzip === undefined) configObject.gzip = options.gzip
-  if (configObject.maxConnections === undefined)
-    configObject.maxConnections = options.maxConnections
-  if (configObject.request.timeout === undefined) configObject.request.timeout = options.timeout
-  if (options.cacheTtl !== undefined) configObject.request.cache = { ttl: options.cacheTtl }
-
+  if (typeof options.cacheTtl === 'number')
+    config = merge(config, { request: { cache: { ttl: options.cacheTtl } } })
+  if (typeof options.timeout === 'number')
+    config = merge(config, { request: { timeout: options.timeout } })
   if (options.proxy !== undefined) {
     const proxy = parseProxy(options.proxy)
-
     if (
       proxy.protocol &&
       ['socks', 'socks5', 'socks5h', 'socks4', 'socks4a'].includes(String(proxy.protocol))
     ) {
       const socksProxyAgent = new SocksProxyAgent(options.proxy)
-
-      configObject.request = {
-        ...configObject.request,
-        ...{ httpAgent: socksProxyAgent, httpsAgent: socksProxyAgent }
-      }
+      config = merge(config, {
+        request: { httpAgent: socksProxyAgent, httpsAgent: socksProxyAgent }
+      })
     } else {
-      configObject.request = { ...configObject.request, ...{ proxy } }
+      config = merge(config, { request: { proxy } })
     }
   }
 
-  const grabber = new EPGGrabber(configObject, { logger })
+  if (typeof options.channels === 'string') config.channels = await glob(options.channels)
+  if (typeof options.output === 'string') config.output = options.output
+  if (typeof options.days === 'number') config.days = options.days
+  if (typeof options.delay === 'number') config.delay = options.delay
+  if (typeof options.maxConnections === 'number') config.maxConnections = options.maxConnections
+  if (typeof options.debug === 'boolean') config.debug = options.debug
+  if (typeof options.curl === 'boolean') config.curl = options.curl
+  if (typeof options.gzip === 'boolean') config.gzip = options.gzip
 
-  logger.info('Loading channels...')
-  const channels = await grabber.loadChannels()
-  const template = new Template(configObject.output)
+  const grabber =
+    process.env.NODE_ENV === 'test' ? new EPGGrabberMock(config) : new EPGGrabber(config)
+
+  const globalConfig = grabber.globalConfig
+
+  logger.debug(`Config: ${JSON.stringify(globalConfig, null, 2)}`)
+
+  grabber.client.instance.interceptors.request.use(
+    request => {
+      logger.debug(`Request: ${JSON.stringify(request, null, 2)}`)
+      if (globalConfig.curl) {
+        type AllowedMethods =
+          | 'GET'
+          | 'get'
+          | 'POST'
+          | 'post'
+          | 'PUT'
+          | 'put'
+          | 'PATCH'
+          | 'patch'
+          | 'DELETE'
+          | 'delete'
+
+        const headers = request.headers instanceof AxiosHeaders ? request.headers : {}
+        const method = (request.method as AllowedMethods) || 'GET'
+
+        const curl = CurlGenerator({
+          url: request.url || '',
+          method,
+          headers,
+          body: request.data as CurlBody
+        })
+
+        logger.info(curl)
+      }
+
+      return request
+    },
+    error => Promise.reject(error)
+  )
+
+  grabber.client.instance.interceptors.response.use(
+    response => {
+      const data = response.data
+        ? isObject(response.data) || Array.isArray(response.data)
+          ? JSON.stringify(response.data)
+          : response.data.toString()
+        : undefined
+
+      logger.debug(
+        `Response: ${JSON.stringify(
+          {
+            headers: response.headers,
+            data,
+            cached: response.cached
+          },
+          null,
+          2
+        )}`
+      )
+
+      return response
+    },
+    error => Promise.reject(error)
+  )
+
+  if (!Array.isArray(globalConfig.channels) || !globalConfig.channels.length)
+    throw new Error('Path to "*.channels.xml" is missing')
+
+  const channels = new Collection<Channel>()
+  const rootDir = options.channels ? process.cwd() : path.dirname(options.config)
+  globalConfig.channels.forEach((filepath: string) => {
+    const absFilepath = getAbsPath(filepath, rootDir)
+
+    logger.debug(`Loading "${absFilepath}"...`)
+
+    const channelsXML = fs.readFileSync(absFilepath, 'utf8')
+    const channelsFromXML = EPGGrabber.parseChannelsXML(channelsXML)
+    channels.concat(new Collection(channelsFromXML))
+  })
+
+  if (channels.isEmpty()) throw new Error('No channels found')
+
+  if (typeof globalConfig.output !== 'string')
+    throw new Error('The "output" property should return the string')
+
+  const template = new Template(globalConfig.output)
   const variables = template.variables()
-
-  if (!channels.length) {
-    logger.info('No channels found')
-    logger.info('Exit')
-
-    return
-  }
-
-  const groups: Dictionary<Channel[]> = new Collection(channels).groupBy((channel: Channel) => {
+  const groups: Dictionary<Channel[]> = channels.groupBy((channel: Channel) => {
     let groupId = ''
     for (const key in channel) {
       if (variables.includes(key)) {
@@ -146,16 +217,22 @@ async function main() {
   })
 
   logger.info('Processing...')
-  for (let groupId of groups.keys()) {
+  if (typeof globalConfig.days !== 'number')
+    throw new Error('The "days" property should return the number')
+  if (typeof globalConfig.maxConnections !== 'number')
+    throw new Error('The "maxConnections" property should return the number')
+  if (typeof globalConfig.gzip !== 'boolean')
+    throw new Error('The "gzip" property should return the boolean')
+
+  for (const groupId of groups.keys()) {
     const group = groups.get(groupId)
     const groupChannels = new Collection<Channel>(group)
     let programs = new Collection<Program>()
     let index = 1
-    let days = configObject.days
-    const maxConnections = configObject.maxConnections
-    const total = groupChannels.count() * days
+
+    const total = groupChannels.count() * globalConfig.days
     const utcDate = getUTCDate(process.env.CURR_DATE)
-    const dates = Array.from({ length: days }, (_, i) => utcDate.add(i, 'd'))
+    const dates = Array.from({ length: globalConfig.days }, (_, i) => utcDate.add(i, 'd'))
 
     let queue = new Collection<QueueItem>()
     groupChannels.forEach((channel: Channel) => {
@@ -164,12 +241,12 @@ async function main() {
       }
     })
 
-    const taskQueue = new TaskQueue(Promise, maxConnections)
+    const taskQueue = new TaskQueue(Promise, globalConfig.maxConnections)
     const requests = queue.map(
       taskQueue.wrap(async (queueItem: QueueItem) => {
         const { channel, date } = queueItem
 
-        if (!channel.logo && configObject.logo) {
+        if (!channel.logo) {
           channel.logo = await grabber.loadLogo(channel, date)
         }
 
@@ -177,7 +254,7 @@ async function main() {
           const { channel, date, programs } = context
 
           logger.info(
-            `[${index}/${total}] ${configObject.site} - ${
+            `[${index}/${total}] ${channel.site} - ${
               channel.xmltv_id || channel.site_id
             } - ${date.format('MMM D, YYYY')} (${programs.length} programs)`
           )
@@ -193,8 +270,6 @@ async function main() {
 
     await Promise.all(requests.all())
 
-    programs = programs.uniqBy((program: Program) => program.start + program.channel)
-
     const xml = EPGGrabber.generateXMLTV(groupChannels.all(), programs.all(), utcDate)
     const channelSample = groupChannels.sample()
     let outputPath = template.format(channelSample.toObject() as { [key: string]: any })
@@ -202,7 +277,7 @@ async function main() {
 
     fs.mkdirSync(outputDir, { recursive: true })
 
-    if (options.gzip) {
+    if (globalConfig.gzip) {
       const compressed = pako.gzip(xml)
       outputPath = outputPath || 'guide.xml.gz'
       fs.writeFileSync(outputPath, compressed)

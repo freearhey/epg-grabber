@@ -1,13 +1,13 @@
 import { CacheAxiosResponse } from 'axios-cache-interceptor'
-import { SiteConfig } from '../core/siteConfig'
 import { AxiosResponseHeaders } from 'axios'
 import { Channel } from '../models/channel'
+import { SiteConfig } from './siteConfig'
 import { Dayjs } from 'dayjs'
 
-export interface ClientRequestConfig {
+export interface ClientRequestContext {
   channel: Channel
   date: Dayjs
-  siteConfig: SiteConfig
+  config: SiteConfig
 }
 
 export interface ClientResponse {

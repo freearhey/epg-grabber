@@ -1,11 +1,15 @@
 import { XMLElement } from '../types/utils'
-import dayjs, { Dayjs } from 'dayjs'
+import { AxiosProxyConfig } from 'axios'
 import utc from 'dayjs/plugin/utc.js'
+import dayjs, { Dayjs } from 'dayjs'
 import { URL } from 'node:url'
 import path from 'node:path'
-import { AxiosProxyConfig } from 'axios'
 
 dayjs.extend(utc)
+
+export function toUnix(date: string | number | Date | Dayjs): number {
+  return dayjs.utc(date).valueOf()
+}
 
 export function parseProxy(string: string): AxiosProxyConfig {
   const parsed = new URL(string)
@@ -103,8 +107,8 @@ export function toURL(domain: string) {
 
 export function createXMLElement(
   name: string,
-  attrs?: Record<string, string>,
-  children?: XMLElement[]
+  attrs?: Record<string, string | undefined>,
+  children?: (XMLElement | null)[]
 ) {
   return convertXMLElementToString({ name, attrs, children })
 }
@@ -127,6 +131,8 @@ function convertXMLElementToString(elem: XMLElement): string {
   if (children.filter(Boolean).length) {
     let _children = ''
     children.forEach(childElem => {
+      if (!childElem) return
+
       _children += convertXMLElementToString(childElem)
     })
 
@@ -138,7 +144,8 @@ function convertXMLElementToString(elem: XMLElement): string {
   return `<${elem.name}${attrs}/>`
 }
 
-export function toArray(value: unknown): unknown[] {
+export function toArray<Type>(value: Type | Type[] | undefined | null): Type[] {
+  if (value === null || value === undefined) return []
   if (Array.isArray(value)) return value.filter(Boolean)
 
   return [value].filter(Boolean)

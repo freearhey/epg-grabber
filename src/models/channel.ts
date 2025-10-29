@@ -53,13 +53,13 @@ export class Channel {
 
   toXML() {
     const el = createXMLElement
+    const children = [el('display-name', {}, [escapeString(this.name)])]
 
-    return el('channel', { id: this.xmltv_id }, [
-      el('display-name', {}, [escapeString(this.name)]),
-      el('icon', { src: this.logo }, []),
-      el('url', {}, [escapeString(this.url)]),
-      el('lcn', {}, [escapeString(this.lcn)])
-    ])
+    if (this.logo) children.push(el('icon', { src: this.logo }, []))
+    if (this.url) children.push(el('url', {}, [escapeString(this.url)]))
+    if (this.lcn) children.push(el('lcn', {}, [escapeString(this.lcn)]))
+
+    return el('channel', { id: this.xmltv_id }, children)
   }
 
   toObject(): ChannelData {

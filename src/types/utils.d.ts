@@ -1,4 +1,4 @@
 export type XMLElement =
   | string
   | number
-  | { name: string; attrs?: Record<string, string>; children?: XMLElement[] }
+  | { name: string; attrs?: Record<string, string | undefined>; children?: (XMLElement | null)[] }
