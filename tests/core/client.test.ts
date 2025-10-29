@@ -1,4 +1,4 @@
-import { SiteConfig } from '../../src/core/siteConfig'
+import { SiteConfig } from '../../src/types/siteConfig'
 import { expect, describe, test } from 'vitest'
 import { Client } from '../../src/core/client'
 import { Channel } from '../../src/models'
@@ -16,9 +16,8 @@ const channel = new Channel({
   index: -1
 })
 
-const siteConfig = new SiteConfig({
+const config: SiteConfig = {
   site: 'example.com',
-  filepath: 'example.config.js',
   days: 1,
   lang: 'en',
   delay: 3000,
@@ -44,15 +43,16 @@ const siteConfig = new SiteConfig({
         username: 'mikeymike',
         password: 'rapunz3l'
       }
-    }
+    },
+    timeout: 5000
   },
   url: 'http://example.com/20210319/1tv.json',
   parser: () => []
-})
+}
 
 describe('Client', () => {
   test('buildRequest()', async () => {
-    const request = await Client.buildRequest({ channel, date: dayjs(), siteConfig })
+    const request = await Client.buildRequest({ channel, date: dayjs(), config })
 
     expect(request).toMatchObject({
       data: { accountID: '123' },

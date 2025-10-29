@@ -83,16 +83,16 @@ it('can create new Program from Parser data', () => {
       {
         system: 'MPAA',
         value: 'PG',
-        icon: [{ src: 'http://example.com/pg_symbol.png' }]
+        icons: [{ src: 'http://example.com/pg_symbol.png' }]
       }
     ],
-    directors: [{ value: 'Director1', url: [], image: [] }],
+    directors: [{ value: 'Director1', urls: [], images: [] }],
     actors: [
-      { value: 'Actor1', url: [], image: [] },
+      { value: 'Actor1', urls: [], images: [] },
       {
         value: 'Actor2',
-        url: [{ system: '', value: 'http://actor2.com' }],
-        image: [
+        urls: [{ system: '', value: 'http://actor2.com' }],
+        images: [
           { type: '', size: '', orient: '', system: '', value: 'http://actor2.com/image.png' }
         ]
       }
@@ -100,8 +100,8 @@ it('can create new Program from Parser data', () => {
     writers: [
       {
         value: 'Writer1',
-        url: [{ system: 'imdb', value: 'http://imdb.com/p/writer1' }],
-        image: [
+        urls: [{ system: 'imdb', value: 'http://imdb.com/p/writer1' }],
+        images: [
           {
             value: 'https://example.com/image.jpg',
             type: 'person',
@@ -115,11 +115,11 @@ it('can create new Program from Parser data', () => {
     adapters: [
       {
         value: 'Adapter1',
-        url: [
+        urls: [
           { system: '', value: 'http://imdb.com/p/adapter1' },
           { system: '', value: 'http://imdb.com/p/adapter2' }
         ],
-        image: [
+        images: [
           {
             value: 'https://example.com/image1.jpg',
             type: '',
@@ -148,6 +148,7 @@ it('can create new Program from Parser data', () => {
 
 it('can create program from data object', () => {
   const program = new Program({
+    site: 'example.com',
     channel: '1tv',
     titles: [{ value: 'Program 1', lang: 'de' }],
     start: 1616133600000,
@@ -156,10 +157,10 @@ it('can create program from data object', () => {
       {
         system: 'MPAA',
         value: 'PG',
-        icon: [{ src: 'http://example.com/pg_symbol.png' }]
+        icons: [{ src: 'http://example.com/pg_symbol.png', width: '', height: '' }]
       }
     ],
-    actors: [{ value: 'Actor1', url: [], image: [] }]
+    actors: [{ value: 'Actor1', urls: [], images: [] }]
   })
 
   expect(program.toObject()).toMatchObject({
@@ -178,11 +179,11 @@ it('can create program from data object', () => {
       {
         system: 'MPAA',
         value: 'PG',
-        icon: [{ src: 'http://example.com/pg_symbol.png' }]
+        icons: [{ src: 'http://example.com/pg_symbol.png', width: '', height: '' }]
       }
     ],
     directors: [],
-    actors: [{ value: 'Actor1', url: [], image: [] }],
+    actors: [{ value: 'Actor1', urls: [], images: [] }],
     writers: [],
     adapters: [],
     producers: [],

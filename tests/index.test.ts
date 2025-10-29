@@ -3,8 +3,8 @@
  */
 
 import { it, expect, beforeAll, afterAll, afterEach, beforeEach, describe, vi, test } from 'vitest'
-import { SiteConfigObject } from '../src/types/siteConfig'
 import { EPGGrabber, EPGGrabberMock } from '../src/index'
+import { SiteConfig } from '../src/types/siteConfig'
 import * as epgGrabber from '../src/index'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
@@ -29,11 +29,10 @@ describe('EPGGrabber', () => {
     afterEach(() => server.resetHandlers())
 
     it('can use global config', async () => {
-      const config: SiteConfigObject = {
+      const config: SiteConfig = {
         site: 'example.com',
         url: 'http://example.com/20210319/1tv.json',
-        parser: ({ content }) => (content ? JSON.parse(content) : []),
-        filepath: 'example.config.js'
+        parser: ({ content }) => (content ? JSON.parse(content) : [])
       }
 
       const channel = new epgGrabber.Channel({
@@ -66,7 +65,7 @@ describe('EPGGrabber', () => {
         descriptions: [],
         icons: [],
         episodeNumbers: [],
-        date: null,
+        date: 0,
         start: 1616128200000,
         stop: 0,
         urls: [],
@@ -101,11 +100,10 @@ describe('EPGGrabber', () => {
     })
 
     it('can use local configs', async () => {
-      const config: SiteConfigObject = {
+      const config: SiteConfig = {
         site: 'example.com',
         url: 'http://example.com/20210319/1tv.json',
-        parser: ({ content }) => (content ? JSON.parse(content) : []),
-        filepath: 'example.config.js'
+        parser: ({ content }) => (content ? JSON.parse(content) : [])
       }
 
       const channel = new epgGrabber.Channel({
@@ -138,34 +136,13 @@ describe('EPGGrabber', () => {
     })
   })
 
-  describe('loadChannels()', () => {
-    it('can load channels from xml files', async () => {
-      const config: SiteConfigObject = {
-        site: 'example.com',
-        channels: ['example.channels.xml', 'example_2.channels.xml'],
-        url: 'http://example.com/20210319/1tv.json',
-        parser: ({ content }) => (content ? JSON.parse(content) : []),
-        filepath: 'tests/__data__/input/example.config.js'
-      }
-
-      const grabber = new EPGGrabber()
-      const channels = await grabber.loadChannels(config)
-
-      expect(channels.length).toBe(4)
-      expect(channels[0]).toMatchObject({
-        xmltv_id: '1TV.com'
-      })
-    })
-  })
-
   describe('loadLogo()', () => {
     it('can load logo for channel', async () => {
-      const config: SiteConfigObject = {
+      const config: SiteConfig = {
         site: 'example.com',
         url: 'http://example.com/20210319/1tv.json',
         parser: ({ content }) => (content ? JSON.parse(content) : []),
-        logo: ({ channel }) => `https://example.com/logos/${channel.xmltv_id}`,
-        filepath: 'tests/__data__/input/example.config.js'
+        logo: ({ channel }) => `https://example.com/logos/${channel.xmltv_id}`
       }
 
       const channel = new epgGrabber.Channel({
@@ -184,40 +161,6 @@ describe('EPGGrabber', () => {
       const logo = await grabber.loadLogo(channel, '2022-01-01', config)
 
       expect(logo).toBe('https://example.com/logos/1TV.fr')
-    })
-  })
-
-  describe('parseParserResults()', () => {
-    it('can parse parser results', async () => {
-      const channel = new epgGrabber.Channel({
-        xmltv_id: '1TV.co',
-        name: '1TV',
-        site: 'example.com',
-        site_id: '#',
-        lang: null,
-        logo: null,
-        lcn: null,
-        url: null,
-        index: -1
-      })
-
-      const results = [
-        {
-          title: 'Program1',
-          start: 1640995200000,
-          stop: 1640998800000
-        }
-      ]
-
-      const programs = await EPGGrabber.parseParserResults(results, channel)
-
-      expect(programs.length).toBe(1)
-      expect(programs[0]).toMatchObject({
-        channel: '1TV.co',
-        start: 1640995200000,
-        stop: 1640998800000,
-        titles: [{ value: 'Program1' }]
-      })
     })
   })
 
@@ -352,13 +295,14 @@ describe('EPGGrabber', () => {
     it('can generate xmltv', () => {
       const programs = [
         new epgGrabber.Program({
+          site: 'example.com',
           channel: '1TV.co',
-          start: '2021-03-19T06:00:00.000Z',
-          stop: '2021-03-19T06:30:00.000Z',
+          start: 1616133600000,
+          stop: 1616135400000,
           titles: [{ value: 'Program 1' }],
           subTitles: [{ value: 'Sub-title & 1' }],
           descriptions: [{ value: 'Description for Program 1' }],
-          date: '2022-05-06',
+          date: 1651795200000,
           categories: [{ value: 'Test' }],
           keywords: [
             { lang: 'en', value: 'physical-comedy' },
@@ -395,18 +339,19 @@ describe('EPGGrabber', () => {
             {
               system: 'MPAA',
               value: 'P&G',
-              icon: [{ src: 'http://example.com/pg_symbol.png' }]
+              icons: [{ src: 'http://example.com/pg_symbol.png' }]
             }
           ],
           starRatings: [
             {
               system: 'TV Guide',
               value: '4/5',
-              icon: [{ src: 'stars.png' }]
+              icons: [{ src: 'stars.png' }]
             },
             {
               system: 'IMDB',
-              value: '8/10'
+              value: '8/10',
+              icons: []
             }
           ],
           reviews: [
@@ -435,8 +380,8 @@ describe('EPGGrabber', () => {
           directors: [
             {
               value: 'Director 1',
-              url: { value: 'http://example.com/director1.html', system: 'TestSystem' },
-              image: [
+              urls: [{ value: 'http://example.com/director1.html', system: 'TestSystem' }],
+              images: [
                 { value: 'https://example.com/image1.jpg' },
                 {
                   value: 'https://example.com/image2.jpg',
@@ -448,11 +393,16 @@ describe('EPGGrabber', () => {
               ]
             },
             {
-              value: 'Director 2'
+              value: 'Director 2',
+              urls: [],
+              images: []
             }
           ],
-          actors: [{ value: 'Actor 1' }, { value: 'Actor 2' }],
-          writers: [{ value: 'Writer 1' }],
+          actors: [
+            { value: 'Actor 1', urls: [], images: [] },
+            { value: 'Actor 2', urls: [], images: [] }
+          ],
+          writers: [{ value: 'Writer 1', urls: [], images: [] }],
           images: [
             {
               type: 'poster',
@@ -486,10 +436,11 @@ describe('EPGGrabber', () => {
           icons: [{ src: 'https://example.com/images/Program1.png?x=шеллы&sid=777' }]
         }),
         new epgGrabber.Program({
+          site: 'example.com',
           channel: '2TV.co',
           titles: [{ lang: 'es', value: 'Program 2' }],
-          start: '2021-03-19T06:00:00.000Z',
-          stop: '2021-03-19T06:30:00.000Z'
+          start: 1616133600000,
+          stop: 1616135400000
         })
       ]
 
@@ -504,11 +455,10 @@ describe('EPGGrabber', () => {
 
 describe('EPGGrabberMock', () => {
   test('grab()', async () => {
-    const config: SiteConfigObject = {
+    const config: SiteConfig = {
       site: 'example.com',
       url: 'http://example.com/20210319/1tv.json',
-      parser: ({ content }) => (content ? JSON.parse(content) : []),
-      filepath: 'example.config.js'
+      parser: ({ content }) => (content ? JSON.parse(content) : [])
     }
 
     const channel = new epgGrabber.Channel({
