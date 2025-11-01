@@ -18,7 +18,7 @@ export class EPGGrabber {
   client: Client
 
   constructor(config: SiteConfig = {}) {
-    this.globalConfig = merge(defaultConfig, config)
+    this.globalConfig = config
     this.client = new Client()
   }
 
@@ -30,7 +30,7 @@ export class EPGGrabber {
     if (!(channel instanceof Channel))
       throw new Error('The first argument must be the "Channel" class')
 
-    config = merge(config, this.globalConfig)
+    config = merge(defaultConfig, config, this.globalConfig)
 
     if (typeof config.logo !== 'function') return null
 
@@ -58,9 +58,8 @@ export class EPGGrabber {
     }
 
     const utcDate = getUTCDate(date)
-    const requestContext = { channel, date: utcDate, config }
 
-    config = merge(config, this.globalConfig)
+    config = merge(defaultConfig, config, this.globalConfig)
 
     if (!config.parser) throw new Error('Could not find parser() in the config file')
     if (!config.site) throw new Error("The required 'site' property is missing")
@@ -75,6 +74,8 @@ export class EPGGrabber {
 
     try {
       if (typeof config.delay === 'number') await sleep(config.delay)
+
+      const requestContext = { channel, date: utcDate, config }
 
       const request = await Client.buildRequest(requestContext)
 
@@ -174,13 +175,13 @@ export class EPGGrabberMock extends EPGGrabber {
 
     const utcDate = getUTCDate(date)
 
-    config = merge(config, this.globalConfig)
+    config = merge(defaultConfig, config, this.globalConfig)
 
     if (!config.parser) throw new Error('Could not find parser() in the config file')
 
-    const requestContext = { channel, date: utcDate, config }
-
     try {
+      const requestContext = { channel, date: utcDate, config }
+
       const request = await Client.buildRequest(requestContext)
 
       const mock = new AxiosMockAdapter(this.client.instance)
