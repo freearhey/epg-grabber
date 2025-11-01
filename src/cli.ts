@@ -8,6 +8,7 @@ import { Command, OptionValues, Option } from 'commander'
 import { EPGGrabber, EPGGrabberMock } from './index'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import { CurlGenerator } from 'curl-generator'
+import defaultConfig from './default.config'
 import { Program, Channel } from './models'
 import { Logger } from './core/logger'
 import { SiteConfig } from './types'
@@ -116,17 +117,17 @@ async function main() {
   if (typeof options.curl === 'boolean') config.curl = options.curl
   if (typeof options.gzip === 'boolean') config.gzip = options.gzip
 
+  logger.debug(`Config: ${JSON.stringify(config, null, 2)}`)
+
   const grabber =
     process.env.NODE_ENV === 'test' ? new EPGGrabberMock(config) : new EPGGrabber(config)
-
-  const globalConfig = grabber.globalConfig
-
-  logger.debug(`Config: ${JSON.stringify(globalConfig, null, 2)}`)
 
   grabber.client.instance.interceptors.request.use(
     request => {
       logger.debug(`Request: ${JSON.stringify(request, null, 2)}`)
-      if (globalConfig.curl) {
+
+      const curl = config.curl || defaultConfig.curl
+      if (curl) {
         type AllowedMethods =
           | 'GET'
           | 'get'
@@ -139,15 +140,14 @@ async function main() {
           | 'DELETE'
           | 'delete'
 
-        const headers = request.headers instanceof AxiosHeaders ? request.headers : {}
-        const method = (request.method as AllowedMethods) || 'GET'
+        const url = request.url || ''
+        const method = request.method ? (request.method as AllowedMethods) : 'GET'
+        const headers = request.headers
+          ? (request.headers.toJSON() as Record<string, string>)
+          : undefined
+        const body = request.data ? (request.data as CurlBody) : undefined
 
-        const curl = CurlGenerator({
-          url: request.url || '',
-          method,
-          headers,
-          body: request.data as CurlBody
-        })
+        const curl = CurlGenerator({ url, method, headers, body })
 
         logger.info(curl)
       }
@@ -182,12 +182,12 @@ async function main() {
     error => Promise.reject(error)
   )
 
-  if (!Array.isArray(globalConfig.channels) || !globalConfig.channels.length)
+  if (!Array.isArray(config.channels) || !config.channels.length)
     throw new Error('Path to "*.channels.xml" is missing')
 
   const channels = new Collection<Channel>()
   const rootDir = options.channels ? process.cwd() : path.dirname(options.config)
-  globalConfig.channels.forEach((filepath: string) => {
+  config.channels.forEach((filepath: string) => {
     const absFilepath = getAbsPath(filepath, rootDir)
 
     logger.debug(`Loading "${absFilepath}"...`)
@@ -199,10 +199,12 @@ async function main() {
 
   if (channels.isEmpty()) throw new Error('No channels found')
 
-  if (typeof globalConfig.output !== 'string')
-    throw new Error('The "output" property should return the string')
-
-  const template = new Template(globalConfig.output)
+  const days = config.days || defaultConfig.days
+  const maxConnections = config.maxConnections || defaultConfig.maxConnections
+  const gzip = config.gzip || defaultConfig.gzip
+  const defaultOutput = gzip ? defaultConfig.output + '.gz' : defaultConfig.output
+  const output = config.output || defaultOutput
+  const template = new Template(output)
   const variables = template.variables()
   const groups: Dictionary<Channel[]> = channels.groupBy((channel: Channel) => {
     let groupId = ''
@@ -217,22 +219,15 @@ async function main() {
   })
 
   logger.info('Processing...')
-  if (typeof globalConfig.days !== 'number')
-    throw new Error('The "days" property should return the number')
-  if (typeof globalConfig.maxConnections !== 'number')
-    throw new Error('The "maxConnections" property should return the number')
-  if (typeof globalConfig.gzip !== 'boolean')
-    throw new Error('The "gzip" property should return the boolean')
-
   for (const groupId of groups.keys()) {
     const group = groups.get(groupId)
     const groupChannels = new Collection<Channel>(group)
     let programs = new Collection<Program>()
     let index = 1
 
-    const total = groupChannels.count() * globalConfig.days
+    const total = groupChannels.count() * days
     const utcDate = getUTCDate(process.env.CURR_DATE)
-    const dates = Array.from({ length: globalConfig.days }, (_, i) => utcDate.add(i, 'd'))
+    const dates = Array.from({ length: days }, (_, i) => utcDate.add(i, 'd'))
 
     let queue = new Collection<QueueItem>()
     groupChannels.forEach((channel: Channel) => {
@@ -241,7 +236,7 @@ async function main() {
       }
     })
 
-    const taskQueue = new TaskQueue(Promise, globalConfig.maxConnections)
+    const taskQueue = new TaskQueue(Promise, maxConnections)
     const requests = queue.map(
       taskQueue.wrap(async (queueItem: QueueItem) => {
         const { channel, date } = queueItem
@@ -277,12 +272,10 @@ async function main() {
 
     fs.mkdirSync(outputDir, { recursive: true })
 
-    if (globalConfig.gzip) {
+    if (gzip) {
       const compressed = pako.gzip(xml)
-      outputPath = outputPath || 'guide.xml.gz'
       fs.writeFileSync(outputPath, compressed)
     } else {
-      outputPath = outputPath || 'guide.xml'
       fs.writeFileSync(outputPath, xml)
     }
 
