@@ -18,30 +18,22 @@ it('can load config', () => {
   )
 
   expect(stdout).contains(`{
+  "site": "example.com",
   "days": 2,
-  "delay": 0,
-  "output": "tests/__data__/output/example.guide.xml",
   "channels": [
     "example.channels.xml"
   ],
+  "output": "tests/__data__/output/example.guide.xml",
   "request": {
     "method": "POST",
-    "maxContentLength": 5242880,
-    "timeout": 1,
-    "withCredentials": true,
-    "responseType": "arraybuffer",
-    "cache": false,
     "headers": {
-      "User-Agent": "EPGGrabber/0.44.0 (https://github.com/freearhey/epg-grabber)",
       "Content-Type": "application/json",
       "Cookie": "abc=123"
-    }
+    },
+    "timeout": 1
   },
-  "maxConnections": 1,
-  "curl": false,
-  "debug": true,
-  "gzip": false,
-  "site": "example.com"
+  "delay": 0,
+  "debug": true
 }`)
   expect(stdout).contains("File 'tests/__data__/output/example.guide.xml' successfully saved")
   expect(content('tests/__data__/output/example.guide.xml')).toEqual(
@@ -66,22 +58,13 @@ it('can load mini config', () => {
   )
 
   expect(stdout).contains(`{
-  "days": 3,
-  "delay": 0,
-  "output": "tests/__data__/output/mini.guide.xml",
+  "site": "example.com",
+  "url": "http://example.com/20210319/1tv.json",
   "channels": [
     "tests/__data__/input/example.channels.xml"
   ],
   "request": {
-    "method": "GET",
-    "maxContentLength": 5242880,
     "timeout": 1,
-    "withCredentials": true,
-    "responseType": "arraybuffer",
-    "cache": false,
-    "headers": {
-      "User-Agent": "EPGGrabber/0.44.0 (https://github.com/freearhey/epg-grabber)"
-    },
     "httpAgent": {
       "_events": {},
       "_eventsCount": 2,
@@ -135,12 +118,10 @@ it('can load mini config', () => {
       "socketOptions": null
     }
   },
-  "maxConnections": 1,
-  "curl": false,
-  "debug": true,
-  "gzip": false,
-  "site": "example.com",
-  "url": "http://example.com/20210319/1tv.json"
+  "output": "tests/__data__/output/mini.guide.xml",
+  "days": 3,
+  "delay": 0,
+  "debug": true
 }`)
   expect(stdout).contains("File 'tests/__data__/output/mini.guide.xml' successfully saved")
   expect(content('tests/__data__/output/mini.guide.xml')).toEqual(
@@ -164,29 +145,18 @@ it('can generate gzip version', () => {
   )
 
   expect(stdout).contains(`{
-  "days": 1,
-  "delay": 0,
-  "output": "tests/__data__/output/mini.guide.xml.gz",
+  "site": "example.com",
+  "url": "http://example.com/20210319/1tv.json",
   "channels": [
     "tests/__data__/input/example.channels.xml"
   ],
   "request": {
-    "method": "GET",
-    "maxContentLength": 5242880,
-    "timeout": 1,
-    "withCredentials": true,
-    "responseType": "arraybuffer",
-    "cache": false,
-    "headers": {
-      "User-Agent": "EPGGrabber/0.44.0 (https://github.com/freearhey/epg-grabber)"
-    }
+    "timeout": 1
   },
-  "maxConnections": 1,
-  "curl": false,
+  "output": "tests/__data__/output/mini.guide.xml.gz",
+  "delay": 0,
   "debug": true,
-  "gzip": true,
-  "site": "example.com",
-  "url": "http://example.com/20210319/1tv.json"
+  "gzip": true
 }`)
   expect(stdout).contains("File 'tests/__data__/output/mini.guide.xml.gz' successfully saved")
   expect(fs.readFileSync('tests/__data__/output/mini.guide.xml.gz')).toEqual(
@@ -209,29 +179,17 @@ it('can produce multiple outputs', () => {
   )
 
   expect(stdout).contains(`{
-  "days": 1,
-  "delay": 0,
-  "output": "tests/__data__/output/{lang}/{xmltv_id}.xml",
+  "site": "example.com",
+  "url": "http://example.com/20210319/1tv.json",
   "channels": [
     "tests/__data__/input/example.channels.xml"
   ],
   "request": {
-    "method": "GET",
-    "maxContentLength": 5242880,
-    "timeout": 1,
-    "withCredentials": true,
-    "responseType": "arraybuffer",
-    "cache": false,
-    "headers": {
-      "User-Agent": "EPGGrabber/0.44.0 (https://github.com/freearhey/epg-grabber)"
-    }
+    "timeout": 1
   },
-  "maxConnections": 1,
-  "curl": false,
-  "debug": true,
-  "gzip": false,
-  "site": "example.com",
-  "url": "http://example.com/20210319/1tv.json"
+  "output": "tests/__data__/output/{lang}/{xmltv_id}.xml",
+  "delay": 0,
+  "debug": true
 }`)
   expect(stdout).contains("File 'tests/__data__/output/fr/1TV.com.xml' successfully saved")
   expect(stdout).contains("File 'tests/__data__/output/undefined/2TV.com.xml' successfully saved")
@@ -252,31 +210,23 @@ it('can load multiple "*.channels.xml" files at once', () => {
   )
 
   expect(stdout).contains(`{
+  "site": "example.com",
   "days": 2,
-  "delay": 0,
-  "output": "tests/__data__/output/wildcard.guide.xml",
   "channels": [
     "tests/__data__/input/example_3.channels.xml",
     "tests/__data__/input/example_2.channels.xml"
   ],
+  "output": "tests/__data__/output/wildcard.guide.xml",
   "request": {
     "method": "POST",
-    "maxContentLength": 5242880,
-    "timeout": 1,
-    "withCredentials": true,
-    "responseType": "arraybuffer",
-    "cache": false,
     "headers": {
-      "User-Agent": "EPGGrabber/0.44.0 (https://github.com/freearhey/epg-grabber)",
       "Content-Type": "application/json",
       "Cookie": "abc=123"
-    }
+    },
+    "timeout": 1
   },
-  "maxConnections": 1,
-  "curl": false,
-  "debug": true,
-  "gzip": false,
-  "site": "example.com"
+  "delay": 0,
+  "debug": true
 }`)
   expect(stdout).contains("File 'tests/__data__/output/wildcard.guide.xml' successfully saved")
   expect(content('tests/__data__/output/wildcard.guide.xml')).toEqual(
@@ -293,31 +243,23 @@ it('can parse list of "*.channels.xml" from array', () => {
   )
 
   expect(stdout).contains(`{
+  "site": "example.com",
   "days": 2,
-  "delay": 0,
-  "output": "tests/__data__/output/channels_array.guide.xml",
   "channels": [
     "example_2.channels.xml",
     "example_3.channels.xml"
   ],
+  "output": "tests/__data__/output/channels_array.guide.xml",
   "request": {
     "method": "POST",
-    "maxContentLength": 5242880,
-    "timeout": 1,
-    "withCredentials": true,
-    "responseType": "arraybuffer",
-    "cache": false,
     "headers": {
-      "User-Agent": "EPGGrabber/0.44.0 (https://github.com/freearhey/epg-grabber)",
       "Content-Type": "application/json",
       "Cookie": "abc=123"
-    }
+    },
+    "timeout": 1
   },
-  "maxConnections": 1,
-  "curl": false,
-  "debug": true,
-  "gzip": false,
-  "site": "example.com"
+  "delay": 0,
+  "debug": true
 }`)
   expect(stdout).contains(
     "File 'tests/__data__/output/channels_array.guide.xml' successfully saved"
