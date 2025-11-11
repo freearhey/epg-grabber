@@ -30,7 +30,7 @@ export class EPGGrabber {
     if (!(channel instanceof Channel))
       throw new Error('The first argument must be the "Channel" class')
 
-    config = merge(defaultConfig, config, this.globalConfig)
+    config = merge({}, defaultConfig, config, this.globalConfig)
 
     if (typeof config.logo !== 'function') return null
 
@@ -59,7 +59,7 @@ export class EPGGrabber {
 
     const utcDate = getUTCDate(date)
 
-    config = merge(defaultConfig, config, this.globalConfig)
+    config = merge({}, defaultConfig, config, this.globalConfig)
 
     if (!config.parser) throw new Error('Could not find parser() in the config file')
     if (!config.site) throw new Error("The required 'site' property is missing")
@@ -175,7 +175,7 @@ export class EPGGrabberMock extends EPGGrabber {
 
     const utcDate = getUTCDate(date)
 
-    config = merge(defaultConfig, config, this.globalConfig)
+    config = merge({}, defaultConfig, config, this.globalConfig)
 
     if (!config.parser) throw new Error('Could not find parser() in the config file')
 
