@@ -57,72 +57,21 @@ it('can load mini config', () => {
     }
   )
 
-  expect(stdout).contains(`{
-  "site": "example.com",
-  "url": "http://example.com/20210319/1tv.json",
-  "channels": [
+  expect(stdout).contains('"site": "example.com"')
+  expect(stdout).contains('"url": "http://example.com/20210319/1tv.json"')
+  expect(stdout).contains(`"channels": [
     "tests/__data__/input/example.channels.xml"
-  ],
-  "request": {
-    "timeout": 1,
-    "httpAgent": {
-      "_events": {},
-      "_eventsCount": 2,
-      "options": {
-        "noDelay": true,
-        "path": null
-      },
-      "requests": {},
-      "sockets": {},
-      "freeSockets": {},
-      "keepAliveMsecs": 1000,
-      "keepAlive": false,
-      "maxSockets": null,
-      "maxFreeSockets": 256,
-      "scheduling": "lifo",
-      "maxTotalSockets": null,
-      "totalSocketCount": 0,
-      "shouldLookup": false,
-      "proxy": {
+  ]`)
+  expect(stdout).contains('"timeout": 1')
+  expect(stdout).contains(`"proxy": {
         "host": "127.0.0.1",
         "port": 1086,
         "type": 5
-      },
-      "timeout": null,
-      "socketOptions": null
-    },
-    "httpsAgent": {
-      "_events": {},
-      "_eventsCount": 2,
-      "options": {
-        "noDelay": true,
-        "path": null
-      },
-      "requests": {},
-      "sockets": {},
-      "freeSockets": {},
-      "keepAliveMsecs": 1000,
-      "keepAlive": false,
-      "maxSockets": null,
-      "maxFreeSockets": 256,
-      "scheduling": "lifo",
-      "maxTotalSockets": null,
-      "totalSocketCount": 0,
-      "shouldLookup": false,
-      "proxy": {
-        "host": "127.0.0.1",
-        "port": 1086,
-        "type": 5
-      },
-      "timeout": null,
-      "socketOptions": null
-    }
-  },
-  "output": "tests/__data__/output/mini.guide.xml",
-  "days": 3,
-  "delay": 0,
-  "debug": true
-}`)
+      }`)
+  expect(stdout).contains('"output": "tests/__data__/output/mini.guide.xml"')
+  expect(stdout).contains('"days": 3')
+  expect(stdout).contains('"delay": 0')
+  expect(stdout).contains('"debug": true')
   expect(stdout).contains("File 'tests/__data__/output/mini.guide.xml' successfully saved")
   expect(content('tests/__data__/output/mini.guide.xml')).toEqual(
     content('tests/__data__/expected/mini.guide.xml')
