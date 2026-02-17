@@ -8,61 +8,6 @@ Node.js CLI tool for grabbing EPG from different websites.
 npm install -g epg-grabber
 ```
 
-## Quick Start
-
-```sh
-epg-grabber --config=example.com.config.js
-```
-
-#### example.com.config.js
-
-```js
-module.exports = {
-  site: 'example.com',
-  channels: 'example.com.channels.xml',
-  url: function (context) {
-    const { date, channel } = context
-
-    return `https://api.example.com/${date.format('YYYY-MM-DD')}/channel/${channel.site_id}`
-  },
-  parser: function (context) {
-    const programs = JSON.parse(context.content)
-
-    return programs.map(program => {
-      return {
-        title: program.title,
-        start: program.start,
-        stop: program.stop
-      }
-    })
-  }
-}
-```
-
-#### example.com.channels.xml
-
-```xml
-<?xml version="1.0" ?>
-<channels site="example.com">
-  <channel site_id="cnn-23" xmltv_id="CNN.us">CNN</channel>
-</channels>
-```
-
-## Example Output
-
-```xml
-<tv>
-  <channel id="CNN.us">
-    <display-name>CNN</display-name>
-    <url>https://example.com</url>
-  </channel>
-  <programme start="20211116040000 +0000" stop="20211116050000 +0000" channel="CNN.us">
-    <title lang="en">News at 10PM</title>
-  </programme>
-  // ...
-</tv>
-```
-
 ## CLI
 
 ```sh
@@ -86,7 +31,15 @@ Arguments:
 - `--log`: path to log file (optional)
 - `--log-level`: set the log level (default: `info`)
 
-## Site Config
+## How to use?
+
+First, you need to create two files:
+
+<details>
+<summary>example.com.config.js</summary>
+<br>
+
+This file describes what kind of request we need to send to get the guide for a particular channel on a certain date and how to parse the response.
 
 ```js
 module.exports = {
@@ -182,14 +135,14 @@ module.exports = {
 }
 ```
 
-## Request Context Object
+### Request Context Object
 
 Inside `url()`, `logo()`, `request.data()`, `request.headers()` functions in `config.js` you can access a `context` object containing the following data:
 
 - `channel`: The object describing the current channel (xmltv_id, site_id, name, lang)
 - `date`: The 'dayjs' instance with the requested date
 
-## Parser Context Object
+### Parser Context Object
 
 Inside `parser()` function in `config.js` you can access a `context` object containing the following data:
 
@@ -201,7 +154,7 @@ Inside `parser()` function in `config.js` you can access a `context` object cont
 - `request`: The request config
 - `cached`: A boolean to check whether this request was cached or not
 
-## Program Object
+### Program Object
 
 | Property        | Aliases                          | Type                                             | Required |
 | --------------- | -------------------------------- | ------------------------------------------------ | -------- |
@@ -371,7 +324,13 @@ Example:
 }
 ```
 
-## Channels List
+</details>
+
+<details>
+<summary>example.com.channels.xml</summary>
+<br>
+
+This file contains a list of channels available at the source.
 
 ```xml
 <?xml version="1.0" ?>
@@ -394,6 +353,29 @@ You can also specify the language, site, url, logo and LCN (Logical Channel Numb
   lcn="36"
 >France 24</channel>
 ```
+
+</details>
+
+After that, you just need to run the grabber with path to the config file:
+
+```sh
+epg-grabber --config=path/to/example.com.config.js
+```
+
+And when the download is complete, a ready-to-use guide will appear in the location you specified:
+
+  ```xml
+  <tv>
+    <channel id="CNN.us">
+      <display-name>CNN</display-name>
+      <url>https://example.com</url>
+    </channel>
+    <programme start="20211116040000 +0000" stop="20211116050000 +0000" channel="CNN.us">
+      <title lang="en">News at 10PM</title>
+    </programme>
+    // ...
+  </tv>
+  ```
 
 ## How to use SOCKS proxy?
 
