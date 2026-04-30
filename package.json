@@ -34,7 +34,7 @@
     "url": "https://github.com/freearhey/epg-grabber.git"
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=20.20.0"
   },
   "dependencies": {
     "@freearhey/core": "^0.14.0",
@@ -70,5 +70,8 @@
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.44.1",
     "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "esbuild": "0.23.1"
   }
 }
