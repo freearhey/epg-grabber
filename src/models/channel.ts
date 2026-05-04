@@ -1,4 +1,4 @@
-import { toURL, escapeString, createXMLElement } from '../core/utils'
+import { escapeString, createXMLElement } from '../core/utils'
 import { ChannelData } from '../types/channel'
 import xmlJs from 'xml-js'
 
@@ -20,7 +20,7 @@ export class Channel {
     this.site_id = data.site_id
     this.lang = data.lang
     this.logo = data.logo
-    this.url = data.url || toURL(data.site)
+    this.url = data.url
     this.lcn = data.lcn
     this.index = data.index !== undefined ? data.index : -1
   }
