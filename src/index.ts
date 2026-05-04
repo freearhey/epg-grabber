@@ -1,4 +1,4 @@
-import { sleep, getUTCDate, isPromise, isDate, createXMLElement, formatDate } from './core/utils'
+import { sleep, getUTCDate, isPromise, createXMLElement } from './core/utils'
 import { ProgramParserResult } from './types/program'
 import AxiosMockAdapter from 'axios-mock-adapter'
 import { SiteConfig } from './types/siteConfig'
@@ -136,7 +136,7 @@ export class EPGGrabber {
   static generateXMLTV(
     channels: Channel[],
     programs: Program[],
-    date: Dayjs = getUTCDate()
+    headers?: Record<string, string>
   ): string {
     if (!channels.every((channel: Channel) => channel instanceof Channel)) {
       throw new Error('"channels" must be an array of Channels')
@@ -146,12 +146,8 @@ export class EPGGrabber {
       throw new Error('"programs" must be an array of Programs')
     }
 
-    if (!isDate(date)) {
-      throw new Error('"date" must be a valid date')
-    }
-
     let output = `<?xml version="1.0" encoding="UTF-8" ?>`
-    output += createXMLElement('tv', { date: formatDate(date, 'YYYYMMDD') }, [
+    output += createXMLElement('tv', headers, [
       ...channels.map((channel: Channel) => '\r\n' + channel.toXML()),
       ...programs.map((program: Program) => '\r\n' + program.toXML()),
       '\r\n'
