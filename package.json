@@ -18,7 +18,8 @@
     "build": "pkgroll --clean-dist",
     "dev": "pkgroll --watch",
     "lint": "npx eslint ./src/**/*.ts ./tests/**/*.ts",
-    "test": "npx vitest run"
+    "test": "npx vitest run",
+    "prepublishOnly": "npm run build"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
