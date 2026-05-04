@@ -12,7 +12,6 @@ import defaultConfig from './default.config'
 import { Program, Channel } from './models'
 import { Logger } from './core/logger'
 import { SiteConfig } from './types'
-import { AxiosHeaders } from 'axios'
 import { TaskQueue } from 'cwait'
 import merge from 'lodash.merge'
 import Promise from 'bluebird'
@@ -265,7 +264,8 @@ async function main() {
 
     await Promise.all(requests.all())
 
-    const xml = EPGGrabber.generateXMLTV(groupChannels.all(), programs.all(), utcDate)
+    const headers = { date: utcDate.format('YYYYMMDD') }
+    const xml = EPGGrabber.generateXMLTV(groupChannels.all(), programs.all(), headers)
     const channelSample = groupChannels.sample()
     let outputPath = template.format(channelSample.toObject() as { [key: string]: any })
     const outputDir = path.dirname(outputPath)
