@@ -438,10 +438,13 @@ export class Program {
       ...this.length.map(length =>
         el('length', { units: length.units }, [escapeString(length.value)])
       ),
+      ...this.icons.map(icon =>
+        el('icon', { src: icon.src, width: icon.width, height: icon.height })
+      ),
+      ...this.urls.map(createURLElement),
       ...this.countries.map(country =>
         el('country', { lang: country.lang }, [escapeString(country.value)])
       ),
-      ...this.urls.map(createURLElement),
       ...this.episodeNumbers.map(episode =>
         el('episode-num', { system: episode.system }, [escapeString(episode.value)])
       ),
@@ -513,10 +516,7 @@ export class Program {
           [escapeString(review.value || '')]
         )
       ),
-      ...this.images.map(createImageElement),
-      ...this.icons.map(icon =>
-        el('icon', { src: icon.src, width: icon.width, height: icon.height })
-      )
+      ...this.images.map(createImageElement)
     ]
 
     return el(
